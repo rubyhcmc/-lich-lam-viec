@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v1.7 (iPhone)</title>
+<title>Lịch Làm Việc v1.8</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -445,6 +445,7 @@
   html { -webkit-text-size-adjust: 100%; }
   body { padding-bottom: env(safe-area-inset-bottom); -webkit-tap-highlight-color: transparent; }
   .cal-toggle { display: none; }
+  .fab { display: none; }
   @media (max-width: 560px) {
     .app { padding: 8px max(8px, env(safe-area-inset-right)) 8px max(8px, env(safe-area-inset-left)); padding-top: max(8px, env(safe-area-inset-top)); }
     input, select, textarea { font-size: 16px !important; }   /* iOS tự phóng to trang nếu chữ < 16px */
@@ -461,8 +462,28 @@
     .home.with-cal .side { display: none; }
     .home.with-cal.cal-open .side { display: block; margin-bottom: 10px; }
     .edit-btn { min-width: 40px; min-height: 36px; }
-    .bk-banner { font-size: 13px; }
+    .bk-banner { font-size: 12.5px; padding: 8px 10px; gap: 6px 8px; margin-bottom: 8px; }
+    .bk-banner span { flex: 1 1 100%; }
+    .topbar { padding: 0 0 8px; gap: 6px; flex-wrap: wrap; }
+    .topbar .brand { gap: 8px; }
+    .topbar .brand-icon { width: 34px; height: 34px; font-size: 18px; }
+    .topbar h1 { font-size: 19px; }
+    .topbar small { display: none; }
+    .topbar .actions { width: 100%; justify-content: space-between; gap: 6px; flex-wrap: nowrap; }
+    .topbar #btnAdd, .topbar .act-sep, .topbar #btnFull { display: none; }
+    .topbar .lang-seg button { padding: 8px 10px; }
+    .topbar #btnNotify { padding: 8px 10px; font-size: 13px; min-width: 0; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; }
+    .topbar #btnMenu { padding: 8px 10px; font-size: 13px; white-space: nowrap; }
+    .menu-list { max-width: calc(100vw - 16px); right: 0; }
+    .brand + .actions { margin-top: 0; }
+    .fab { display: flex; position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(18px, calc(env(safe-area-inset-bottom) + 8px)); z-index: 40; width: 58px; height: 58px; padding: 0; border: none; border-radius: 50%; background: var(--primary); color: #fff; font-size: 32px; line-height: 1; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(26,115,232,.55); }
+    .fab:active { transform: scale(.94); }
+    .app { padding-bottom: 90px; }
     .col-head b { font-size: 15px; }
+    .col-empty { padding: 6px; font-size: 13px; }
+    .col-head { padding: 8px 12px; }
+    .board { gap: 8px; }
+    .popover { left: 8px !important; right: 8px !important; top: auto !important; bottom: max(8px, env(safe-area-inset-bottom)) !important; width: auto !important; max-height: 78vh !important; }   /* điện thoại: cửa sổ chi tiết trượt từ dưới lên */
     .popover { max-width: calc(100vw - 16px) !important; }
     dialog { width: calc(100vw - 12px) !important; max-width: none !important; max-height: 94vh; margin: auto; }
   }
@@ -478,6 +499,7 @@
 </head>
 <body>
 <div class="app">
+<button type="button" class="fab" id="fabAdd" aria-label="Thêm lịch">＋</button>
 
   <header class="topbar">
     <div class="brand">
@@ -1539,6 +1561,7 @@
     save(); dlg.close(); render(); toast(L('Đã xóa đơn hàng', 'Order deleted'));
   };
 
+  $('#fabAdd').onclick = () => $('#btnAdd').click();
   $('#btnCalToggle').onclick = () => { const h = $('#home'); h.classList.toggle('cal-open'); $('#btnCalToggle').classList.toggle('on', h.classList.contains('cal-open')); };
   $('#prevDay').onclick = () => { state.day = addDays(state.day, -1); render(); };
   $('#nextDay').onclick = () => { state.day = addDays(state.day, 1); render(); };
@@ -1733,10 +1756,19 @@
     save(); render(); toast(L(`✔ Đã chuyển ${todo.length} mốc đồ sang danh sách món`, `✔ Converted ${todo.length} entries to item lists`));
   }
   $('#btnFixItems').onclick = migrateLegacyItems;
-  $('#btnExport').onclick = () => {
-    const blob = new Blob([JSON.stringify(backupPayload(), null, 2)], { type: 'application/json' });
+  $('#btnExport').onclick = async () => {
+    const text = JSON.stringify(backupPayload(), null, 2), fname = `lich-${todayKey()}.json`;
+    // Điện thoại: mở bảng chia sẻ (Lưu vào Tệp, AirDrop, Zalo, Mail...) — chắc chắn hơn tải file trên Safari
+    try {
+      const file = new File([text], fname, { type: 'application/json' });
+      if (window.matchMedia('(pointer: coarse)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: L('Sao lưu Lịch Làm Việc', 'Schedule backup') });
+        toast(L('Đã xuất file sao lưu', 'Backup file exported')); return;
+      }
+    } catch (err) { if (err && err.name === 'AbortError') return; /* lỗi khác: tải thường */ }
+    const blob = new Blob([text], { type: 'application/json' });
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = `lich-${todayKey()}.json`;
+    a.href = URL.createObjectURL(blob); a.download = fname;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     toast(L('Đã xuất file sao lưu', 'Backup file exported'));
@@ -1955,6 +1987,8 @@
     }
   }
   $('#bkBannerX').onclick = () => { bkBannerHidden = true; updateBkBanner(); };
+  // Chạy offline: đăng ký sw.js nếu có (chỉ khi mở qua https, vd GitHub Pages)
+  try { if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
   // Xin trình duyệt giữ dữ liệu bền hơn (giảm nguy cơ bị tự dọn khi thiếu bộ nhớ)
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
 

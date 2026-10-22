@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v1.9</title>
+<title>Lịch Làm Việc v2.0</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -447,6 +447,7 @@
   .cal-toggle { display: none; }
   .fab { display: none; }
   .col-hint { display: none; }
+  .ct-txt { display: none; }
   @media (max-width: 560px) {
     .app { padding: 8px max(8px, env(safe-area-inset-right)) 8px max(8px, env(safe-area-inset-left)); padding-top: max(8px, env(safe-area-inset-top)); }
     input, select, textarea { font-size: 16px !important; }   /* iOS tự phóng to trang nếu chữ < 16px */
@@ -480,6 +481,34 @@
     .fab { display: flex; position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(18px, calc(env(safe-area-inset-bottom) + 8px)); z-index: 40; width: 58px; height: 58px; padding: 0; border: none; border-radius: 50%; background: var(--primary); color: #fff; font-size: 32px; line-height: 1; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(26,115,232,.55); }
     .fab:active { transform: scale(.94); }
     .app { padding-bottom: 90px; }
+    /* --- v2.0: đầu trang gọn, không lặp --- */
+    .topbar { flex-wrap: nowrap; justify-content: space-between; align-items: center; padding: 0 0 6px; }
+    .topbar .brand { min-width: 0; gap: 8px; }
+    .topbar h1 { font-size: 18px; white-space: nowrap; }
+    .topbar .actions { width: auto; flex: none; gap: 6px; }
+    .topbar .lang-seg button { padding: 7px 9px; font-size: 12.5px; }
+    .topbar #btnNotify { flex: none; width: 42px; height: 38px; padding: 0; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; }
+    .topbar #btnNotify .nt-txt { display: none; }
+    .topbar #btnNotify .nt-ic { font-size: 19px; line-height: 1; }
+    .topbar #btnMenu { width: 42px; height: 38px; padding: 0; border-radius: 10px; }
+    .topbar #btnMenu .mn-txt { display: none; }
+    .topbar #btnMenu .mn-ic { font-size: 22px; line-height: 1; }
+    .bk-banner { flex-wrap: nowrap; align-items: center; padding: 6px 8px 6px 10px; font-size: 13px; margin-bottom: 8px; }
+    .bk-banner span { flex: 1 1 auto; min-width: 0; }
+    .bk-banner button.small, .bk-banner .primary { flex: none; padding: 6px 12px; font-size: 13px; }
+    .toolrow { display: block; padding: 6px; }
+    .toolrow .tabs { margin-bottom: 6px; }
+    .toolrow .datebar { display: grid; grid-template-columns: 44px 1fr 1fr 44px; gap: 6px; align-items: center; }
+    .toolrow .datebar .nav { display: contents; }
+    #prevDay { grid-column: 1; grid-row: 1; } #nextDay { grid-column: 4; grid-row: 1; }
+    .toolrow .datebar .label { grid-column: 2 / 4; grid-row: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; white-space: normal; font-size: 16px; }
+    .datebar .label .rel:not(.other):not(.lunar) { display: none; }
+    #today { grid-column: 1 / -1; grid-row: 3; }
+    #today.is-today { display: none; }
+    #btnCalToggle { grid-column: 1 / 3; grid-row: 2; }
+    #btnCalToggle .ct-txt { display: inline; font-size: 14px; font-weight: 600; margin-left: 4px; }
+    #btnDayNote { grid-column: 3 / 5; grid-row: 2; justify-content: center; }
+    #prevDay, #nextDay, #today, #btnCalToggle, #btnDayNote { min-height: 42px; }
     .col-head b { font-size: 15px; }
     .col-empty { padding: 6px; font-size: 13px; }
     .col-hint { display: inline; margin-left: 8px; font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
@@ -537,7 +566,7 @@
       <button type="button" id="btnFull" class="icon-btn" title="Toàn màn hình" aria-label="Toàn màn hình"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/></svg></button>
       <button type="button" id="btnNotify" title="Nhắc việc sắp đến hạn">🔕 Nhắc việc: Tắt</button>
       <div class="menu" id="menu">
-        <button type="button" id="btnMenu" aria-haspopup="true">⋯ Tiện ích ▾</button>
+        <button type="button" id="btnMenu" aria-haspopup="true"><span class="mn-ic">⋯</span><span class="mn-txt"> Tiện ích ▾</span></button>
         <div class="menu-list">
           <button type="button" id="btnPrint">🖨 In lịch</button>
           <button type="button" id="btnFixItems">🧵 Chuyển đồ cũ thành danh sách món…</button>
@@ -573,7 +602,7 @@
           <button type="button" id="nextDay" aria-label="Ngày sau">▶</button>
         </div>
         <div class="label" id="dateLabel"></div>
-        <button type="button" class="cal-toggle" id="btnCalToggle" aria-label="Chọn ngày">📅</button>
+        <button type="button" class="cal-toggle" id="btnCalToggle" aria-label="Chọn ngày">📅<span class="ct-txt"> Chọn ngày</span></button>
         <button type="button" class="note-btn" id="btnDayNote">📝 Ghi chú ngày</button>
       </div>
   </div>
@@ -1007,6 +1036,7 @@
       renderCal();
     }
     updateNoteBtn();
+    $('#today').classList.toggle('is-today', state.day === todayKey());
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === state.tab));
     $('.datebar').style.display = onDay ? '' : 'none';
     $('#calc').style.display = state.tab === 'calc' ? 'block' : 'none';
@@ -2010,7 +2040,11 @@
     const risky = BK.ready && (orders.length || Object.keys(notes).length) && !BK.handle && !bkBannerHidden;
     box.hidden = !risky;
     if (!risky) return;
-    if (BK.supported) {
+    if (window.innerWidth <= 560) {   // điện thoại: một dòng gọn
+      txt.textContent = BK.supported ? L('⚠ Chưa bật tự động sao lưu', '⚠ Auto backup is off') : L('💾 Nhớ xuất file sao lưu thường xuyên', '💾 Remember to export backups');
+      btn.textContent = BK.supported ? L('Bật', 'Turn on') : L('Xuất file', 'Export');
+      btn.onclick = () => BK.supported ? $('#btnBkPick').click() : $('#btnExport').click();
+    } else if (BK.supported) {
       txt.textContent = L('⚠ Chưa bật tự động sao lưu — dữ liệu chỉ nằm trong trình duyệt, xóa dữ liệu duyệt web là mất hết.', '⚠ Auto backup is off — your data lives only in this browser and is lost if browsing data is cleared.');
       btn.textContent = L('Bật sao lưu ngay', 'Turn on backup'); btn.onclick = () => $('#btnBkPick').click();
     } else {
@@ -2058,7 +2092,7 @@
 
   function updateNotifyBtn() {
     const b = $('#btnNotify');
-    b.textContent = notifyOn ? L('🔔 Nhắc việc: Bật', '🔔 Reminders: On') : L('🔕 Nhắc việc: Tắt', '🔕 Reminders: Off');
+    b.innerHTML = `<span class="nt-ic">${notifyOn ? '🔔' : '🔕'}</span><span class="nt-txt"> ${notifyOn ? L('Nhắc việc: Bật', 'Reminders: On') : L('Nhắc việc: Tắt', 'Reminders: Off')}</span>`;
     b.classList.toggle('on', notifyOn);
   }
   function checkReminders() {
@@ -2164,7 +2198,7 @@
   const STATIC = [
     ['.brand h1', 'Work Schedule'], ['.brand small', 'Pickup · Fitting · Delivery'],
     ['#prevDay', 'Previous day', 'aria-label'], ['#today', 'Today'], ['#nextDay', 'Next day', 'aria-label'],
-    ['#btnNotify', 'Remind me of upcoming tasks', 'title'], ['#btnMenu', '⋯ Tools ▾'],
+    ['#btnNotify', 'Remind me of upcoming tasks', 'title'], ['#btnMenu .mn-txt', ' Tools ▾'],
     ['#btnPrint', '🖨 Print schedule'], ['#btnFixItems', '🧵 Convert old items to item lists…'], ['#btnExport', '⬇ Export backup file'], ['#btnImport', '⬆ Import backup file'],
     ['#btnBkPick', '💾 Turn on auto backup…'], ['#btnBkRename', '✏ Rename / change location…'], ['#btnBkNow', '🔄 Back up now'], ['#btnBkOff', '⏹ Turn off auto backup'],
     ['#btnAdd', '＋ Add schedule'],

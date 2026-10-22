@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v2.1</title>
+<title>Lịch Làm Việc v2.2</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -578,7 +578,7 @@
           <button type="button" id="btnBkPick">💾 Bật tự động sao lưu…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi tên / nơi lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 2.1</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 2.2</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -1881,6 +1881,7 @@
       const on = autoDlOn();
       st.textContent = L('Trình duyệt này không cho chọn thư mục sao lưu (chỉ Chrome/Edge trên máy tính mới có). ', 'This browser cannot pick a backup folder (only Chrome/Edge on a computer can). ')
         + (on ? L('Đang bật tự tải file sao lưu về thư mục Tải xuống mỗi khi có thay đổi.', 'Auto-download backup is ON: a backup file is saved to your Downloads folder after changes.') : L('Bạn có thể bật tự tải file sao lưu về thư mục Tải xuống.', 'You can turn on auto-download backups to your Downloads folder.'));
+      if (IS_TOUCH) { st.textContent = L('Trên điện thoại hãy dùng "Xuất file sao lưu" (chọn Lưu vào Tệp) thường xuyên. Chọn thư mục tự động sao lưu chỉ có trên Chrome/Edge máy tính.', 'On a phone, use "Export backup file" (Save to Files) regularly. Automatic folder backup is only available in desktop Chrome/Edge.'); pick.hidden = now.hidden = off.hidden = ren.hidden = true; return; }
       pick.hidden = false; pick.textContent = on ? L('⏹ Tắt tự tải file sao lưu', '⏹ Turn off auto-download backup') : L('💾 Bật tự tải file sao lưu', '💾 Turn on auto-download backup');
       now.hidden = off.hidden = ren.hidden = true; return;
     }
@@ -1916,7 +1917,9 @@
 
   /* Dự phòng cho trình duyệt không có File System Access API (Firefox, Safari...): tự tải file .json về thư mục Tải xuống */
   const AUTODL_KEY = 'phiphi_autodl_v1';
-  const autoDlOn = () => { try { return localStorage.getItem(AUTODL_KEY) === '1'; } catch (e) { return false; } };
+  const IS_TOUCH = (() => { try { return window.matchMedia('(pointer: coarse)').matches || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); } catch (e) { return false; } })();
+  // Điện thoại: tự tải file làm bật màn xem file và đẩy người dùng ra khỏi app -> không dùng; xuất file bằng tay qua bảng chia sẻ
+  const autoDlOn = () => { if (IS_TOUCH) return false; try { return localStorage.getItem(AUTODL_KEY) === '1'; } catch (e) { return false; } };
   let autoDlTimer = null, autoDlLast = 0;
   function autoDlSchedule() {
     if (BK.supported || !autoDlOn()) return;

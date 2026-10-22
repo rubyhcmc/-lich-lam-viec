@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v1.8</title>
+<title>Lịch Làm Việc v1.9</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -446,6 +446,7 @@
   body { padding-bottom: env(safe-area-inset-bottom); -webkit-tap-highlight-color: transparent; }
   .cal-toggle { display: none; }
   .fab { display: none; }
+  .col-hint { display: none; }
   @media (max-width: 560px) {
     .app { padding: 8px max(8px, env(safe-area-inset-right)) 8px max(8px, env(safe-area-inset-left)); padding-top: max(8px, env(safe-area-inset-top)); }
     input, select, textarea { font-size: 16px !important; }   /* iOS tự phóng to trang nếu chữ < 16px */
@@ -481,6 +482,26 @@
     .app { padding-bottom: 90px; }
     .col-head b { font-size: 15px; }
     .col-empty { padding: 6px; font-size: 13px; }
+    .col-hint { display: inline; margin-left: 8px; font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+    .col-head { gap: 6px; }
+    .col-head span { margin-left: auto; }
+    .col.collapsible:not(.is-open) .col-body, .col.collapsible:not(.is-open) .col-sub { display: none; }
+    .col.collapsible:not(.is-open) .col-head { border-bottom: none; }
+    .col.collapsible .col-head { cursor: pointer; }
+    .col-body { padding: 8px; }
+    .ccard { padding: 8px 10px; margin-bottom: 8px; }
+    .ccard-row1 { margin-bottom: 4px; }
+    .ccard input[type=checkbox] { width: 22px; height: 22px; }
+    /* việc đã xong: chỉ còn một dòng tên (gạch ngang) */
+    .ccard.done { padding: 5px 10px; margin-bottom: 5px; opacity: .6; }
+    .ccard.done .ccard-row2, .ccard.done .clines, .ccard.done .citems, .ccard.done .sub-events-row { display: none; }
+    .ccard.done .ccard-row1 { margin-bottom: 0; }
+    .ccard.done .ctitle { font-size: 14px; font-weight: 600; }
+    .ccard.done input[type=checkbox] { width: 18px; height: 18px; }
+    .ccard.done .edit-btn { top: 3px; right: 6px; min-height: 28px; padding: 0 8px; background: transparent; }
+    .cnext { margin-top: 6px; padding-top: 6px; }
+    .cnext-item { padding: 2px 4px; font-size: 13px; }
+    .cnext-item .edit-btn { min-height: 30px; }
     .col-head { padding: 8px 12px; }
     .board { gap: 8px; }
     .popover { left: 8px !important; right: 8px !important; top: auto !important; bottom: max(8px, env(safe-area-inset-bottom)) !important; width: auto !important; max-height: 78vh !important; }   /* điện thoại: cửa sổ chi tiết trượt từ dưới lên */
@@ -1087,6 +1108,7 @@
     return cols;
   }
 
+  const colOpen = new Set();
   function renderDay() {
     const evs = allEvents();
     const dayEvs = evs.filter(e => e.date === state.day);
@@ -1115,8 +1137,11 @@
         </div>`;
       }).join('')}</div>` : '';
 
-      return `<section class="col" style="--c:${c.color}">
-        <div class="col-head"><b>${c.title}</b><span>${done}/${list.length}</span></div>${pcs}
+      // Điện thoại: cột trống hoặc đã xong hết thì thu gọn thành một dòng, chạm vào tiêu đề để mở
+      const collapsible = list.length === 0 || done === list.length, ckey = state.day + '|' + c.key, isOpen = colOpen.has(ckey);
+      const hint = !collapsible ? '' : list.length === 0 ? L('Trống', 'Empty') : L('✔ Xong hết', '✔ All done');
+      return `<section class="col ${collapsible ? 'collapsible' : ''} ${collapsible && isOpen ? 'is-open' : ''}" data-ckey="${esc(ckey)}" style="--c:${c.color}">
+        <div class="col-head"><b>${c.title}</b><span>${done}/${list.length}</span><em class="col-hint">${collapsible ? hint + (isOpen ? " ▾" : " ▸") : ""}</em></div>${pcs}
         <div class="col-body">${list.length ? list.map(colCardHTML).join('') : `<div class="col-empty">${L('Không có lịch ngày này', 'Nothing scheduled for this day')}</div>`}${nextHTML}</div>
       </section>`;
     }).join('') + `</div>`;
@@ -1561,6 +1586,13 @@
     save(); dlg.close(); render(); toast(L('Đã xóa đơn hàng', 'Order deleted'));
   };
 
+  $('#view').addEventListener('click', e => {
+    const h = e.target.closest('.col-head'); if (!h || window.innerWidth > 560) return;
+    const sec = h.closest('.col.collapsible'); if (!sec) return;
+    const k = sec.dataset.ckey; colOpen.has(k) ? colOpen.delete(k) : colOpen.add(k);
+    sec.classList.toggle('is-open', colOpen.has(k));
+    const em = h.querySelector('.col-hint'); if (em) em.textContent = em.textContent.replace(/[▾▸]/, colOpen.has(k) ? '▾' : '▸');
+  });
   $('#fabAdd').onclick = () => $('#btnAdd').click();
   $('#btnCalToggle').onclick = () => { const h = $('#home'); h.classList.toggle('cal-open'); $('#btnCalToggle').classList.toggle('on', h.classList.contains('cal-open')); };
   $('#prevDay').onclick = () => { state.day = addDays(state.day, -1); render(); };

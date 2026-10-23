@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v2.3</title>
+<title>Lịch Làm Việc v2.4</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -593,7 +593,8 @@
           <button type="button" id="btnBkPick">💾 Bật tự động sao lưu…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi tên / nơi lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 2.3</div>
+          <button type="button" id="btnSaveOver">💾 Lưu đè file JSON</button>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 2.4</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -784,6 +785,9 @@
   const parseKey = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
   const addDays = (k, n) => { const d = parseKey(k); d.setDate(d.getDate() + n); return dateKey(d); };
   const todayKey = () => dateKey(new Date());
+  // Tên file sao lưu: lich + yymmdd (VD 23/10/2026 -> lich261023)
+  const jsonBase = () => { const d = new Date(); return `lich${pad(d.getFullYear() % 100)}${pad(d.getMonth() + 1)}${pad(d.getDate())}`; };
+  const jsonName = () => jsonBase() + '.json';
   const nowKey = () => { const d = new Date(); return `${dateKey(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -2053,7 +2057,7 @@
   }
   $('#btnFixItems').onclick = migrateLegacyItems;
   $('#btnExport').onclick = async () => {
-    const text = JSON.stringify(backupPayload(), null, 2), fname = `lich-${todayKey()}.json`;
+    const text = JSON.stringify(backupPayload(), null, 2), fname = jsonName();
     // Điện thoại: mở bảng chia sẻ (Lưu vào Tệp, AirDrop, Zalo, Mail...) — chắc chắn hơn tải file trên Safari
     try {
       const file = new File([text], fname, { type: 'application/json' });
@@ -2199,10 +2203,9 @@
     autoDlTimer = setTimeout(() => {
       if (Date.now() - autoDlLast < 10 * 60 * 1000) { autoDlSchedule(); return; }   // tối đa 1 file / 10 phút
       autoDlLast = Date.now();
-      const nm = (BK_NAME_KEY && (localStorage.getItem(BK_NAME_KEY) || '')) || 'lich-lam-viec';
       const blob = new Blob([JSON.stringify(backupPayload(), null, 2)], { type: 'application/json' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-      a.download = `${nm.replace(/\.json$/i, '')}-${todayKey()}.json`;
+      a.download = jsonName();
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       toast(L('💾 Đã tự tải file sao lưu về thư mục Tải xuống', '💾 Backup file saved to Downloads'));
     }, 20000);
@@ -2248,21 +2251,9 @@
     BK.timer = setTimeout(() => writeBackup(false), 1500);
   }
 
-  // Tự đặt tên file sao lưu: hỏi tên trước, rồi mở hộp chọn thư mục (trong đó vẫn sửa được tên)
-  const BK_NAME_KEY = 'phiphi_backup_name_v1';
+  // Chọn file sao lưu: tên gợi ý luôn là lich + yymmdd (vẫn sửa được trong hộp chọn file)
   async function chooseBackupFile(renaming) {
-    let def = 'phiphi-lich-sao-luu';
-    try { def = localStorage.getItem(BK_NAME_KEY) || def; } catch (e) {}
-    // Đổi tên / nơi lưu: mở thẳng hộp chọn thư mục + tên file (bắt đầu ở thư mục hiện tại)
-    if (renaming) {
-      const cur = (BK.handle && BK.handle.name || def + '.json');
-      await pickBackupFile(cur, BK.handle); return;
-    }
-    const typed = window.prompt(L('Đặt tên cho file sao lưu (không cần gõ đuôi .json):', 'Name your backup file (no need to type .json):'), def);
-    if (typed === null) return;   // bấm Hủy
-    const name = (typed.replace(/\.json$/i, '').replace(/[\\/:*?"<>|]+/g, ' ').trim() || def).slice(0, 80);
-    try { localStorage.setItem(BK_NAME_KEY, name); } catch (e) {}
-    await pickBackupFile(name + '.json', null);
+    await pickBackupFile(jsonName(), renaming ? BK.handle : null);
   }
   $('#btnBkRename').onclick = () => chooseBackupFile(true);
   $('#btnBkPick').onclick = () => {
@@ -2291,6 +2282,15 @@
     } catch (err) { if (!err || err.name !== 'AbortError') toast(L('⚠ Không bật được tự động sao lưu', '⚠ Could not turn on auto backup')); }
     renderBkStatus();
   }
+  /* Lưu đè file JSON: máy tính (Chrome/Edge) ghi thẳng đè lên file đã chọn; iPhone/Safari không cho ghi đè ngầm nên mở bảng chia sẻ với tên lichyymmdd.json (chọn Lưu vào Tệp → Thay thế) */
+  $('#btnSaveOver').onclick = async () => {
+    if (!BK.supported) { $('#btnExport').click(); return; }
+    if (!BK.handle) { await chooseBackupFile(false); return; }
+    // Thử đổi tên file đang lưu sang tên hôm nay (một số trình duyệt không hỗ trợ -> bỏ qua, vẫn ghi đè bình thường)
+    try { if (BK.handle.name !== jsonName() && typeof BK.handle.move === 'function') { await BK.handle.move(jsonName()); try { await bkIdb('readwrite', s => s.put(BK.handle, 'file')); } catch (e) {} } } catch (e) {}
+    toast(await writeBackup(true) ? L(`✔ Đã lưu đè file ${BK.handle.name}`, `✔ Overwrote ${BK.handle.name}`) : L('⚠ Chưa lưu đè được — xem trạng thái trong menu', '⚠ Could not overwrite — see the status in the menu'));
+    renderBkStatus();
+  };
   $('#btnBkNow').onclick = async () => { toast(await writeBackup(true) ? L('✔ Đã sao lưu', '✔ Backed up') : L('⚠ Chưa sao lưu được — xem trạng thái trong menu', '⚠ Could not back up — see the status in the menu')); };
   $('#btnBkOff').onclick = async () => {
     clearTimeout(BK.timer); BK.handle = null; BK.last = null; BK.err = ''; BK.needPerm = false;
@@ -2496,7 +2496,7 @@
     ['#prevDay', 'Previous day', 'aria-label'], ['#today', 'Today'], ['#nextDay', 'Next day', 'aria-label'],
     ['#btnNotify', 'Remind me of upcoming tasks', 'title'], ['#btnMenu .mn-txt', ' Tools ▾'],
     ['#btnPrint', '🖨 Print schedule'], ['#btnSync', '☁ Google Drive sync…'], ['#btnUndoImport', '↩ Restore data from before the last import'], ['#impTitle', '⬆ Import backup file'], ['#impMerge', '➕ Merge into existing data (recommended)'], ['#impReplace', '♻ Replace everything with this file'], ['#impCancel', 'Cancel'], ['#impHint', 'Merge keeps your current orders; on a clash the file version wins. You can restore afterwards from the Tools menu.'], ['#syncTitle', '☁ Google Drive sync'], ['#syncCidLbl', 'Google Client ID'], ['#syncClose', 'Close'], ['#btnFixItems', '🧵 Convert old items to item lists…'], ['#btnExport', '⬇ Export backup file'], ['#btnImport', '⬆ Import backup file'],
-    ['#btnBkPick', '💾 Turn on auto backup…'], ['#btnBkRename', '✏ Rename / change location…'], ['#btnBkNow', '🔄 Back up now'], ['#btnBkOff', '⏹ Turn off auto backup'],
+    ['#btnBkPick', '💾 Turn on auto backup…'], ['#btnBkRename', '✏ Rename / change location…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '💾 Overwrite JSON file'], ['#btnBkOff', '⏹ Turn off auto backup'],
     ['#btnAdd', '＋ Add schedule'],
     ['.tab[data-tab="day"]', 'Daily schedule'], ['.tab[data-tab="week"]', 'Next 7 days'],
     ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="calc"]', '🧮 Calculator'],

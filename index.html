@@ -766,10 +766,10 @@
           <hr>
           <button type="button" id="btnExport">⬇ Xuất file sao lưu</button>
           <button type="button" id="btnImport">⬆ Nhập file sao lưu</button>
-          <button type="button" id="btnUndoImport" hidden>↩ Khôi phục dữ liệu trước lần nhập gần nhất</button>
+          <button type="button" id="btnUndoImport" hidden>↩ Hoàn tác lần nhập file gần nhất</button>
           <button type="button" id="btnSync">☁ Đồng bộ Google Drive…</button>
-          <button type="button" id="btnHist">🕘 Khôi phục theo ngày giờ…</button>
-          <button type="button" id="btnUndoSync" hidden>↩ Khôi phục bản trước lần đồng bộ gần nhất</button>
+          <button type="button" id="btnHist">🕘 Lịch sử phiên bản — khôi phục theo ngày giờ…</button>
+          <button type="button" id="btnUndoSync" hidden>↩ Hoàn tác lần đồng bộ gần nhất</button>
           <hr>
           <div class="bk-status" id="bkStatus"></div>
           <button type="button" id="btnBkPick">💾 Bật tự động sao lưu (chọn thư mục)…</button>
@@ -915,7 +915,7 @@
 </dialog>
 
 <dialog id="histDlg">
-  <div class="note-modal-head"><b id="histTitle">🕘 Khôi phục theo ngày giờ</b></div>
+  <div class="note-modal-head"><b id="histTitle">🕘 Lịch sử phiên bản</b></div>
   <div class="note-modal-body" id="histBody" style="max-height:62vh;overflow:auto"></div>
   <div class="note-modal-foot"><span id="histHint"></span><button type="button" id="histClose" class="small">Đóng</button></div>
 </dialog>
@@ -1415,7 +1415,7 @@
     const b = document.getElementById('btnUndoSync'); if (!b) return;
     let snap = null; try { snap = JSON.parse(lsGet(SK.snap)); } catch (e) {}
     b.hidden = !(snap && Array.isArray(snap.orders));
-    if (!b.hidden) { const d = new Date(snap.t || 0); b.textContent = L(`↩ Khôi phục bản trước lần đồng bộ gần nhất (${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')})`, `↩ Restore data from before the last sync (${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')})`); }
+    if (!b.hidden) { const d = new Date(snap.t || 0); b.textContent = L(`↩ Hoàn tác lần đồng bộ gần nhất (${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')})`, `↩ Undo the last sync (${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')})`); }
   }
   function syncUI() {
     const b = document.getElementById('syncBanner'), st = document.getElementById('syncStatus');
@@ -2660,6 +2660,29 @@
     orders.forEach((o, i) => rememberCustomer(o.name, i + 1));
     saveCustomers(); save(); saveNotes(); render();
   }
+  const stampName = t => { const d = new Date(t); return `${pad(d.getFullYear() % 100)}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`; };
+  const payloadOf = (d, savedAt) => ({ app: 'lich-lam-viec', version: 3, savedAt: new Date(savedAt).toISOString(), counts: { orders: (d.orders || []).length, notes: Object.keys(d.notes || {}).length, customers: (d.customers || []).length }, orders: d.orders || [], notes: d.notes || {}, customers: d.customers || [] });
+  // Xuất một mốc ra FILE RIÊNG (khoiphuc-yymmdd-hhmm.json), không đụng tới dữ liệu đang chạy
+  async function exportJsonFile(fname, text) {
+    try {
+      const file = new File([text], fname, { type: 'application/json' });
+      if (window.matchMedia('(pointer: coarse)').matches && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return true; }
+    } catch (err) { if (err && err.name === 'AbortError') return false; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = fname;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    return true;
+  }
+  // Máy tính (chế độ thư mục): trước khi khôi phục, ghi dữ liệu hiện tại ra file riêng truockhoiphuc-yymmdd-hhmm.json để không mất
+  async function histSafetyFile() {
+    try {
+      if (!BK.handle || BK.handle.kind !== 'directory' || !(orders.length || Object.keys(notes).length)) return '';
+      if ((await BK.handle.queryPermission({ mode: 'readwrite' })) !== 'granted') return '';
+      const name = `truockhoiphuc-${stampName(Date.now())}.json`;
+      const w = await (await BK.handle.getFileHandle(name, { create: true })).createWritable();
+      await w.write(JSON.stringify(backupPayload(), null, 2)); await w.close();
+      return name;
+    } catch (e) { return ''; }
+  }
   const histFmt = t => { const d = new Date(t); return `${shortWeekdays()[d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
   async function histFiles() {
     if (!BK.handle || BK.handle.kind !== 'directory') return [];
@@ -2674,17 +2697,17 @@
   let histCache = [];
   async function openHist() {
     const dlgH = $('#histDlg'), body = $('#histBody');
-    $('#histTitle').textContent = L('🕘 Khôi phục theo ngày giờ', '🕘 Restore by date & time');
+    $('#histTitle').textContent = L('🕘 Lịch sử phiên bản — chọn mốc để khôi phục', '🕘 Version history — pick a point to restore');
     $('#histClose').textContent = L('Đóng', 'Close');
     $('#histHint').textContent = L('Khôi phục sẽ thay toàn bộ dữ liệu', 'Restoring replaces all data');
     body.innerHTML = `<div class="hist-empty">${L('Đang tải…', 'Loading…')}</div>`;
     if (!dlgH.open) dlgH.showModal();
     try { histCache = (await bkIdb('readonly', st => st.get(HIST_KEY))) || []; } catch (e) { histCache = []; }
     const files = await histFiles();
-    let h = `<div class="hist-sec">${L('Bản lưu trong app (theo giờ)', 'Saved in the app (by time)')}</div>`;
-    h += histCache.length ? histCache.map((e, i) => `<div class="hist-row"><div><b>${esc(histFmt(e.t))}</b><small>${e.n} ${L('đơn', 'orders')} · ${esc(e.reason || '')}</small></div><button type="button" class="small primary" data-hist="${i}">${L('Khôi phục', 'Restore')}</button></div>`).join('') : `<div class="hist-empty">${L('Chưa có bản lưu nào. App sẽ tự lưu khi bạn nhập dữ liệu.', 'Nothing saved yet. The app saves automatically as you enter data.')}</div>`;
+    let h = `<div class="hist-sec">${L('📱 Bản tự lưu trong app (theo giờ)', '📱 Auto-saved in the app (by time)')}</div>`;
+    h += histCache.length ? histCache.map((e, i) => `<div class="hist-row"><div><b>${esc(histFmt(e.t))}</b><small>${e.n} ${L('đơn', 'orders')} · ${esc(e.reason || '')}</small></div><span style="display:flex;gap:6px;flex:none"><button type="button" class="small" data-hexp="${i}" title="${L('Xuất mốc này ra file riêng, không thay dữ liệu đang chạy', 'Export this point as a separate file without changing current data')}">${L('Xuất file', 'Export')}</button><button type="button" class="small primary" data-hist="${i}">${L('Khôi phục', 'Restore')}</button></span></div>`).join('') : `<div class="hist-empty">${L('Chưa có bản lưu nào. App sẽ tự lưu khi bạn nhập dữ liệu.', 'Nothing saved yet. The app saves automatically as you enter data.')}</div>`;
     if (BK.handle && BK.handle.kind === 'directory') {
-      h += `<div class="hist-sec">${L('File trong thư mục sao lưu (theo ngày)', 'Files in the backup folder (by day)')}</div>`;
+      h += `<div class="hist-sec">${L('📁 File sao lưu trong thư mục (theo ngày)', '📁 Backup files in the folder (by day)')}</div>`;
       if (files === null) h += `<div class="hist-empty">${L('Chưa được cấp quyền đọc thư mục. Mở lại hộp này và bấm cho phép.', 'Folder read permission not granted. Reopen this box and allow it.')}</div>`;
       else h += files.length ? files.map(f => { const k = `20${f.slice(4, 6)}-${f.slice(6, 8)}-${f.slice(8, 10)}`; return `<div class="hist-row"><div><b>${esc(fmtDate(k))}</b><small>${esc(f)}</small></div><button type="button" class="small primary" data-hfile="${esc(f)}">${L('Khôi phục', 'Restore')}</button></div>`; }).join('') : `<div class="hist-empty">${L('Thư mục chưa có file lichyymmdd.json nào.', 'No lichyymmdd.json files in the folder yet.')}</div>`;
     } else if (BK.supported) {
@@ -2697,13 +2720,22 @@
   $('#histClose').onclick = () => $('#histDlg').close();
   $('#histDlg').addEventListener('click', async e => {
     if (e.target === $('#histDlg')) { $('#histDlg').close(); return; }
-    const warn = L('Khôi phục sẽ THAY toàn bộ dữ liệu hiện tại; đơn thêm sau thời điểm đó sẽ bị xóa ở cả các máy đồng bộ. Một bản chụp dữ liệu hiện tại vẫn được giữ trong danh sách này để quay lại.', 'Restoring REPLACES all current data; orders added after that point will be removed on every synced device. A snapshot of the current data stays in this list so you can go back.');
+    const warn = L('Khôi phục sẽ THAY toàn bộ dữ liệu hiện tại; đơn thêm sau thời điểm đó sẽ bị xóa ở cả các máy đồng bộ. Dữ liệu hiện tại vẫn được giữ lại: thành một dòng trong danh sách này, và (trên máy tính, chế độ thư mục) thành file truockhoiphuc-….json trong thư mục sao lưu. Muốn chỉ lấy mốc này ra file mà KHÔNG thay dữ liệu, hãy bấm “Xuất file”.', 'Restoring REPLACES all current data; orders added after that point will be removed on every synced device. The current data is kept: as a row in this list and (on a computer with folder backup) as a truockhoiphuc-….json file in the backup folder. To only take this point out as a file WITHOUT replacing data, tap “Export”.');
+    const hx = e.target.closest('[data-hexp]');
+    if (hx) {   // xuất ra file riêng, KHÔNG thay dữ liệu đang chạy
+      const ent = histCache[Number(hx.dataset.hexp)]; if (!ent) return;
+      let d; try { d = JSON.parse(ent.data); } catch (err) { toast(L('⚠ Bản lưu này bị lỗi', '⚠ This snapshot is corrupted')); return; }
+      const fname = `khoiphuc-${stampName(ent.t)}.json`;
+      if (await exportJsonFile(fname, JSON.stringify(payloadOf(d, ent.t), null, 2))) toast(L(`✔ Đã xuất ${fname} (dữ liệu đang chạy không đổi)`, `✔ Exported ${fname} (current data unchanged)`));
+      return;
+    }
     const hb = e.target.closest('[data-hist]');
     if (hb) {
       const ent = histCache[Number(hb.dataset.hist)]; if (!ent) return;
       let d; try { d = JSON.parse(ent.data); } catch (err) { toast(L('⚠ Bản lưu này bị lỗi', '⚠ This snapshot is corrupted')); return; }
       if (!confirm(L(`Khôi phục dữ liệu về ${histFmt(ent.t)} (${ent.n} đơn)?\n\n${warn}`, `Restore data to ${histFmt(ent.t)} (${ent.n} orders)?\n\n${warn}`))) return;
-      applyRestore(d); $('#histDlg').close(); toast(L(`✔ Đã khôi phục về ${histFmt(ent.t)}`, `✔ Restored to ${histFmt(ent.t)}`)); return;
+      const safe = await histSafetyFile();
+      applyRestore(d); $('#histDlg').close(); toast(L(`✔ Đã khôi phục về ${histFmt(ent.t)}`, `✔ Restored to ${histFmt(ent.t)}`) + (safe ? '\n' + L(`Bản cũ đã lưu ra file ${safe}`, `Previous data saved as ${safe}`) : '')); return;
     }
     const fb = e.target.closest('[data-hfile]');
     if (fb) {
@@ -2713,7 +2745,8 @@
         if (!ex) { toast(L('⚠ Không đọc được file này', '⚠ Could not read this file')); return; }
         const d = Array.isArray(ex.raw) ? { orders: ex.raw } : ex.raw;
         if (!confirm(L(`Khôi phục dữ liệu từ file ${name} (${ex.orders.length} đơn)?\n\n${warn}`, `Restore data from ${name} (${ex.orders.length} orders)?\n\n${warn}`))) return;
-        applyRestore(d); $('#histDlg').close(); toast(L(`✔ Đã khôi phục từ ${name}`, `✔ Restored from ${name}`));
+        const safe = await histSafetyFile();
+        applyRestore(d); $('#histDlg').close(); toast(L(`✔ Đã khôi phục từ ${name}`, `✔ Restored from ${name}`) + (safe ? '\n' + L(`Bản cũ đã lưu ra file ${safe}`, `Previous data saved as ${safe}`) : ''));
       } catch (err) { toast(L('⚠ Không khôi phục được từ file này', '⚠ Could not restore from this file')); }
     }
   });
@@ -2921,8 +2954,8 @@
     ['.brand h1', 'Work Schedule'], ['.brand small', 'Pickup · Fitting · Delivery'],
     ['#prevDay', 'Previous day', 'aria-label'], ['#today', 'Today'], ['#nextDay', 'Next day', 'aria-label'],
     ['#btnNotify', 'Remind me of upcoming tasks', 'title'], ['#btnMenu .mn-txt', ' Tools ▾'],
-    ['#btnPrint', '🖨 Print schedule'], ['#btnSync', '☁ Google Drive sync…'], ['#btnUndoImport', '↩ Restore data from before the last import'], ['#impTitle', '⬆ Import backup file'], ['#impMerge', '➕ Merge into existing data (recommended)'], ['#impReplace', '♻ Replace everything with this file'], ['#impCancel', 'Cancel'], ['#impHint', 'Merge keeps your current orders; on a clash the file version wins. You can restore afterwards from the Tools menu.'], ['#syncTitle', '☁ Google Drive sync'], ['#syncCidLbl', 'Google Client ID'], ['#syncClose', 'Close'], ['#btnFixItems', '🧵 Convert old items to item lists…'], ['#btnExport', '⬇ Export backup file'], ['#btnImport', '⬆ Import backup file'],
-    ['#btnBkPick', '💾 Turn on auto backup (pick a folder)…'], ['#btnBkRename', '✏ Change backup folder…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '💾 Overwrite JSON file'], ['#btnHist', '🕘 Restore by date & time…'], ['#btnBkOff', '⏹ Turn off auto backup'],
+    ['#btnPrint', '🖨 Print schedule'], ['#btnSync', '☁ Google Drive sync…'], ['#btnUndoImport', '↩ Undo the last file import'], ['#impTitle', '⬆ Import backup file'], ['#impMerge', '➕ Merge into existing data (recommended)'], ['#impReplace', '♻ Replace everything with this file'], ['#impCancel', 'Cancel'], ['#impHint', 'Merge keeps your current orders; on a clash the file version wins. You can restore afterwards from the Tools menu.'], ['#syncTitle', '☁ Google Drive sync'], ['#syncCidLbl', 'Google Client ID'], ['#syncClose', 'Close'], ['#btnFixItems', '🧵 Convert old items to item lists…'], ['#btnExport', '⬇ Export backup file'], ['#btnImport', '⬆ Import backup file'],
+    ['#btnBkPick', '💾 Turn on auto backup (pick a folder)…'], ['#btnBkRename', '✏ Change backup folder…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '💾 Overwrite JSON file'], ['#btnHist', '🕘 Version history — restore by date & time…'], ['#btnBkOff', '⏹ Turn off auto backup'],
     ['#btnAdd', '＋ Add schedule'],
     ['.tab[data-tab="day"]', 'Daily schedule'], ['.tab[data-tab="week"]', 'Next 7 days'],
     ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="calc"]', '🧮 Calculator'],

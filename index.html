@@ -466,7 +466,9 @@
   .col.collapsible:not(.is-open) .col-head { border-bottom: none; }
   .col-head:hover { background: #f1f5fb; }
   .col-head .col-hint:empty { display: none; }
-  .col-head b { flex: 1 1 auto; }
+  .col-head b { flex: 1 1 auto; white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.25; overflow-wrap: anywhere; }
+  .col-head { gap: 6px; }
+  @media (min-width: 561px) { .col-head .col-hint { display: none; } }   /* máy tính: cột hẹp, bỏ chữ Trống/Xong hết (đã có số 0/0, 1/1) để tên cột không bị cắt */
   .col-head { justify-content: flex-start; }
   .col-head .col-chev { flex: none; display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; margin-left: 2px; color: var(--c); background: color-mix(in srgb, var(--c) 14%, #fff); border: 1.5px solid color-mix(in srgb, var(--c) 45%, #fff); transition: transform .2s, background .15s; }
   .col-head:hover .col-chev { background: color-mix(in srgb, var(--c) 26%, #fff); }
@@ -1520,8 +1522,8 @@
 
   function boardColumns(evs) {
     const cols = TAILORS.filter(t => t.fixed).map(t => ({ key: t.name, title: `🧵 ${L('Thợ', 'Tailor')}: ${tl(t.name)}`, color: t.color }));
-    cols.push({ key: 'fitting', title: L('👤 Lịch khách thử đồ', '👤 Customer fitting schedule'), color: EVENT_TYPES.fitting.color });
-    cols.push({ key: 'delivery', title: L('✅ Lịch khách lấy đồ', '✅ Customer pickup schedule'), color: EVENT_TYPES.delivery.color });
+    cols.push({ key: 'fitting', title: L('👤 Khách thử đồ', '👤 Fitting'), color: EVENT_TYPES.fitting.color });
+    cols.push({ key: 'delivery', title: L('✅ Khách lấy đồ', '✅ Pickup'), color: EVENT_TYPES.delivery.color });
     // Cột "Khác" chỉ hiện khi thực sự có lịch của thợ khác -> không bị mất dữ liệu
     if (evs.some(e => e.colKey === OTHER)) cols.push({ key: OTHER, title: `🧵 ${L('Thợ', 'Tailor')}: ${tl(OTHER)}`, color: tailorColor(OTHER) });
     return cols;
@@ -1673,7 +1675,7 @@
         <div class="lines-list">${(v.lines || []).map(lineRowHTML).join('')}</div>
         <div class="lines-add">${ITEM_PRESETS.map(n => `<button type="button" class="chip-add" data-chip="${esc(n)}">＋ ${esc(n)}</button>`).join('')}<button type="button" class="chip-add alt" data-line-custom>＋ ${L('Món khác', 'Other')}</button></div>
       </div>
-      <input class="cust-items-input" data-cust-items="${type}" placeholder="${L('💰 Ghi chú / tiền (tùy chọn)', '💰 Note / payment (optional)')}" title="${L('Để trống cả danh sách đồ và ô này = lấy theo đồ của thợ', 'Leave the item list and this field empty = use the tailor\'s items')}" value="${esc(free)}">
+      <input class="cust-items-input" data-cust-items="${type}" placeholder="${type === 'delivery' ? L('💰 Ghi chú / tiền (tùy chọn)', '💰 Note / payment (optional)') : L('📝 Ghi chú thêm (tùy chọn)', '📝 Extra note (optional)')}" title="${L('Để trống cả danh sách đồ và ô này = lấy theo đồ của thợ', 'Leave the item list and this field empty = use the tailor\'s items')}" value="${esc(free)}">
     </div>`;
   }
 
@@ -1952,8 +1954,8 @@
       const hasLines = e.lines && e.lines.length, tag = (multi && !hasLines) ? 'label' : 'div';
       const cls = ['pop-step', e.done ? 'done' : '', f.late ? 'late' : '', multi && grpSet.has(keyOf(e)) ? 'focus' : '', multi ? '' : 'solo'].filter(Boolean).join(' ');
       const itemsHTML = hasLines
-        ? `<span class="ps-lines">${e.lines.map((l, i) => `<label class="ps-line ${l.done ? 'done' : ''}"><input type="checkbox" data-pop-line="${i}" data-pop-key="${keyOf(e)}" ${l.done ? 'checked' : ''}><b class="pl-qty">${l.qty}</b><span class="pl-name">${esc(l.name)}${l.note ? ` <small>${esc(l.note)}</small>` : ''}</span></label>`).join('')}${e.extra ? `<span class="ps-items ps-money">💰 ${esc(e.extra)}</span>` : ''}</span>`
-        : ((e.evItems ? `<span class="ps-items" style="font-weight:700">📌 ${esc(e.evItems)}</span>` : '') + (e.items ? `<span class="ps-items${e.jobIdx === null && ((e.order[e.type] || {}).items || '').trim() ? ' ps-money' : ''}">${e.jobIdx === null && ((e.order[e.type] || {}).items || '').trim() ? '💰' : '🧵'} ${esc(e.items)}</span>` : ''));
+        ? `<span class="ps-lines">${e.lines.map((l, i) => `<label class="ps-line ${l.done ? 'done' : ''}"><input type="checkbox" data-pop-line="${i}" data-pop-key="${keyOf(e)}" ${l.done ? 'checked' : ''}><b class="pl-qty">${l.qty}</b><span class="pl-name">${esc(l.name)}${l.note ? ` <small>${esc(l.note)}</small>` : ''}</span></label>`).join('')}${e.extra ? `<span class="ps-items ps-money">${e.type === 'delivery' ? '💰' : '📝'} ${esc(e.extra)}</span>` : ''}</span>`
+        : ((e.evItems ? `<span class="ps-items" style="font-weight:700">📌 ${esc(e.evItems)}</span>` : '') + (e.items ? `<span class="ps-items${e.jobIdx === null && ((e.order[e.type] || {}).items || '').trim() ? ' ps-money' : ''}">${e.jobIdx === null && ((e.order[e.type] || {}).items || '').trim() ? (e.type === 'delivery' ? '💰' : '📝') : '🧵'} ${esc(e.items)}</span>` : ''));
       return `<${tag} class="${cls}" style="--c:${e.tailor ? tailorColor(e.tailor) : info.color}">
         ${(multi && !hasLines) ? `<input type="checkbox" data-pop-toggle="${keyOf(e)}" ${e.done ? 'checked' : ''}>` : ''}
         <span class="ps-main">

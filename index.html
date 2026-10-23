@@ -2239,7 +2239,7 @@
     try {
       const file = new File([text], fname, { type: 'application/json' });
       if (window.matchMedia('(pointer: coarse)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: L('Sao lưu Lịch Làm Việc', 'Schedule backup') });
+        await navigator.share({ files: [file] });   // chỉ gửi file, không kèm title/text: iOS sẽ coi title là một mục thứ 2
         toast(L('Đã xuất file sao lưu', 'Backup file exported')); return;
       }
     } catch (err) { if (err && err.name === 'AbortError') return; /* lỗi khác: tải thường */ }

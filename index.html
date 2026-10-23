@@ -397,9 +397,10 @@
   .pop-block .pop-label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
   .pop-block .pop-val { font-size: 15px; font-weight: 600; word-break: break-word; }
   .pop-note { background: #fffbe6; border: 1px solid #f0dc8a; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 8px 10px; font-size: 14px; white-space: pre-wrap; word-break: break-word; }
-  .pop-step { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; cursor: pointer; background: #fff; }
+  .pop-step { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 8px; padding: 12px 12px; margin-bottom: 8px; cursor: pointer; background: #fff; }
   .pop-step.solo { cursor: default; }
-  .ps-lines { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+  .ps-lines { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+  .ps-money { padding-top: 2px; font-weight: 600; }
   .ps-line { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; cursor: pointer; font-size: 15px; }
   .ps-line:hover { background: #f4f8ff; }
   .ps-line input { width: 18px; height: 18px; accent-color: var(--ok); flex: none; cursor: pointer; margin: 0; }
@@ -443,7 +444,7 @@
   .pop-step.done { opacity: .6; }
   .pop-step.done .ps-top b { text-decoration: line-through; }
   .pop-step input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--ok); flex: none; cursor: pointer; }
-  .ps-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 14px; }
+  .ps-main { display: flex; flex-direction: column; gap: 9px; min-width: 0; font-size: 14px; flex: 1; }
   .ps-top b { font-weight: 700; }
   .ps-when { color: #1d4ed8; font-weight: 600; }
   .ps-items { color: #374151; word-break: break-word; }
@@ -1672,7 +1673,7 @@
         <div class="lines-list">${(v.lines || []).map(lineRowHTML).join('')}</div>
         <div class="lines-add">${ITEM_PRESETS.map(n => `<button type="button" class="chip-add" data-chip="${esc(n)}">＋ ${esc(n)}</button>`).join('')}<button type="button" class="chip-add alt" data-line-custom>＋ ${L('Món khác', 'Other')}</button></div>
       </div>
-      <input class="cust-items-input" data-cust-items="${type}" placeholder="${L('Ghi chú thêm (tùy chọn)', 'Extra note (optional)')}" title="${L('Để trống cả danh sách đồ và ô này = lấy theo đồ của thợ', 'Leave the item list and this field empty = use the tailor\'s items')}" value="${esc(free)}">
+      <input class="cust-items-input" data-cust-items="${type}" placeholder="${L('💰 Ghi chú / tiền (tùy chọn)', '💰 Note / payment (optional)')}" title="${L('Để trống cả danh sách đồ và ô này = lấy theo đồ của thợ', 'Leave the item list and this field empty = use the tailor\'s items')}" value="${esc(free)}">
     </div>`;
   }
 
@@ -1951,8 +1952,8 @@
       const hasLines = e.lines && e.lines.length, tag = (multi && !hasLines) ? 'label' : 'div';
       const cls = ['pop-step', e.done ? 'done' : '', f.late ? 'late' : '', multi && grpSet.has(keyOf(e)) ? 'focus' : '', multi ? '' : 'solo'].filter(Boolean).join(' ');
       const itemsHTML = hasLines
-        ? `<span class="ps-lines">${e.lines.map((l, i) => `<label class="ps-line ${l.done ? 'done' : ''}"><input type="checkbox" data-pop-line="${i}" data-pop-key="${keyOf(e)}" ${l.done ? 'checked' : ''}><b class="pl-qty">${l.qty}</b><span class="pl-name">${esc(l.name)}${l.note ? ` <small>${esc(l.note)}</small>` : ''}</span></label>`).join('')}${e.extra ? `<span class="ps-items">🧵 ${esc(e.extra)}</span>` : ''}</span>`
-        : ((e.evItems ? `<span class="ps-items" style="font-weight:700">📌 ${esc(e.evItems)}</span>` : '') + (e.items ? `<span class="ps-items">🧵 ${esc(e.items)}</span>` : ''));
+        ? `<span class="ps-lines">${e.lines.map((l, i) => `<label class="ps-line ${l.done ? 'done' : ''}"><input type="checkbox" data-pop-line="${i}" data-pop-key="${keyOf(e)}" ${l.done ? 'checked' : ''}><b class="pl-qty">${l.qty}</b><span class="pl-name">${esc(l.name)}${l.note ? ` <small>${esc(l.note)}</small>` : ''}</span></label>`).join('')}${e.extra ? `<span class="ps-items ps-money">💰 ${esc(e.extra)}</span>` : ''}</span>`
+        : ((e.evItems ? `<span class="ps-items" style="font-weight:700">📌 ${esc(e.evItems)}</span>` : '') + (e.items ? `<span class="ps-items${e.jobIdx === null && ((e.order[e.type] || {}).items || '').trim() ? ' ps-money' : ''}">${e.jobIdx === null && ((e.order[e.type] || {}).items || '').trim() ? '💰' : '🧵'} ${esc(e.items)}</span>` : ''));
       return `<${tag} class="${cls}" style="--c:${e.tailor ? tailorColor(e.tailor) : info.color}">
         ${(multi && !hasLines) ? `<input type="checkbox" data-pop-toggle="${keyOf(e)}" ${e.done ? 'checked' : ''}>` : ''}
         <span class="ps-main">

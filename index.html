@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v2.7</title>
+<title>Lịch Làm Việc v2.8</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -234,6 +234,8 @@
   .ctotal b { font-size: 24px; }
   .bk-banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 10px; padding: 10px 14px; border: 1px solid #f0c36d; border-left: 5px solid #f59e0b; border-radius: 10px; background: #fff8e6; color: #7a4b00; font-size: 14px; font-weight: 600; }
   .bk-banner[hidden] { display: none; }
+  .bk-banner.alert { border-color: #f3c3bf; border-left-color: var(--danger); background: #fff1f0; color: #8a1c14; }
+  .bk-banner.alert .bk-x { color: #8a1c14; }
   .bk-banner span { flex: 1 1 260px; }
   .bk-banner .bk-x { border: none; background: transparent; color: #7a4b00; padding: 2px 6px; }
   /* ===== Thanh đầu trang mới: thương hiệu + thao tác · tab + điều hướng ngày · chỉ số theo dõi ===== */
@@ -776,7 +778,7 @@
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
           <button type="button" id="btnSaveOver">💾 Lưu đè file JSON</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 2.7</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 2.8</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -785,6 +787,7 @@
   </header>
 
   <div class="bk-banner" id="syncBanner" hidden><span id="syncBannerText"></span><button type="button" class="small primary" id="syncBannerBtn"></button></div>
+  <div class="bk-banner alert" id="emptyBanner" hidden><span id="emptyBannerText"></span><button type="button" class="small primary" id="emptyBannerBtn"></button><button type="button" class="bk-x" id="emptyBannerX" aria-label="Đóng">✕</button></div>
   <div class="bk-banner" id="bkBanner" hidden><span id="bkBannerText"></span><button type="button" class="small primary" id="bkBannerBtn"></button><button type="button" class="bk-x" id="bkBannerX" aria-label="Đóng">✕</button></div>
 
   <div class="toolrow">
@@ -1391,6 +1394,24 @@
     return p;
   }
   function syncSchedule(ms) { if (!gdOn()) return; clearTimeout(gd.timer); gd.timer = setTimeout(() => syncRun(false), ms == null ? 1500 : ms); }
+  /* Dữ liệu trống (mở nhầm bản, iPhone tự dọn…): báo rõ và giúp lấy lại từ Drive thay vì để màn hình trống im lặng */
+  let emptyDismissed = false;
+  function updateEmptyBanner() {
+    const box = document.getElementById('emptyBanner'); if (!box) return;
+    const empty = !orders.length && !Object.keys(notes).length;
+    if (!empty || emptyDismissed) { box.hidden = true; return; }
+    box.hidden = false;
+    const txt = document.getElementById('emptyBannerText'), btn = document.getElementById('emptyBannerBtn');
+    btn.hidden = false;
+    if (gdOn()) {
+      if (gd.busy) { txt.textContent = L('☁ Dữ liệu đang trống — đang lấy từ Google Drive…', '☁ Data is empty — fetching from Google Drive…'); btn.hidden = true; }
+      else if (gd.needAuth) { txt.textContent = L('⚠ Dữ liệu đang trống — hãy đăng nhập Google để lấy dữ liệu về từ Drive.', '⚠ Data is empty — sign in to Google to fetch your data from Drive.'); btn.textContent = L('Đăng nhập & lấy dữ liệu', 'Sign in & fetch data'); btn.onclick = () => syncRun(true); }
+      else { txt.textContent = L('⚠ Dữ liệu đang trống. Bấm “Lấy từ Drive” để kéo dữ liệu về (nếu Drive cũng trống, bạn có thể nhập file sao lưu).', '⚠ Data is empty. Tap “Fetch from Drive” to pull your data (if Drive is empty too, import a backup file).'); btn.textContent = L('Lấy từ Drive', 'Fetch from Drive'); btn.onclick = () => syncRun(false); }
+    } else {
+      txt.textContent = L('⚠ Dữ liệu đang trống. Nếu trước đây bạn đã dùng đồng bộ Drive, hãy bật lại để lấy dữ liệu về.', '⚠ Data is empty. If you used Drive sync before, turn it on again to fetch your data.');
+      btn.textContent = L('Bật đồng bộ', 'Turn on sync'); btn.onclick = () => document.getElementById('btnSync').click();
+    }
+  }
   function chipUI(t) {
     const chips = [document.getElementById('btnSyncChip'), document.getElementById('mtSync')];
     const on = gdOn();
@@ -1420,6 +1441,7 @@
   function syncUI() {
     const b = document.getElementById('syncBanner'), st = document.getElementById('syncStatus');
     try { snapUI(); } catch (e) {}
+    try { updateEmptyBanner(); } catch (e) {}
     if (b) {
       const show = gdOn() && gd.needAuth;
       b.hidden = !show;
@@ -1508,6 +1530,7 @@
     const lateN = allEvents().filter(e => flags(e).late).length, ln = $('#lateN');
     ln.hidden = !lateN; ln.textContent = lateN;
     updateMtabs();
+    try { updateEmptyBanner(); } catch (e) {}
     if (onDay) renderDay(); else if (state.tab === 'week') renderWeek(); else if (state.tab === 'orders') renderOrders(); else if (state.tab === 'late') renderLate();
     else $('#view').innerHTML = '';
   }
@@ -2947,7 +2970,8 @@
   setInterval(() => { if (document.visibilityState === 'visible' && gdOn()) syncRun(false); }, 60000);
   // Lần đầu có dữ liệu: ghi nhận mốc 0 cho dữ liệu cũ (để bản mới hơn ở máy khác luôn thắng)
   if (!sm.inited) { syncStamp(); syncStampNotes(false); sm.inited = true; smSave(); }
-  if (gdOn()) setTimeout(() => syncRun(false), 1500);
+  if (gdOn()) setTimeout(() => syncRun(false), (!orders.length && !Object.keys(notes).length) ? 300 : 1500);   // trống thì kéo từ Drive ngay
+  $('#emptyBannerX').onclick = () => { emptyDismissed = true; updateEmptyBanner(); };
   syncUI();
 
   const STATIC = [

@@ -168,7 +168,12 @@
   .day-notes .dn-title span { font-weight: 600; text-transform: none; font-size: 12px; }
   .day-notes .dn-row { display: flex; gap: 8px; padding: 4px 0; font-size: 15px; line-height: 1.4; border-top: 1px dashed #ecdc9c; word-break: break-word; }
   .day-notes .dn-row:first-of-type { border-top: none; }
-  .day-notes .dn-time { font-weight: 800; color: #92660a; flex: none; min-width: 52px; }
+  .day-notes .dn-time { font-weight: 800; color: #b45309; background: #fdeeb0; border-radius: 4px; padding: 0 4px; }
+  .day-notes .dn-day { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: #5b4306; padding: 2px 0 4px; }
+  .day-notes .dn-n { font-size: 12px; font-weight: 700; color: #92660a; background: #fdeeb0; border-radius: 999px; padding: 1px 8px; }
+  .day-notes .dn-row { padding-left: 4px; }
+  .day-notes .dn-row::before { content: '•'; color: #b45309; flex: none; }
+  .day-notes { overflow-anchor: none; contain: layout style; }
   @media (max-width: 560px) { .day-notes .dn-row { font-size: 17px; } .day-notes .dn-title { font-size: 14px; } }
   /* Ghi chú ngày: nhập nhanh bằng giọng nói */
   .note-add { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
@@ -854,7 +859,7 @@
         </div>
         <div class="label" id="dateLabel"></div>
         <button type="button" class="cal-toggle" id="btnCalToggle" aria-label="Mở / tắt lịch tháng">📅<span class="ct-txt"> Lịch tháng</span></button>
-        <button type="button" class="note-btn" id="btnDayNote">📝 Ghi chú ngày</button>
+        <button type="button" class="note-btn" id="btnDayNote">📝 Ghi chú</button>
       </div>
   </div>
 
@@ -933,7 +938,7 @@
 <!-- Cửa sổ Ghi chú theo ngày -->
 <dialog id="noteDlg">
   <div class="note-modal-head">
-    <b id="noteModalTitle">📝 Ghi chú ngày</b>
+    <b id="noteModalTitle">📝 Ghi chú</b>
     <button type="button" class="small danger" id="noteModalClear">Xóa ghi chú</button>
   </div>
   <div class="note-modal-body">
@@ -2278,7 +2283,7 @@
   function updateNoteBtn() {
     const b = $('#btnDayNote'), has = !!notes[state.day];
     b.classList.toggle('has-note', has);
-    b.textContent = has ? L('📝 Ghi chú ngày •', '📝 Day notes •') : L('📝 Ghi chú ngày', '📝 Day notes');
+    b.textContent = has ? L('📝 Ghi chú •', '📝 Notes •') : L('📝 Ghi chú', '📝 Notes');
   }
 
   function openNote(k) {
@@ -2290,10 +2295,11 @@
     $('#noteModalState').textContent = notes[k] ? L('Đã có nội dung · tự động lưu', 'Has content · auto-saved') : L('Trống · tự động lưu', 'Empty · auto-saved');
     noteQuick.value = ''; noteMicHint.textContent = SR ? '' : L('Bấm 🎤 rồi dùng micro trên bàn phím để đọc, hoặc gõ ở ô trên', 'Tap 🎤 then use the keyboard mic, or type above');
     noteDlg.showModal();
-    if (!NOTE_IOS && !/Android/i.test(navigator.userAgent)) noteQuick.focus();
+    if (!NOTE_IOS && !/Android/i.test(navigator.userAgent)) noteQuick.focus({ preventScroll: true });
   }
 
-  let lastTap = { k: '', t: 0 }, calCollapseTimer;
+  const DBL_MS = 350;
+  let lastTap = { k: '', t: 0 }, calCollapseTimer, pendingDayRender;
   calBox.addEventListener('click', e => {
     const nav = e.target.closest('[data-cal]');
     if (nav) {
@@ -2305,12 +2311,20 @@
     if (!dayBtn) return;
     const k = dayBtn.dataset.day, nowT = Date.now();
     clearTimeout(calCollapseTimer);
-    // Bấm 2 lần liên tiếp vào cùng một ngày (máy tính và iPhone) -> mở ghi chú
-    if (lastTap.k === k && nowT - lastTap.t < 450) { lastTap = { k: '', t: 0 }; hideNoteTip(); openNote(k); return; }
+    const quickSelect = () => calBox.querySelectorAll('.cal-day.sel').forEach(x => x.classList.remove('sel')) || dayBtn.classList.add('sel');
+    // Bấm 2 lần liên tiếp vào cùng một ngày (máy tính và iPhone) -> mở ghi chú NGAY, không dựng lại bảng thợ/khách (hết giật)
+    if (lastTap.k === k && nowT - lastTap.t < DBL_MS) {
+      lastTap = { k: '', t: 0 }; clearTimeout(pendingDayRender);
+      hideNoteTip(); if (k !== state.day) { state.day = k; quickSelect(); }
+      openNote(k); return;
+    }
     lastTap = { k, t: nowT };
-    if (k !== state.day) { state.day = k; }
-    // Lịch giữ nguyên đang mở để vừa xem lịch vừa theo dõi cột thợ/khách; chỉ thu lại khi bấm nút 📅
-    render();
+    // Bấm một lần: ô ngày sáng lên tức thì; bảng thợ/khách chỉ dựng lại sau khi chắc chắn không phải bấm đúp
+    if (k !== state.day) {
+      state.day = k; quickSelect();
+      clearTimeout(pendingDayRender);
+      pendingDayRender = setTimeout(() => { if (!noteDlg.open) render(); }, DBL_MS + 20);
+    }
   });
 
   // Click đôi vào ngày bất kỳ để xem/sửa ghi chú
@@ -2348,7 +2362,7 @@
     clearTimeout(modalNoteTimer);
     if (!notePending) return;
     notePending = false;
-    saveNotes(); renderCal(); updateNoteBtn(); if (state.tab === 'day') renderDay();
+    saveNotes(); renderCal(); updateNoteBtn();   // đang mở cửa sổ ghi chú thì chưa đụng vào bảng phía sau; cập nhật khi đóng
     $('#noteModalState').textContent = L('✔ Đã lưu', '✔ Saved');
   }
   $('#noteModalText').addEventListener('input', e => {
@@ -2362,30 +2376,42 @@
   });
   /* ----- Nhập ghi chú nhanh bằng giọng nói / bàn phím, tự xếp theo giờ ----- */
   const noteQuick = $('#noteQuick'), noteMic = $('#noteMic'), noteMicHint = $('#noteMicHint');
-  // Lấy giờ ở đầu dòng: "10am", "10:30", "9h", "3 giờ chiều"... (không nhận ra giờ thì trả null)
-  const NOTE_TIME_RE = /^\s*(\d{1,2})\s*(?:[:h]\s*(\d{1,2})?|(?:giờ|gio|o['’]?clock)\s*(\d{1,2})?|(a\.?\s?m\.?|p\.?\s?m\.?))\s*(a\.?\s?m\.?|p\.?\s?m\.?|sáng|chiều|tối|trưa|in the morning|in the afternoon|in the evening|at night|tonight)?/i;
-  function noteTimeOf(line) {
-    const m = line.match(NOTE_TIME_RE);
+  // Tìm giờ ở bất kỳ chỗ nào trong câu: "10h", "10:30", "10am", "3 giờ chiều", "9 giờ rưỡi", "10 o'clock"...
+  const NOTE_TIME_RE = /(?<![\d:.,])(\d{1,2})(?:[:h](\d{2})?(?![\p{L}\d])|\s*(?:giờ|gio)(?![\p{L}])(?:\s*(rưỡi|ruoi|\d{1,2})(?![\p{L}\d]))?|\s*o['’]?clock(?![\p{L}])|\s*(a\.?\s?m\.?|p\.?\s?m\.?)(?![\p{L}]))(?:\s*(sáng|chiều|tối|trưa|a\.?\s?m\.?|p\.?\s?m\.?|in the morning|in the afternoon|in the evening|at night|tonight)(?![\p{L}]))?/iu;
+  function noteTimeMatch(line) {
+    const m = String(line).match(NOTE_TIME_RE);
     if (!m) return null;
-    let h = +m[1], min = +(m[2] || m[3] || 0);
+    let h = +m[1], min = 0;
+    const x = (m[2] || m[3] || '').toLowerCase();
+    if (x === 'rưỡi' || x === 'ruoi') min = 30; else if (x) min = +x;
     const suf = (m[4] || m[5] || '').toLowerCase().replace(/[\s.]/g, '');
     if (/^p/.test(suf) || suf === 'chiều' || suf === 'tối' || suf === 'intheafternoon' || suf === 'intheevening' || suf === 'atnight' || suf === 'tonight') { if (h < 12) h += 12; }
-    else if (/^a/.test(suf) && suf !== 'atnight' || suf === 'sáng' || suf === 'inthemorning') { if (h === 12) h = 0; }
+    else if ((/^a/.test(suf) && suf !== 'atnight') || suf === 'sáng' || suf === 'inthemorning') { if (h === 12) h = 0; }
     if (h > 23 || min > 59) return null;
-    return h * 60 + min;
+    return { min: h * 60 + min, start: m.index, end: m.index + m[0].length };
   }
-  function noteTimeText(line) {
-    const m = line.match(NOTE_TIME_RE);
-    return m && noteTimeOf(line) !== null ? m[0].trim() : '';
-  }
+  const noteTimeOf = line => { const t = noteTimeMatch(line); return t ? t.min : null; };
+
+  // Thẻ ghi chú: một tiêu đề ngày (Thứ, ngày/tháng/năm) rồi liệt kê các hẹn của ngày đó từ trên xuống dưới — giống cách gom "Khách lấy đồ"
   function dayNotesHTML() {
     const txt = notes[state.day];
-    if (!txt || !txt.trim()) return '';
-    const rows = txt.split('\n').map(x => x.trim()).filter(Boolean).map(line => {
-      const tm = noteTimeText(line), rest = tm ? line.slice(line.indexOf(tm) + tm.length).trim() : line;
-      return `<div class="dn-row">${tm ? `<span class="dn-time">${esc(tm)}</span>` : ''}<span>${esc(rest)}</span></div>`;
+    const lines = txt ? txt.split('\n').map(x => x.trim()).filter(Boolean) : [];
+    if (!lines.length) return '';
+    const rows = lines.map(line => {
+      const t = noteTimeMatch(line);
+      const body = t ? `${esc(line.slice(0, t.start))}<b class="dn-time">${esc(line.slice(t.start, t.end))}</b>${esc(line.slice(t.end))}` : esc(line);
+      return `<div class="dn-row"><span>${body}</span></div>`;
     }).join('');
-    return `<div class="day-notes" data-daynote="1" title="${L('Bấm để sửa ghi chú', 'Tap to edit notes')}"><div class="dn-title">📝 ${L('Ghi chú ngày', 'Day notes')}<span>✎ ${L('bấm để thêm / sửa', 'tap to add / edit')}</span></div>${rows}</div>`;
+    return `<div class="day-notes" data-daynote="1" title="${L('Bấm để thêm / sửa ghi chú', 'Tap to add / edit notes')}"><div class="dn-title">📝 ${L('Ghi chú', 'Notes')}<span>✎ ${L('bấm để thêm / sửa', 'tap to add / edit')}</span></div><div class="dn-day"><span>${esc(fmtDate(state.day))}</span>${lines.length > 1 ? `<span class="dn-n">${lines.length} ${L('hẹn', 'items')}</span>` : ''}</div>${rows}</div>`;
+  }
+  // Cập nhật riêng thẻ ghi chú, KHÔNG dựng lại cả bảng thợ/khách -> không bị giật nhảy
+  function refreshDayNotesPanel() {
+    if (state.tab !== 'day') return;
+    const v = $('#view'), old = v.querySelector(':scope > .day-notes'), html = dayNotesHTML();
+    if (!html) { if (old) old.remove(); return; }
+    const tpl = document.createElement('template'); tpl.innerHTML = html.trim();
+    const el = tpl.content.firstElementChild;
+    if (old) old.replaceWith(el); else v.insertBefore(el, v.firstChild);
   }
   function sortNoteLines(lines) {
     return lines.map((t, i) => ({ t, i, k: noteTimeOf(t) }))
@@ -2477,7 +2503,12 @@
   };
   $('#noteModalClose').onclick = () => noteDlg.close();
   // Đóng bằng Esc / bấm nền cũng lưu ngay phần đang gõ dở
-  noteDlg.addEventListener('close', () => { stopMic(); if (noteQuick.value.trim()) { addQuickNote(noteQuick.value); noteQuick.value = ''; } flushNote(); activeNoteDate = null; });
+  noteDlg.addEventListener('close', () => {
+    stopMic(); if (noteQuick.value.trim()) { addQuickNote(noteQuick.value); noteQuick.value = ''; }
+    flushNote(); activeNoteDate = null;
+    // Đóng xong mới cập nhật một lần: chỉ dựng lại cả bảng nếu ngày đã đổi, còn lại chỉ thay riêng thẻ ghi chú
+    requestAnimationFrame(() => { if (state.tab === 'day' && lastDay !== state.day) render(); else refreshDayNotesPanel(); });
+  });
   noteDlg.addEventListener('click', e => { if (e.target === noteDlg) noteDlg.close(); });
 
   /* ===== MENU / TAB / TƯƠNG TÁC DANH SÁCH ===== */

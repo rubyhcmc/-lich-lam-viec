@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v2.6</title>
+<title>Lịch Làm Việc v2.7</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -144,6 +144,14 @@
 
   /* Popup Ghi Chú Ngày (Modal) */
   dialog#noteDlg, dialog#syncDlg, dialog#importDlg { border: none; border-radius: 14px; padding: 0; width: min(460px, 92vw); box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+  dialog#histDlg { border: none; border-radius: 14px; padding: 0; width: min(540px, 94vw); box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+  dialog#histDlg::backdrop { background: rgba(0,0,0,.4); }
+  .hist-sec { font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
+  .hist-sec:first-child { margin-top: 0; }
+  .hist-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 6px; background: #fff; }
+  .hist-row b { font-size: 15px; }
+  .hist-row small { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .hist-empty { color: var(--muted); font-size: 14px; padding: 6px 2px; line-height: 1.5; }
   dialog#noteDlg::backdrop, dialog#syncDlg::backdrop, dialog#importDlg::backdrop { background: rgba(0,0,0,.4); }
   .note-modal-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 17px; background: #f8f9fb; }
   .note-modal-body { padding: 16px; }
@@ -760,6 +768,7 @@
           <button type="button" id="btnImport">⬆ Nhập file sao lưu</button>
           <button type="button" id="btnUndoImport" hidden>↩ Khôi phục dữ liệu trước lần nhập gần nhất</button>
           <button type="button" id="btnSync">☁ Đồng bộ Google Drive…</button>
+          <button type="button" id="btnHist">🕘 Khôi phục theo ngày giờ…</button>
           <button type="button" id="btnUndoSync" hidden>↩ Khôi phục bản trước lần đồng bộ gần nhất</button>
           <hr>
           <div class="bk-status" id="bkStatus"></div>
@@ -767,7 +776,7 @@
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
           <button type="button" id="btnSaveOver">💾 Lưu đè file JSON</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 2.6</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 2.7</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -903,6 +912,12 @@
     <p id="impHint" style="margin:10px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5">Gộp: giữ đơn đang có, đơn trùng thì lấy bản trong file. Sau khi nhập vẫn có thể khôi phục lại trong menu Tiện ích.</p>
   </div>
   <div class="note-modal-foot"><span></span><button type="button" id="impCancel" class="small">Hủy</button></div>
+</dialog>
+
+<dialog id="histDlg">
+  <div class="note-modal-head"><b id="histTitle">🕘 Khôi phục theo ngày giờ</b></div>
+  <div class="note-modal-body" id="histBody" style="max-height:62vh;overflow:auto"></div>
+  <div class="note-modal-foot"><span id="histHint"></span><button type="button" id="histClose" class="small">Đóng</button></div>
 </dialog>
 
 <dialog id="syncDlg">
@@ -1276,6 +1291,7 @@
     return { orders: out, notes: mNotes, customers: cust, meta: { ts, dead, nts } };
   }
   function syncApply(m) {
+    try { histSnap(L('Trước khi nhận đồng bộ', 'Before applying sync'), true); } catch (e) {}
     lsSet(SK.snap, JSON.stringify({ t: Date.now(), orders, notes }));   // bản chụp trước khi gộp, để cứu khi cần
     orders = m.orders; notes = m.notes; customers = m.customers;
     sm.ts = m.meta.ts; sm.dead = m.meta.dead; sm.nts = m.meta.nts; sm.h = {}; orders.forEach(o => { sm.h[o.id] = JSON.stringify(o); }); sm.nh = { ...notes };
@@ -1429,12 +1445,14 @@
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(orders)); }
     catch (e) { toast(L('⚠ Không lưu được dữ liệu vào trình duyệt', '⚠ Could not save data in the browser')); }
     try { syncStamp(); syncSchedule(); } catch (e) {}
+    try { histSnap('auto', false); } catch (e) {}
     scheduleBackup(); try { updateBkBanner(); } catch (e) {}
   }
   function saveNotes(bulk) {
     try { localStorage.setItem(NOTES_KEY, JSON.stringify(notes)); }
     catch (e) { toast(L('⚠ Không lưu được ghi chú vào trình duyệt', '⚠ Could not save notes in the browser')); }
     try { syncStampNotes(!bulk); syncSchedule(); } catch (e) {}
+    try { histSnap('auto', false); } catch (e) {}
     scheduleBackup();
   }
 
@@ -2091,6 +2109,7 @@
   $('#orderForm').addEventListener('submit', submitForm);
   $('#btnDelete').onclick = () => {
     if (!state.editingId || !confirm(L('Xóa vĩnh viễn đơn hàng này?', 'Permanently delete this order?'))) return;
+    try { histSnap(L('Trước khi xóa đơn', 'Before deleting an order'), true); } catch (e) {}
     syncMarkDead(state.editingId);
     orders = orders.filter(o => o.id !== state.editingId);
     save(); dlg.close(); render(); toast(L('Đã xóa đơn hàng', 'Order deleted'));
@@ -2369,7 +2388,7 @@
     };
     r.readAsText(f); e.target.value = '';
   };
-  function snapshotBeforeImport() { lsSet(IMPORT_SNAP, JSON.stringify({ t: Date.now(), orders, notes, customers })); }
+  function snapshotBeforeImport() { try { histSnap(L('Trước khi nhập file', 'Before importing a file'), true); } catch (e) {} lsSet(IMPORT_SNAP, JSON.stringify({ t: Date.now(), orders, notes, customers })); }
   $('#impMerge').onclick = () => {
     const p = pendingImport; if (!p) return; snapshotBeforeImport();
     const map = new Map(orders.map(o => [o.id, o])); p.orders.forEach(o => map.set(o.id, o)); orders = [...map.values()];
@@ -2603,6 +2622,102 @@
     else if (BK.handle) BK.dirty = true;
   })();
 
+  /* ===== LỊCH SỬ PHIÊN BẢN: khôi phục theo ngày giờ ===== */
+  // Trong app tự giữ các bản chụp (tối đa ~30 phút / bản + bản chụp ngay trước mỗi lần xóa đơn, nhập file, nhận đồng bộ, khôi phục).
+  // Chế độ thư mục trên máy tính: còn liệt kê được các file lichyymmdd.json trong thư mục để khôi phục theo ngày.
+  const HIST_KEY = 'history', HIST_GAP = 30 * 60 * 1000, HIST_RECENT = 48, HIST_DAYS = 45, HIST_BYTES = 30e6;
+  let histLastT = 0, histChain = Promise.resolve();
+  function histSnap(reason, force) {
+    if (!('indexedDB' in window)) return;
+    const now = Date.now();
+    if (!force && now - histLastT < HIST_GAP) return;
+    if (!orders.length && !Object.keys(notes).length) return;
+    const data = JSON.stringify({ orders, notes, customers }), n = orders.length;   // chụp NGAY lúc gọi, trước khi dữ liệu bị đổi
+    histLastT = now;
+    histChain = histChain.then(async () => {
+      let list = (await bkIdb('readonly', st => st.get(HIST_KEY))) || [];
+      if (list.length && list[0].data === data) return;
+      list.unshift({ t: now, reason, n, data });
+      const keep = [], days = new Set();
+      list.forEach((e, i) => {
+        if (i < HIST_RECENT) keep.push(e);
+        else { const d = dateKey(new Date(e.t)); if (!days.has(d) && keep.length < HIST_RECENT + HIST_DAYS) { days.add(d); keep.push(e); } }
+      });
+      let total = 0; const fin = [];
+      for (const e of keep) { total += e.data.length; if (fin.length && total > HIST_BYTES) break; fin.push(e); }
+      await bkIdb('readwrite', st => st.put(fin, HIST_KEY));
+    }).catch(() => {});
+  }
+  (async () => { try { const l = await bkIdb('readonly', st => st.get(HIST_KEY)); if (l && l[0]) histLastT = l[0].t; } catch (e) {} histSnap(L('Mở app', 'App opened'), false); })();
+
+  function applyRestore(d) {
+    try { histSnap(L('Trước khi khôi phục', 'Before restoring'), true); } catch (e) {}
+    const list = (Array.isArray(d.orders) ? d.orders : []).map(migrate).filter(Boolean), ids = new Set(list.map(o => o.id));
+    orders.forEach(o => { if (!ids.has(o.id)) syncMarkDead(o.id); });
+    orders = list;
+    notes = d.notes && typeof d.notes === 'object' && !Array.isArray(d.notes) ? d.notes : {};
+    (Array.isArray(d.customers) ? d.customers : []).forEach(c => { if (c && typeof c.name === 'string') rememberCustomer(c.name, Number(c.last) || 0); });
+    orders.forEach((o, i) => rememberCustomer(o.name, i + 1));
+    saveCustomers(); save(); saveNotes(); render();
+  }
+  const histFmt = t => { const d = new Date(t); return `${shortWeekdays()[d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  async function histFiles() {
+    if (!BK.handle || BK.handle.kind !== 'directory') return [];
+    try {
+      let perm = await BK.handle.queryPermission({ mode: 'read' });
+      if (perm !== 'granted') perm = await BK.handle.requestPermission({ mode: 'read' });
+      if (perm !== 'granted') return null;
+      const out = []; for await (const [name, h] of BK.handle.entries()) if (h.kind === 'file' && /^lich\d{6}\.json$/.test(name)) out.push(name);
+      return out.sort().reverse();
+    } catch (e) { return null; }
+  }
+  let histCache = [];
+  async function openHist() {
+    const dlgH = $('#histDlg'), body = $('#histBody');
+    $('#histTitle').textContent = L('🕘 Khôi phục theo ngày giờ', '🕘 Restore by date & time');
+    $('#histClose').textContent = L('Đóng', 'Close');
+    $('#histHint').textContent = L('Khôi phục sẽ thay toàn bộ dữ liệu', 'Restoring replaces all data');
+    body.innerHTML = `<div class="hist-empty">${L('Đang tải…', 'Loading…')}</div>`;
+    if (!dlgH.open) dlgH.showModal();
+    try { histCache = (await bkIdb('readonly', st => st.get(HIST_KEY))) || []; } catch (e) { histCache = []; }
+    const files = await histFiles();
+    let h = `<div class="hist-sec">${L('Bản lưu trong app (theo giờ)', 'Saved in the app (by time)')}</div>`;
+    h += histCache.length ? histCache.map((e, i) => `<div class="hist-row"><div><b>${esc(histFmt(e.t))}</b><small>${e.n} ${L('đơn', 'orders')} · ${esc(e.reason || '')}</small></div><button type="button" class="small primary" data-hist="${i}">${L('Khôi phục', 'Restore')}</button></div>`).join('') : `<div class="hist-empty">${L('Chưa có bản lưu nào. App sẽ tự lưu khi bạn nhập dữ liệu.', 'Nothing saved yet. The app saves automatically as you enter data.')}</div>`;
+    if (BK.handle && BK.handle.kind === 'directory') {
+      h += `<div class="hist-sec">${L('File trong thư mục sao lưu (theo ngày)', 'Files in the backup folder (by day)')}</div>`;
+      if (files === null) h += `<div class="hist-empty">${L('Chưa được cấp quyền đọc thư mục. Mở lại hộp này và bấm cho phép.', 'Folder read permission not granted. Reopen this box and allow it.')}</div>`;
+      else h += files.length ? files.map(f => { const k = `20${f.slice(4, 6)}-${f.slice(6, 8)}-${f.slice(8, 10)}`; return `<div class="hist-row"><div><b>${esc(fmtDate(k))}</b><small>${esc(f)}</small></div><button type="button" class="small primary" data-hfile="${esc(f)}">${L('Khôi phục', 'Restore')}</button></div>`; }).join('') : `<div class="hist-empty">${L('Thư mục chưa có file lichyymmdd.json nào.', 'No lichyymmdd.json files in the folder yet.')}</div>`;
+    } else if (BK.supported) {
+      h += `<div class="hist-sec">${L('File sao lưu theo ngày', 'Daily backup files')}</div><div class="hist-empty">${L('Chọn “Đổi thư mục lưu…” trong menu Tiện ích để mỗi ngày có một file lichyymmdd.json, rồi khôi phục theo ngày tại đây.', 'Use “Change backup folder…” in the Tools menu so each day gets a lichyymmdd.json file, then restore by day here.')}</div>`;
+    }
+    h += `<div class="hist-empty" style="margin-top:8px">${L('Muốn khôi phục từ một file JSON bất kỳ: dùng “Nhập file sao lưu” trong menu Tiện ích.', 'To restore from any JSON file, use “Import backup file” in the Tools menu.')}</div>`;
+    body.innerHTML = h;
+  }
+  $('#btnHist').onclick = openHist;
+  $('#histClose').onclick = () => $('#histDlg').close();
+  $('#histDlg').addEventListener('click', async e => {
+    if (e.target === $('#histDlg')) { $('#histDlg').close(); return; }
+    const warn = L('Khôi phục sẽ THAY toàn bộ dữ liệu hiện tại; đơn thêm sau thời điểm đó sẽ bị xóa ở cả các máy đồng bộ. Một bản chụp dữ liệu hiện tại vẫn được giữ trong danh sách này để quay lại.', 'Restoring REPLACES all current data; orders added after that point will be removed on every synced device. A snapshot of the current data stays in this list so you can go back.');
+    const hb = e.target.closest('[data-hist]');
+    if (hb) {
+      const ent = histCache[Number(hb.dataset.hist)]; if (!ent) return;
+      let d; try { d = JSON.parse(ent.data); } catch (err) { toast(L('⚠ Bản lưu này bị lỗi', '⚠ This snapshot is corrupted')); return; }
+      if (!confirm(L(`Khôi phục dữ liệu về ${histFmt(ent.t)} (${ent.n} đơn)?\n\n${warn}`, `Restore data to ${histFmt(ent.t)} (${ent.n} orders)?\n\n${warn}`))) return;
+      applyRestore(d); $('#histDlg').close(); toast(L(`✔ Đã khôi phục về ${histFmt(ent.t)}`, `✔ Restored to ${histFmt(ent.t)}`)); return;
+    }
+    const fb = e.target.closest('[data-hfile]');
+    if (fb) {
+      const name = fb.dataset.hfile;
+      try {
+        const ex = await readBackupFile(await BK.handle.getFileHandle(name));
+        if (!ex) { toast(L('⚠ Không đọc được file này', '⚠ Could not read this file')); return; }
+        const d = Array.isArray(ex.raw) ? { orders: ex.raw } : ex.raw;
+        if (!confirm(L(`Khôi phục dữ liệu từ file ${name} (${ex.orders.length} đơn)?\n\n${warn}`, `Restore data from ${name} (${ex.orders.length} orders)?\n\n${warn}`))) return;
+        applyRestore(d); $('#histDlg').close(); toast(L(`✔ Đã khôi phục từ ${name}`, `✔ Restored from ${name}`));
+      } catch (err) { toast(L('⚠ Không khôi phục được từ file này', '⚠ Could not restore from this file')); }
+    }
+  });
+
   /* Cảnh báo khi chưa bật sao lưu: dữ liệu chỉ nằm trong trình duyệt, xóa dữ liệu duyệt web là mất hết */
   var bkBannerHidden = false;
   function updateBkBanner() {
@@ -2807,7 +2922,7 @@
     ['#prevDay', 'Previous day', 'aria-label'], ['#today', 'Today'], ['#nextDay', 'Next day', 'aria-label'],
     ['#btnNotify', 'Remind me of upcoming tasks', 'title'], ['#btnMenu .mn-txt', ' Tools ▾'],
     ['#btnPrint', '🖨 Print schedule'], ['#btnSync', '☁ Google Drive sync…'], ['#btnUndoImport', '↩ Restore data from before the last import'], ['#impTitle', '⬆ Import backup file'], ['#impMerge', '➕ Merge into existing data (recommended)'], ['#impReplace', '♻ Replace everything with this file'], ['#impCancel', 'Cancel'], ['#impHint', 'Merge keeps your current orders; on a clash the file version wins. You can restore afterwards from the Tools menu.'], ['#syncTitle', '☁ Google Drive sync'], ['#syncCidLbl', 'Google Client ID'], ['#syncClose', 'Close'], ['#btnFixItems', '🧵 Convert old items to item lists…'], ['#btnExport', '⬇ Export backup file'], ['#btnImport', '⬆ Import backup file'],
-    ['#btnBkPick', '💾 Turn on auto backup (pick a folder)…'], ['#btnBkRename', '✏ Change backup folder…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '💾 Overwrite JSON file'], ['#btnBkOff', '⏹ Turn off auto backup'],
+    ['#btnBkPick', '💾 Turn on auto backup (pick a folder)…'], ['#btnBkRename', '✏ Change backup folder…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '💾 Overwrite JSON file'], ['#btnHist', '🕘 Restore by date & time…'], ['#btnBkOff', '⏹ Turn off auto backup'],
     ['#btnAdd', '＋ Add schedule'],
     ['.tab[data-tab="day"]', 'Daily schedule'], ['.tab[data-tab="week"]', 'Next 7 days'],
     ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="calc"]', '🧮 Calculator'],

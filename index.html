@@ -49,9 +49,10 @@
   .datebar .label .rel { font-size: 14px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: #e8f0fe; color: var(--primary); }
   .datebar .label .rel.other { background: #f1f3f7; color: var(--muted); }
 
-  .home.with-cal { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 14px; align-items: start; }
   .side { display: none; }
-  .home.with-cal .side { display: block; position: sticky; top: 12px; }
+  .home.with-cal.cal-open { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 14px; align-items: start; }   /* mở lịch: cột thợ/khách nối tiếp ngay cạnh lịch */
+  .home.with-cal.cal-open .side { display: block; position: sticky; top: 12px; }
+  .home.with-cal:not(.cal-open) .board { grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); }   /* tắt lịch: các cột thu lại và dàn rộng ra */
   .cal { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; font-size: 15px; }
 
   .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; font-weight: 700; font-size: 16px; }
@@ -307,8 +308,8 @@
   .toast.show { opacity: 1; }
 
   @media (max-width: 1500px) { .home.with-cal .board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 1100px) { .board { grid-template-columns: repeat(2, minmax(0, 1fr)); } .home.with-cal { display: block; } .side { position: static; } }
-  @media (max-width: 760px) { .board, .home.with-cal .board, .two-col, .top-row, .extra-wrap, .calc-body { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .board { grid-template-columns: repeat(2, minmax(0, 1fr)); } .home.with-cal.cal-open { grid-template-columns: 270px minmax(0, 1fr); gap: 10px; } .home.with-cal:not(.cal-open) .board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 760px) { .board, .home.with-cal .board, .home.with-cal:not(.cal-open) .board, .two-col, .top-row, .extra-wrap, .calc-body { grid-template-columns: 1fr; } }
 
 
   /* ===== BỔ SUNG / SỬA LỖI ===== */
@@ -505,7 +506,8 @@
   /* ===== Bản điện thoại (iPhone 8 Plus ~414px) ===== */
   html { -webkit-text-size-adjust: 100%; }
   body { padding-bottom: env(safe-area-inset-bottom); -webkit-tap-highlight-color: transparent; }
-  .cal-toggle { display: none; }
+  .cal-toggle { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; min-width: 44px; font-size: 18px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .cal-toggle.on { background: var(--primary); border-color: var(--primary); }
   .fab { display: none; }
   .col-hint { font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
   .col.collapsible .col-head { cursor: pointer; user-select: none; -webkit-user-select: none; }
@@ -520,7 +522,7 @@
   .col-head .col-chev { flex: none; display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; margin-left: 2px; color: var(--c); background: color-mix(in srgb, var(--c) 14%, #fff); border: 1.5px solid color-mix(in srgb, var(--c) 45%, #fff); transition: transform .2s, background .15s; }
   .col-head:hover .col-chev { background: color-mix(in srgb, var(--c) 26%, #fff); }
   .col:not(.is-open) .col-head .col-chev { transform: rotate(-90deg); }
-  .ct-txt { display: none; }
+  .ct-txt { display: inline; font-size: 14px; font-weight: 600; margin-left: 4px; }
   /* dùng chung máy tính + điện thoại */
   #today.is-today { display: none; }
   .datebar .label .rel:not(.other) { display: none; }
@@ -542,8 +544,8 @@
     .datebar .nav button { min-height: 40px; }
     .cal-toggle { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; min-width: 44px; font-size: 18px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
     .cal-toggle.on { background: var(--primary); border-color: var(--primary); }
-    .home.with-cal .side { display: none; }
-    .home.with-cal.cal-open .side { display: block; margin-bottom: 10px; }
+    .home.with-cal.cal-open { display: block; }   /* điện thoại: lịch ở trên, cột thợ/khách nối tiếp ngay bên dưới */
+    .home.with-cal.cal-open .side { position: static; margin-bottom: 10px; }
     .edit-btn { min-width: 40px; min-height: 36px; }
     .bk-banner { font-size: 12.5px; padding: 8px 10px; gap: 6px 8px; margin-bottom: 8px; }
     .bk-banner span { flex: 1 1 100%; }
@@ -619,7 +621,7 @@
   @media print {
     body { background: #fff; }
     .actions, .tabs, .toolrow, .kpi, .datebar .nav, .datebar .note-btn, .side, .edit-btn, .popover, .toast, dialog, .filters, .calc-reset { display: none !important; }
-    .home.with-cal { display: block; }
+    .home.with-cal, .home.with-cal.cal-open { display: block; }
     .board, .home.with-cal .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .col, .ccard, .event, .order-card { break-inside: avoid; }
     .app { max-width: none; padding: 0; }
@@ -849,7 +851,7 @@
           <button type="button" id="nextDay" aria-label="Ngày sau">▶</button>
         </div>
         <div class="label" id="dateLabel"></div>
-        <button type="button" class="cal-toggle" id="btnCalToggle" aria-label="Chọn ngày">📅<span class="ct-txt"> Chọn ngày</span></button>
+        <button type="button" class="cal-toggle" id="btnCalToggle" aria-label="Mở / tắt lịch tháng">📅<span class="ct-txt"> Lịch tháng</span></button>
         <button type="button" class="note-btn" id="btnDayNote">📝 Ghi chú ngày</button>
       </div>
   </div>
@@ -2232,7 +2234,10 @@
     if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('col-head')) { e.preventDefault(); e.target.click(); }
   });
   $('#fabAdd').onclick = () => $('#btnAdd').click();
-  $('#btnCalToggle').onclick = () => { const h = $('#home'); h.classList.toggle('cal-open'); $('#btnCalToggle').classList.toggle('on', h.classList.contains('cal-open')); };
+  const CAL_OPEN_KEY = 'phiphi_cal_open_v1';
+  const setCalOpen = open => { $('#home').classList.toggle('cal-open', open); $('#btnCalToggle').classList.toggle('on', open); try { localStorage.setItem(CAL_OPEN_KEY, open ? '1' : '0'); } catch (e) {} };
+  (() => { let v = null; try { v = localStorage.getItem(CAL_OPEN_KEY); } catch (e) {} const open = v === null ? window.innerWidth > 560 : v === '1'; $('#home').classList.toggle('cal-open', open); $('#btnCalToggle').classList.toggle('on', open); })();
+  $('#btnCalToggle').onclick = () => setCalOpen(!$('#home').classList.contains('cal-open'));
   $('#prevDay').onclick = () => { state.day = addDays(state.day, -1); render(); };
   $('#nextDay').onclick = () => { state.day = addDays(state.day, 1); render(); };
   $('#today').onclick = () => { state.day = todayKey(); calMonth = state.day.slice(0, 7); render(); };
@@ -2301,9 +2306,7 @@
     if (lastTap.k === k && nowT - lastTap.t < 450) { lastTap = { k: '', t: 0 }; hideNoteTip(); openNote(k); return; }
     lastTap = { k, t: nowT };
     if (k !== state.day) { state.day = k; }
-    if (window.innerWidth <= 560) {   // điện thoại: chọn ngày xong thì thu lịch lại, chờ một chút để còn kịp bấm lần 2
-      calCollapseTimer = setTimeout(() => { if (!noteDlg.open) { $('#home').classList.remove('cal-open'); $('#btnCalToggle').classList.remove('on'); } }, 480);
-    }
+    // Lịch giữ nguyên đang mở để vừa xem lịch vừa theo dõi cột thợ/khách; chỉ thu lại khi bấm nút 📅
     render();
   });
 

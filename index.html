@@ -1569,7 +1569,7 @@
       const hint = !collapsible ? '' : list.length === 0 ? L('Trống', 'Empty') : L('✔ Xong hết', '✔ All done');
       return `<section class="col collapsible ${isOpen ? 'is-open' : ''}" data-ckey="${esc(ckey)}" data-auto="${collapsible ? 1 : 0}" style="--c:${c.color}">
         <div class="col-head" role="button" tabindex="0" aria-expanded="${isOpen ? 'true' : 'false'}" title="${L('Bấm để mở / thu gọn', 'Tap to expand / collapse')}"><b>${c.title}</b><span>${done}/${list.length}</span><em class="col-hint">${hint}</em><i class="col-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></i></div>${pcs}
-        <div class="col-body">${list.length ? list.map(colCardHTML).join('') : `<div class="col-empty">${L('Không có lịch ngày này', 'Nothing scheduled for this day')}</div>`}${nextHTML}</div>
+        <div class="col-body">${list.length ? list.map(colCardHTML).join('') : `<div class="col-empty">${(state.day === todayKey() ? L('Không có lịch hôm nay', 'Nothing scheduled today') : L('Không có lịch ngày này', 'Nothing scheduled for this day'))}</div>`}${nextHTML}</div>
       </section>`;
     }).join('') + `</div>`;
     $('#view').innerHTML = html;

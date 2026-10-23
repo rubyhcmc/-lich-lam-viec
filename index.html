@@ -119,6 +119,13 @@
   
   .cnext { border-top: 1px dashed var(--line); margin-top: 10px; padding-top: 8px; }
   .cnext-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .cnext-day { display: flex; align-items: center; gap: 8px; margin: 8px 0 2px; font-size: 13px; color: var(--text); }
+  .cnext-day:first-of-type { margin-top: 0; }
+  .cnext-day b { font-weight: 800; }
+  .cnext-n { font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: #eef2fb; color: var(--primary); }
+  .cnext-day.is-done { opacity: .55; }
+  .cnext-time { display: inline-block; min-width: 54px; margin-right: 6px; font-weight: 600; color: var(--muted); }
+  .cnext-more { font-size: 12.5px; color: var(--muted); padding: 4px 4px 0; }
   .cnext-item { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 4px; font-size: 13.5px; border-radius: 6px; cursor: pointer; }
   .cnext-item:hover { background: #f0f4fc; }
   .cnext-item.is-done { opacity: 0.55; text-decoration: line-through; }
@@ -1374,15 +1381,24 @@
         const ls = dayEvs.filter(e => e.colKey === c.key).flatMap(e => e.lines || []), tot = ls.reduce((a, l) => a + l.qty, 0);
         if (tot) pcs = `<div class="col-sub">🧵 ${ls.filter(l => l.done).reduce((a, l) => a + l.qty, 0)}/${tot} ${L('món đã giao/lấy', 'items handed over')}</div>`;
       }
-      const upG = groupEvents(evs.filter(e => e.colKey === c.key && e.date > state.day)).slice(0, 5);
-
-      const nextHTML = upG.length ? `<div class="cnext"><div class="cnext-title">${L('Sắp tới', 'Upcoming')}</div>${upG.map(g => {
-        const e = g.first;
-        return `<div class="cnext-item ${g.done ? 'is-done' : ''}" ${popAttrs(e, groupItems(g), g.done, g.evs.map(keyOf).join(','))}>
-          <div class="cnext-info" title="${esc(e.order.name)}"><b>${fmtCompactDateTime(e.at)}</b> · <b>${esc(e.order.name)}</b></div>
-          <button type="button" class="edit-btn" style="position:static;" data-edit="${e.order.id}" aria-label="${L('Sửa đơn', 'Edit order')}">✎</button>
-        </div>`;
-      }).join('')}</div>` : '';
+      // "Sắp tới": gộp theo ngày — mỗi ngày một tiêu đề, bên dưới là các khách của ngày đó
+      const upAll = groupEvents(evs.filter(e => e.colKey === c.key && e.date > state.day)).sort((a, b) => a.first.at.localeCompare(b.first.at));
+      const MAX_ROWS = 8, upG = upAll.slice(0, MAX_ROWS), more = upAll.length - upG.length;
+      let nextHTML = '';
+      if (upG.length) {
+        const byDay = new Map(); upG.forEach(g => { const k = g.first.date; if (!byDay.has(k)) byDay.set(k, []); byDay.get(k).push(g); });
+        nextHTML = `<div class="cnext"><div class="cnext-title">${L('Sắp tới', 'Upcoming')}</div>` + [...byDay.entries()].map(([k, gs]) => {
+          const d = parseKey(k), allDone = gs.every(g => g.done);
+          const head = `<div class="cnext-day ${allDone ? 'is-done' : ''}"><b>${shortWeekdays()[d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}</b>${gs.length > 1 ? `<span class="cnext-n">${gs.length} ${L('khách', 'customers')}</span>` : ''}</div>`;
+          return head + gs.map(g => {
+            const e = g.first;
+            return `<div class="cnext-item ${g.done ? 'is-done' : ''}" ${popAttrs(e, groupItems(g), g.done, g.evs.map(keyOf).join(','))}>
+              <div class="cnext-info" title="${esc(e.order.name)}"><span class="cnext-time">${fmtTimeOnly(e.at)}</span><b>${esc(e.order.name)}</b></div>
+              <button type="button" class="edit-btn" style="position:static;" data-edit="${e.order.id}" aria-label="${L('Sửa đơn', 'Edit order')}">✎</button>
+            </div>`;
+          }).join('');
+        }).join('') + (more > 0 ? `<div class="cnext-more">+${more} ${L('lịch nữa', 'more')}</div>` : '') + `</div>`;
+      }
 
       // Điện thoại: cột trống hoặc đã xong hết thì thu gọn thành một dòng, chạm vào tiêu đề để mở
       const collapsible = list.length === 0 || done === list.length, ckey = state.day + '|' + c.key, isOpen = colOpen.has(ckey);

@@ -422,6 +422,8 @@
   .line-row .l-name { font-weight: 700; }
   .line-row .l-note { font-weight: 400; color: var(--text); }
   .cust-items-input { font-weight: 400; }
+  .tl-block .dt-items { grid-column: 1 / -1; width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: 14px; background: #fff; }
+  .sub-chip .chip-q { font-weight: 700; color: #334155; white-space: normal; word-break: break-word; }
   .dwrap { position: relative; display: block; width: 100%; min-width: 0; }
   .dwrap .dshow { display: flex; align-items: center; justify-content: center; width: 100%; padding: 7px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 15px; font-weight: 600; color: var(--primary); white-space: nowrap; }
   .dwrap .dph { color: var(--muted); font-weight: 400; }
@@ -1374,7 +1376,7 @@
     o.jobs.forEach((j, idx) => {
       JOB_TYPES.forEach(type => {
         const e = j[type];
-        if (e && e.at) list.push({ order: o, type, jobIdx: idx, tailor: j.tailor, items: j.items, at: e.at, done: !!e.done, colKey: colKeyOfTailor(j.tailor) });
+        if (e && e.at) list.push({ order: o, type, jobIdx: idx, tailor: j.tailor, items: j.items, evItems: (e.items || '').trim(), at: e.at, done: !!e.done, colKey: colKeyOfTailor(j.tailor) });
       });
     });
     ['fitting', 'delivery'].forEach(type => {
@@ -1451,7 +1453,7 @@
       <div class="body">
         <div class="title"><span class="badge">${info.label}</span> ${tail}${flag}</div>
         <div class="title" style="margin-top:3px; font-weight:700">${esc(e.order.name)}</div>
-        <div class="meta">🕒 ${esc(fmtFull(e.at))}${e.items ? '<br>🧵 ' + L('Đồ: ', 'Items: ') + esc(e.items) : ''}</div>
+        <div class="meta">🕒 ${esc(fmtFull(e.at))}${e.evItems ? '<br>📌 ' + esc(e.evItems) : ''}${e.items ? '<br>🧵 ' + L('Đồ: ', 'Items: ') + esc(e.items) : ''}</div>
       </div>
       <button type="button" class="small edit-btn" data-edit="${e.order.id}">${L('Sửa', 'Edit')}</button></div>`;
   }
@@ -1486,7 +1488,7 @@
       subEventsHTML = `<div class="sub-events-row">` + evs.map(subEv => {
         const info = EVENT_TYPES[subEv.type];
         return `<span class="sub-chip ${subEv.done ? 'is-done' : ''}" data-quick-toggle="${keyOf(subEv)}" title="${esc(info.label)} · ${L('bấm để đánh dấu xong/chưa', 'click to toggle done')}">
-          <span>${info.chip}</span> <span class="chip-time">${fmtTimeOnly(subEv.at)}</span>${subEv.done ? ' ✔' : ''}
+          <span>${info.chip}</span> <span class="chip-time">${fmtTimeOnly(subEv.at)}</span>${subEv.evItems ? ` <span class="chip-q">· ${esc(subEv.evItems)}</span>` : ''}${subEv.done ? ' ✔' : ''}
         </span>`;
       }).join('') + `</div>`;
     }
@@ -1579,6 +1581,7 @@
     return `<div class="step ${e.done ? 'done' : ''}" style="--c:${e.tailor ? tailorColor(e.tailor) : info.color}">
       <div style="font-weight:600">${e.done ? '✔ ' : ''}${info.label}${e.tailor ? ` · ${esc(tl(e.tailor))}` : ''}</div>
       <div>${esc(fmtFull(e.at))}</div>
+      ${e.evItems ? `<div style="font-weight:700">📌 ${esc(e.evItems)}</div>` : ''}
       ${e.items ? `<div style="color:var(--muted)">🧵 ${esc(e.items)}</div>` : ''}
       </div>`;
   }
@@ -1587,7 +1590,7 @@
   function renderLate() {
     const q = state.q.trim().toLowerCase(), today = todayKey();
     const list = allEvents().filter(e => flags(e).late)
-      .filter(e => !q || [e.order.name, e.items, e.tailor || '', (EVENT_TYPES[e.type] || {}).label || '', e.order.note].join(' ').toLowerCase().includes(q))
+      .filter(e => !q || [e.order.name, e.items, e.evItems || '', e.tailor || '', (EVENT_TYPES[e.type] || {}).label || '', e.order.note].join(' ').toLowerCase().includes(q))
       .sort((a, b) => a.at.localeCompare(b.at));
     if (!list.length) { $('#view').innerHTML = `<div class="empty">${q ? L('Không tìm thấy mục phù hợp.', 'No matching items.') : L('🎉 Không có việc nào trễ hoặc quá hạn.', '🎉 Nothing is late or overdue.')}</div>`; return; }
     const days = k => Math.round((parseKey(today) - parseKey(k)) / 86400000);
@@ -1633,7 +1636,8 @@
       <span class="tl-label">${EVENT_TYPES[type].label}</span>
       <select class="dt-time" aria-label="${L('Giờ', 'Time')}">${timeOptions(hm)}</select>
       <span class="dwrap"><span class="dshow">${dShow(d)}</span><input type="date" class="dt-date" aria-label="${L('Ngày', 'Date')}" value="${esc(d)}"></span>
-      <button type="button" class="clear" data-q="clear" title="${L('Xóa mốc này', 'Clear this entry')}" aria-label="${L('Xóa mốc này', 'Clear this entry')}">✕</button></div>`;
+      <button type="button" class="clear" data-q="clear" title="${L('Xóa mốc này', 'Clear this entry')}" aria-label="${L('Xóa mốc này', 'Clear this entry')}">✕</button>
+      <input class="dt-items" placeholder="${type === 'pickupFinished' ? L('Tổng số đồ cần lấy (VD: lấy hết 3 cái)', 'Total items to collect (e.g. all 3 pieces)') : L('Số lượng đồ (VD: may 1 cái quần)', 'Items (e.g. 1 pair of trousers)')}" aria-label="${L('Số lượng đồ của mốc này', 'Items for this entry')}" value="${esc(v.items || '')}"></div>`;
   }
 
   const lineRowHTML = l => `<div class="line-row ${l.done ? 'is-done' : ''}" data-done="${l.done ? 1 : 0}">
@@ -1670,7 +1674,8 @@
     const box = root.querySelector(`.lines-box[data-lines="${type}"]`);
     const lines = box ? [...box.querySelectorAll('.line-row')].map(r => normLine({ qty: $('.l-qty', r).value, name: $('.l-name', r).value, note: $('.l-note', r).value, done: r.dataset.done === '1' })).filter(l => l.name) : [];
     const extra = itemsEl ? itemsEl.value.trim() : '';
-    const items = [lineText(lines), extra].filter(Boolean).join(' • ');
+    const jobItemsEl = $('.dt-items', b);   // thợ: ghi chú số lượng đồ riêng của từng mốc
+    const items = jobItemsEl ? jobItemsEl.value.trim() : [lineText(lines), extra].filter(Boolean).join(' • ');
     const done = lines.length ? lines.every(l => l.done) : b.dataset.done === '1';
     // Khách thử/lấy đồ (có ô itemsEl): chỉ cần ngày, giờ có thể chưa hẹn
     return { at: d && (t || itemsEl) ? `${d}T${t}` : '', items, extra, lines, done };
@@ -1761,7 +1766,7 @@
     const clr = e.target.closest('[data-q="clear"]');
     if (clr) {
       const b = clr.closest('.tl-block');
-      $('.dt-date', b).value = ''; $('.dt-time', b).value = ''; b.dataset.done = '0'; refreshDates(b);
+      $('.dt-date', b).value = ''; $('.dt-time', b).value = ''; b.dataset.done = '0'; refreshDates(b); const ji = $('.dt-items', b); if (ji) ji.value = '';
       return;
     }
     const rm = e.target.closest('.rm-job');
@@ -1937,7 +1942,7 @@
       const cls = ['pop-step', e.done ? 'done' : '', f.late ? 'late' : '', multi && grpSet.has(keyOf(e)) ? 'focus' : '', multi ? '' : 'solo'].filter(Boolean).join(' ');
       const itemsHTML = hasLines
         ? `<span class="ps-lines">${e.lines.map((l, i) => `<label class="ps-line ${l.done ? 'done' : ''}"><input type="checkbox" data-pop-line="${i}" data-pop-key="${keyOf(e)}" ${l.done ? 'checked' : ''}><b class="pl-qty">${l.qty}</b><span class="pl-name">${esc(l.name)}${l.note ? ` <small>${esc(l.note)}</small>` : ''}</span></label>`).join('')}${e.extra ? `<span class="ps-items">🧵 ${esc(e.extra)}</span>` : ''}</span>`
-        : (e.items ? `<span class="ps-items">🧵 ${esc(e.items)}</span>` : '');
+        : ((e.evItems ? `<span class="ps-items" style="font-weight:700">📌 ${esc(e.evItems)}</span>` : '') + (e.items ? `<span class="ps-items">🧵 ${esc(e.items)}</span>` : ''));
       return `<${tag} class="${cls}" style="--c:${e.tailor ? tailorColor(e.tailor) : info.color}">
         ${(multi && !hasLines) ? `<input type="checkbox" data-pop-toggle="${keyOf(e)}" ${e.done ? 'checked' : ''}>` : ''}
         <span class="ps-main">

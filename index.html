@@ -142,6 +142,35 @@
   .pop-foot { margin-top: 8px; text-align: right; border-top: 1px dashed var(--line); padding-top: 8px; }
   .badge-done-pop { background: #ecf8f0; color: var(--ok); font-size: 12px; padding: 1px 6px; border-radius: 4px; margin-left: 6px; }
 
+
+  /* Bộ chọn ngày tự làm: bấm vào ngày là chọn xong, không có nút Đặt lại / Xong */
+  .dwrap { cursor: pointer; }
+  .dwrap:focus-visible .dshow { outline: 2px solid var(--primary); }
+  .dp-ov { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); }
+  .dp-card { width: min(340px, 92vw); background: #fff; border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.3); padding: 12px; font-size: 15px; }
+  .dp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .dp-head b { font-size: 16px; }
+  .dp-head button { min-width: 40px; min-height: 36px; }
+  .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-day, .dp-day { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .dp-dow { text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); padding: 4px 0; }
+  .dp-dow.sun, .dp-day.sun-day { color: #d93025; }
+  .dp-day { border: 1px solid transparent; background: #f6f7f9; border-radius: 8px; min-height: 40px; padding: 0; font-size: 15px; font-weight: 600; cursor: pointer; color: var(--text); }
+  .dp-day:hover { background: #e4ecfb; }
+  .dp-day.out { opacity: .4; }
+  .dp-day.today { border-color: var(--primary); }
+  .dp-day.sel { background: var(--primary); color: #fff; }
+
+  /* Ghi chú ngày: nhập nhanh bằng giọng nói */
+  .note-add { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+  .note-add input { flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 15px; background: #fff; }
+  .note-add input:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
+  .note-add .mic-btn { width: 46px; height: 42px; flex: none; border-radius: 10px; font-size: 20px; padding: 0; }
+  .note-add .mic-btn.rec { background: #d93025; color: #fff; border-color: #d93025; animation: micPulse 1s infinite; }
+  @keyframes micPulse { 50% { box-shadow: 0 0 0 6px rgba(217,48,37,.25); } }
+  .note-mic-hint { font-size: 12px; color: var(--muted); margin: 0 0 10px; min-height: 16px; }
+  .note-modal-body textarea { min-height: 120px; }
+
   /* Popup Ghi Chú Ngày (Modal) */
   dialog#noteDlg, dialog#syncDlg, dialog#importDlg { border: none; border-radius: 14px; padding: 0; width: min(460px, 92vw); box-shadow: 0 20px 50px rgba(0,0,0,.25); }
   dialog#histDlg { border: none; border-radius: 14px; padding: 0; width: min(540px, 94vw); box-shadow: 0 20px 50px rgba(0,0,0,.25); }
@@ -896,7 +925,13 @@
     <button type="button" class="small danger" id="noteModalClear">Xóa ghi chú</button>
   </div>
   <div class="note-modal-body">
-    <textarea id="noteModalText" placeholder="Nhập ghi chú cho ngày này..." aria-label="Nội dung ghi chú"></textarea>
+    <div class="note-add">
+      <input id="noteQuick" enterkeyhint="send" placeholder="VD: 10am Adam hẹn may suit" aria-label="Ghi chú nhanh" autocomplete="off">
+      <button type="button" class="mic-btn" id="noteMic" title="Nói để nhập" aria-label="Nhập bằng giọng nói">🎤</button>
+      <button type="button" class="primary small" id="noteQuickAdd">＋ Thêm</button>
+    </div>
+    <p class="note-mic-hint" id="noteMicHint"></p>
+    <textarea id="noteModalText" placeholder="Các ghi chú trong ngày sẽ hiện ở đây..." aria-label="Nội dung ghi chú"></textarea>
   </div>
   <div class="note-modal-foot">
     <span id="noteModalState">Tự động lưu</span>
@@ -1745,7 +1780,7 @@
     return `<div class="tl-block" data-type="${type}" data-done="${v.done ? 1 : 0}" style="--c:${EVENT_TYPES[type].color}">
       <span class="tl-label">${EVENT_TYPES[type].label}</span>
       <select class="dt-time" aria-label="${L('Giờ', 'Time')}">${timeOptions(hm)}</select>
-      <span class="dwrap"><span class="dshow">${dShow(d)}</span><input type="date" class="dt-date" aria-label="${L('Ngày', 'Date')}" value="${esc(d)}"></span>
+      <span class="dwrap" tabindex="0" role="button" aria-label="${L('Chọn ngày', 'Pick a date')}"><span class="dshow">${dShow(d)}</span><input type="hidden" class="dt-date" value="${esc(d)}"></span>
       <button type="button" class="clear" data-q="clear" title="${L('Xóa mốc này', 'Clear this entry')}" aria-label="${L('Xóa mốc này', 'Clear this entry')}">✕</button>
       <input class="dt-items" placeholder="${type === 'pickupFinished' ? L('Tổng số đồ cần lấy (VD: lấy hết 3 cái)', 'Total items to collect (e.g. all 3 pieces)') : L('Số lượng đồ (VD: may 1 cái quần)', 'Items (e.g. 1 pair of trousers)')}" aria-label="${L('Số lượng đồ của mốc này', 'Items for this entry')}" value="${esc(v.items || '')}"></div>`;
   }
@@ -1764,7 +1799,7 @@
       <div class="tl-block" data-type="${type}" data-done="${v.done ? 1 : 0}">
         <span class="tl-label">${EVENT_TYPES[type].label}</span>
         <select class="dt-time" aria-label="${L('Giờ (có thể để trống nếu chưa hẹn)', 'Time (optional if not set yet)')}">${timeOptions(hm, L('Chưa hẹn', 'TBD'))}</select>
-        <span class="dwrap"><span class="dshow">${dShow(d)}</span><input type="date" class="dt-date" aria-label="${L('Ngày', 'Date')}" value="${esc(d)}"></span>
+        <span class="dwrap" tabindex="0" role="button" aria-label="${L('Chọn ngày', 'Pick a date')}"><span class="dshow">${dShow(d)}</span><input type="hidden" class="dt-date" value="${esc(d)}"></span>
         <button type="button" class="clear" data-q="clear" title="${L('Xóa mốc này', 'Clear this entry')}" aria-label="${L('Xóa mốc này', 'Clear this entry')}">✕</button>
       </div>
       <div class="lines-box" data-lines="${type}">
@@ -1854,7 +1889,7 @@
       const d = $('.dt-date', b).value, t = $('.dt-time', b).value;
       if ((d && !t && !b.closest('.cust-card-wrap')) || (!d && t)) {
         toast(L(`⚠ Mốc "${$('.tl-label', b).textContent.trim()}" cần nhập đủ cả ngày và giờ`, `⚠ "${$('.tl-label', b).textContent.trim()}" needs both a date and a time`));
-        (d ? $('.dt-time', b) : $('.dt-date', b)).focus();
+        (d ? $('.dt-time', b) : $('.dwrap', b)).focus();
         return;
       }
     }
@@ -1926,10 +1961,50 @@
   dlg.addEventListener('mousedown', e => { downOnBackdrop = e.target === dlg; });
   dlg.addEventListener('click', e => { if (e.target === dlg && downOnBackdrop) dlg.close(); downOnBackdrop = false; });
   dlg.addEventListener('input', e => { if (e.target.classList.contains('dt-date')) refreshDates(e.target.closest('.dwrap').parentNode); });
-  dlg.addEventListener('click', e => {   // máy tính: bấm vào ô ngày là bung lịch chọn ngay
+  // Bộ chọn ngày tự làm: bấm vào ngày là ghi luôn và đóng lịch (không có nút Đặt lại / Xong)
+  function openDatePicker(wrap) {
+    const inp = wrap.querySelector('.dt-date');
+    const ov = document.createElement('div'); ov.className = 'dp-ov';
+    let cur = inp.value || state.day || todayKey();
+    let [vy, vm] = cur.split('-').map(Number);
+    const close = () => { ov.remove(); document.removeEventListener('keydown', onKey, true); try { wrap.focus(); } catch (err) {} };
+    const onKey = ev => { if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); close(); } };
+    document.addEventListener('keydown', onKey, true);
+    function draw() {
+      const first = new Date(vy, vm - 1, 1), off = (first.getDay() + 6) % 7, start = new Date(vy, vm - 1, 1 - off), tk = todayKey();
+      let h = `<div class="dp-card"><div class="dp-head"><button type="button" class="small" data-dp="-1" aria-label="${L('Tháng trước', 'Previous month')}">◀</button><b>${L('Tháng ' + vm + '/' + vy, MONTHS_EN[vm - 1] + ' ' + vy)}</b><button type="button" class="small" data-dp="1" aria-label="${L('Tháng sau', 'Next month')}">▶</button></div><div class="dp-grid">`
+        + L(['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'], ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']).map((d, i) => `<div class="dp-dow ${i === 6 ? 'sun' : ''}">${d}</div>`).join('');
+      for (let i = 0; i < 42; i++) {
+        const d = new Date(start); d.setDate(start.getDate() + i);
+        if (i >= 35 && d.getMonth() !== vm - 1) break;
+        const k = dateKey(d);
+        h += `<button type="button" class="dp-day ${d.getMonth() !== vm - 1 ? 'out' : ''} ${k === tk ? 'today' : ''} ${k === inp.value ? 'sel' : ''} ${d.getDay() === 0 ? 'sun-day' : ''}" data-dpday="${k}">${d.getDate()}</button>`;
+      }
+      ov.innerHTML = h + '</div></div>';
+    }
+    ov.addEventListener('click', ev => {
+      const nav = ev.target.closest('[data-dp]');
+      if (nav) { const d = new Date(vy, vm - 1 + Number(nav.dataset.dp), 1); vy = d.getFullYear(); vm = d.getMonth() + 1; draw(); return; }
+      const day = ev.target.closest('[data-dpday]');
+      if (day) {
+        inp.value = day.dataset.dpday;
+        inp.dispatchEvent(new Event('input', { bubbles: true }));
+        // chưa có giờ thì giữ nguyên để người dùng chọn tiếp, chỉ cập nhật hiển thị ngày
+        refreshDates(wrap.parentNode);
+        close(); return;
+      }
+      if (ev.target === ov) close();
+    });
+    draw();
+    dlg.appendChild(ov);   // nằm trong <dialog> để không bị cửa sổ modal che mất
+  }
+  dlg.addEventListener('click', e => {
     const w = e.target.closest('.dwrap'); if (!w) return;
-    const inp = w.querySelector('.dt-date');
-    try { if (typeof inp.showPicker === 'function' && !IS_TOUCH) inp.showPicker(); } catch (err) {}
+    openDatePicker(w);
+  });
+  dlg.addEventListener('keydown', e => {
+    const w = e.target.closest && e.target.closest('.dwrap');
+    if (w && e.target === w && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openDatePicker(w); }
   });
   dlg.addEventListener('change', e => {
     // Chọn giờ mà chưa có ngày -> tự điền ngày hôm nay
@@ -2197,10 +2272,12 @@
     $('#noteModalTitle').textContent = `${L('📝 Ghi chú', '📝 Notes for')} ${fmtDate(k)}`;
     $('#noteModalText').value = notes[k] || '';
     $('#noteModalState').textContent = notes[k] ? L('Đã có nội dung · tự động lưu', 'Has content · auto-saved') : L('Trống · tự động lưu', 'Empty · auto-saved');
+    noteQuick.value = ''; noteMicHint.textContent = SR ? '' : L('Bấm 🎤 rồi dùng micro trên bàn phím để đọc, hoặc gõ ở ô trên', 'Tap 🎤 then use the keyboard mic, or type above');
     noteDlg.showModal();
-    $('#noteModalText').focus();
+    if (!IS_TOUCH) noteQuick.focus();
   }
 
+  let lastTap = { k: '', t: 0 }, calCollapseTimer;
   calBox.addEventListener('click', e => {
     const nav = e.target.closest('[data-cal]');
     if (nav) {
@@ -2210,9 +2287,15 @@
     }
     const dayBtn = e.target.closest('[data-day]');
     if (!dayBtn) return;
-    const k = dayBtn.dataset.day;
+    const k = dayBtn.dataset.day, nowT = Date.now();
+    clearTimeout(calCollapseTimer);
+    // Bấm 2 lần liên tiếp vào cùng một ngày (máy tính và iPhone) -> mở ghi chú
+    if (lastTap.k === k && nowT - lastTap.t < 450) { lastTap = { k: '', t: 0 }; hideNoteTip(); openNote(k); return; }
+    lastTap = { k, t: nowT };
     if (k !== state.day) { state.day = k; }
-    if (window.innerWidth <= 560) { $('#home').classList.remove('cal-open'); $('#btnCalToggle').classList.remove('on'); }   // điện thoại: chọn ngày xong thì thu lịch lại
+    if (window.innerWidth <= 560) {   // điện thoại: chọn ngày xong thì thu lịch lại, chờ một chút để còn kịp bấm lần 2
+      calCollapseTimer = setTimeout(() => { if (!noteDlg.open) { $('#home').classList.remove('cal-open'); $('#btnCalToggle').classList.remove('on'); } }, 480);
+    }
     render();
   });
 
@@ -2262,6 +2345,70 @@
     clearTimeout(modalNoteTimer);
     modalNoteTimer = setTimeout(flushNote, 400);
   });
+  /* ----- Nhập ghi chú nhanh bằng giọng nói / bàn phím, tự xếp theo giờ ----- */
+  const noteQuick = $('#noteQuick'), noteMic = $('#noteMic'), noteMicHint = $('#noteMicHint');
+  // Lấy giờ ở đầu dòng: "10am", "10:30", "9h", "3 giờ chiều"... (không nhận ra giờ thì trả null)
+  function noteTimeOf(line) {
+    const m = line.match(/^\s*(\d{1,2})\s*(?:[:h]\s*(\d{1,2})?|(?:giờ|gio)\s*(\d{1,2})?|(a\.?\s?m\.?|p\.?\s?m\.?))\s*(a\.?\s?m\.?|p\.?\s?m\.?|sáng|chiều|tối|trưa)?/i);
+    if (!m) return null;
+    let h = +m[1], min = +(m[2] || m[3] || 0);
+    const suf = (m[4] || m[5] || '').toLowerCase().replace(/[\s.]/g, '');
+    if (/^p/.test(suf) || suf === 'chiều' || suf === 'tối') { if (h < 12) h += 12; }
+    else if (/^a/.test(suf) || suf === 'sáng') { if (h === 12) h = 0; }
+    if (h > 23 || min > 59) return null;
+    return h * 60 + min;
+  }
+  function sortNoteLines(lines) {
+    return lines.map((t, i) => ({ t, i, k: noteTimeOf(t) }))
+      .sort((a, b) => (a.k === null) - (b.k === null) || (a.k !== null && a.k - b.k) || a.i - b.i)   // có giờ lên trên theo giờ tăng dần, không có giờ xuống dưới
+      .map(x => x.t);
+  }
+  function addQuickNote(text) {
+    text = String(text || '').replace(/\s+/g, ' ').trim();
+    if (!text || !activeNoteDate) return false;
+    const ta = $('#noteModalText');
+    const lines = ta.value.split('\n').map(x => x.trim()).filter(Boolean);
+    lines.push(text);
+    ta.value = sortNoteLines(lines).join('\n');
+    ta.dispatchEvent(new Event('input', { bubbles: true }));   // dùng lại cơ chế tự lưu sẵn có
+    ta.scrollTop = ta.scrollHeight;
+    return true;
+  }
+  $('#noteQuickAdd').onclick = () => { if (addQuickNote(noteQuick.value)) { noteQuick.value = ''; } noteQuick.focus(); };
+  noteQuick.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#noteQuickAdd').click(); } });
+
+  // iPhone mở từ biểu tượng Màn hình chính: iOS không cho trang dùng bộ nhận giọng nói riêng -> dùng micro trên bàn phím
+  const IS_STANDALONE = navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+  const SR = (IS_STANDALONE && IS_TOUCH) ? null : (window.SpeechRecognition || window.webkitSpeechRecognition);
+  let rec = null, recText = '';
+  function stopMic() { if (rec) { try { rec.stop(); } catch (e) {} } }
+  function startMic() {
+    if (!SR) { noteQuick.focus(); noteMicHint.textContent = L('🎙 Bấm biểu tượng micro trên bàn phím iPhone, nói xong bấm Gửi/＋ Thêm', '🎙 Tap the microphone key on the iPhone keyboard, then press Send/＋ Add'); return; }
+    if (rec) { stopMic(); return; }
+    rec = new SR();
+    rec.lang = lang === 'en' ? 'en-US' : 'vi-VN';
+    rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+    recText = '';
+    rec.onstart = () => { noteMic.classList.add('rec'); noteMicHint.textContent = L('🎙 Đang nghe... hãy nói, ví dụ "10 giờ Adam hẹn may suit"', '🎙 Listening... e.g. "10am Adam fitting for a suit"'); };
+    rec.onresult = ev => {
+      let t = ''; for (let i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript;
+      recText = t; noteQuick.value = t;
+    };
+    rec.onerror = ev => {
+      const denied = ev.error === 'not-allowed' || ev.error === 'service-not-allowed';
+      if (ev.error === 'no-speech') noteMicHint.textContent = L('Không nghe thấy gì, bấm mic để thử lại', 'Nothing heard, tap the mic to retry');
+      else if (denied) noteMicHint.textContent = L('⚠ Chưa được cấp quyền micro/Đọc chính tả. iPhone: Cài đặt > Cài đặt chung > Bàn phím > bật Đọc chính tả; hoặc dùng micro trên bàn phím', '⚠ Mic/Dictation blocked. iPhone: Settings > General > Keyboard > Enable Dictation; or use the keyboard mic');
+      else if (ev.error !== 'aborted') noteMicHint.textContent = L('⚠ Lỗi micro: ', '⚠ Mic error: ') + ev.error;
+    };
+    rec.onend = () => {
+      noteMic.classList.remove('rec'); rec = null;
+      if (recText.trim() && addQuickNote(recText)) { noteQuick.value = ''; noteMicHint.textContent = L('✔ Đã thêm vào ghi chú ngày', '✔ Added to the day notes'); }
+      recText = '';
+    };
+    try { rec.start(); } catch (e) { rec = null; noteMic.classList.remove('rec'); }
+  }
+  noteMic.onclick = startMic;
+
   $('#noteModalClear').onclick = () => {
     if (!activeNoteDate || !notes[activeNoteDate]) return;
     if (confirm(L(`Xóa ghi chú của ${fmtDate(activeNoteDate)}?`, `Delete the note for ${fmtDate(activeNoteDate)}?`))) {
@@ -2273,7 +2420,7 @@
   };
   $('#noteModalClose').onclick = () => noteDlg.close();
   // Đóng bằng Esc / bấm nền cũng lưu ngay phần đang gõ dở
-  noteDlg.addEventListener('close', () => { flushNote(); activeNoteDate = null; });
+  noteDlg.addEventListener('close', () => { stopMic(); if (noteQuick.value.trim()) { addQuickNote(noteQuick.value); noteQuick.value = ''; } flushNote(); activeNoteDate = null; });
   noteDlg.addEventListener('click', e => { if (e.target === noteDlg) noteDlg.close(); });
 
   /* ===== MENU / TAB / TƯƠNG TÁC DANH SÁCH ===== */

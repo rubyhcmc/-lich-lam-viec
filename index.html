@@ -161,6 +161,14 @@
   .dp-day.today { border-color: var(--primary); }
   .dp-day.sel { background: var(--primary); color: #fff; }
 
+  /* Bảng ghi chú ngày hiện thẳng trên màn hình chính */
+  .day-notes { background: #fffbe6; border: 1px solid #f0dc8a; border-left: 5px solid #f59e0b; border-radius: 10px; padding: 8px 12px 6px; margin-bottom: 10px; cursor: pointer; }
+  .day-notes .dn-title { font-weight: 800; font-size: 13px; text-transform: uppercase; color: #92660a; margin-bottom: 4px; display: flex; justify-content: space-between; gap: 8px; }
+  .day-notes .dn-title span { font-weight: 600; text-transform: none; font-size: 12px; }
+  .day-notes .dn-row { display: flex; gap: 8px; padding: 4px 0; font-size: 15px; line-height: 1.4; border-top: 1px dashed #ecdc9c; word-break: break-word; }
+  .day-notes .dn-row:first-of-type { border-top: none; }
+  .day-notes .dn-time { font-weight: 800; color: #92660a; flex: none; min-width: 52px; }
+  @media (max-width: 560px) { .day-notes .dn-row { font-size: 17px; } .day-notes .dn-title { font-size: 14px; } }
   /* Ghi chú ngày: nhập nhanh bằng giọng nói */
   .note-add { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
   .note-add input { flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 15px; background: #fff; }
@@ -1665,7 +1673,7 @@
   function renderDay() {
     const evs = allEvents();
     const dayEvs = evs.filter(e => e.date === state.day);
-    let html = '';
+    let html = dayNotesHTML();
     if (state.day === todayKey()) {
       const over = evs.filter(e => !e.done && e.date < state.day);
       if (over.length) html += `<div class="group-title overdue">⚠ ${L('Việc quá hạn chưa hoàn thành', 'Overdue unfinished tasks')} (${over.length})</div>` + over.map(eventHTML).join('');
@@ -2328,12 +2336,13 @@
   calBox.addEventListener('focusout', hideNoteTip);
   window.addEventListener('scroll', hideNoteTip, true);
   $('#btnDayNote').onclick = () => openNote(state.day);
+  $('#view').addEventListener('click', e => { if (e.target.closest('[data-daynote]')) openNote(state.day); });
 
   function flushNote() {
     clearTimeout(modalNoteTimer);
     if (!notePending) return;
     notePending = false;
-    saveNotes(); renderCal(); updateNoteBtn();
+    saveNotes(); renderCal(); updateNoteBtn(); if (state.tab === 'day') renderDay();
     $('#noteModalState').textContent = L('✔ Đã lưu', '✔ Saved');
   }
   $('#noteModalText').addEventListener('input', e => {
@@ -2358,6 +2367,19 @@
     if (h > 23 || min > 59) return null;
     return h * 60 + min;
   }
+  function noteTimeText(line) {
+    const m = line.match(/^\s*(\d{1,2})\s*(?:[:h]\s*(\d{1,2})?|(?:giờ|gio)\s*(\d{1,2})?|(a\.?\s?m\.?|p\.?\s?m\.?))\s*(a\.?\s?m\.?|p\.?\s?m\.?|sáng|chiều|tối|trưa)?/i);
+    return m && noteTimeOf(line) !== null ? m[0].trim() : '';
+  }
+  function dayNotesHTML() {
+    const txt = notes[state.day];
+    if (!txt || !txt.trim()) return '';
+    const rows = txt.split('\n').map(x => x.trim()).filter(Boolean).map(line => {
+      const tm = noteTimeText(line), rest = tm ? line.slice(line.indexOf(tm) + tm.length).trim() : line;
+      return `<div class="dn-row">${tm ? `<span class="dn-time">${esc(tm)}</span>` : ''}<span>${esc(rest)}</span></div>`;
+    }).join('');
+    return `<div class="day-notes" data-daynote="1" title="${L('Bấm để sửa ghi chú', 'Tap to edit notes')}"><div class="dn-title">📝 ${L('Ghi chú ngày', 'Day notes')}<span>✎ ${L('bấm để thêm / sửa', 'tap to add / edit')}</span></div>${rows}</div>`;
+  }
   function sortNoteLines(lines) {
     return lines.map((t, i) => ({ t, i, k: noteTimeOf(t) }))
       .sort((a, b) => (a.k === null) - (b.k === null) || (a.k !== null && a.k - b.k) || a.i - b.i)   // có giờ lên trên theo giờ tăng dần, không có giờ xuống dưới
@@ -2375,6 +2397,7 @@
     return true;
   }
   $('#noteQuickAdd').onclick = () => { if (addQuickNote(noteQuick.value)) { noteQuick.value = ''; } noteQuick.focus(); };
+  noteQuick.addEventListener('change', () => { if (noteQuick.value.trim() && addQuickNote(noteQuick.value)) noteQuick.value = ''; });   // đọc chính tả bằng bàn phím xong, chạm ra ngoài là tự thêm
   noteQuick.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#noteQuickAdd').click(); } });
 
   // iPhone mở từ biểu tượng Màn hình chính: iOS không cho trang dùng bộ nhận giọng nói riêng -> dùng micro trên bàn phím

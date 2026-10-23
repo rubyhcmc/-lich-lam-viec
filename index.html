@@ -583,6 +583,7 @@
   .sync-chip.ok { color: var(--ok); border-color: #bbf7d0; background: #f0fbf3; }
   .sync-chip.bad { color: var(--danger); border-color: #f3c3bf; background: #fff6f5; }
   .sync-chip.warn { color: #b45309; border-color: #f6d9a8; background: #fff8e6; }
+  .sync-chip.off { color: var(--muted); }
   .sync-chip.busy { color: var(--primary); border-color: #bcd3f8; background: #eef4ff; }
   .sync-chip.busy .sc-st { display: inline-block; animation: scspin 1s linear infinite; }
   @keyframes scspin { to { transform: rotate(360deg); } }
@@ -1379,18 +1380,19 @@
     const on = gdOn();
     let cls = '', ic = '☁', tx = '';
     const hm = t ? `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}` : '';
-    if (gd.busy) { cls = 'busy'; ic = '⟳'; tx = L('Đang đồng bộ', 'Syncing'); }
+    if (!on) { cls = 'off'; ic = '✕'; tx = L('Chưa bật đồng bộ', 'Sync off'); }
+    else if (gd.busy) { cls = 'busy'; ic = '⟳'; tx = L('Đang đồng bộ', 'Syncing'); }
     else if (gd.needAuth) { cls = 'bad'; ic = '⚠'; tx = L('Cần đăng nhập', 'Sign in'); }
     else if (gd.err === 'offline') { cls = 'warn'; ic = '📴'; tx = L('Offline', 'Offline'); }
     else if (gd.err) { cls = 'bad'; ic = '⚠'; tx = L('Lỗi đồng bộ', 'Sync error'); }
-    else if (t) { cls = 'ok'; ic = '✔'; tx = hm; }
+    else if (t) { cls = 'ok'; ic = '✔'; tx = L('Đã đồng bộ ', 'Synced ') + hm; }
     else { tx = '…'; }
     chips.forEach(c => {
       if (!c) return;
-      c.hidden = !on;
+      c.hidden = false;
       c.className = (c.id === 'mtSync' ? 'mt-sync ' : '') + 'sync-chip ' + cls;
       c.innerHTML = `<span class="sc-ic">☁</span><span class="sc-st">${ic}</span><span class="sc-t">${tx}</span>`;
-      c.title = gd.msg || ''; c.setAttribute('aria-label', gd.msg || 'Sync');
+      const tip = on ? (gd.msg || '') : L('Chưa bật đồng bộ Google Drive — bấm để bật', 'Google Drive sync is off — tap to turn on'); c.title = tip; c.setAttribute('aria-label', tip || 'Sync');
     });
   }
   function snapUI() {
@@ -2769,7 +2771,7 @@
   $('#btnSync').onclick = () => { $('#syncCid').value = gdClientId(); syncUI(); if (!syncDlg.open) syncDlg.showModal(); };
   $('#syncClose').onclick = () => syncDlg.close();
   // Bấm chip trạng thái: cần đăng nhập thì đăng nhập lại, còn lại thì đồng bộ ngay rồi báo kết quả
-  const onChip = async () => { if (gd.needAuth) { await syncRun(true); } else { await syncRun(false); } toast(gd.msg || ''); };
+  const onChip = async () => { if (!gdOn()) { $('#btnSync').click(); return; } if (gd.needAuth) { await syncRun(true); } else { await syncRun(false); } toast(gd.msg || ''); };
   $('#btnSyncChip').onclick = onChip; $('#mtSync').onclick = onChip;
   $('#btnUndoSync').onclick = () => {
     let snap; try { snap = JSON.parse(lsGet(SK.snap)); } catch (e) {}

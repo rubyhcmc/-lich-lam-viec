@@ -177,6 +177,8 @@
   .note-add .mic-btn { width: 46px; height: 42px; flex: none; border-radius: 10px; font-size: 20px; padding: 0; }
   .note-add .mic-btn.rec { background: #d93025; color: #fff; border-color: #d93025; animation: micPulse 1s infinite; }
   @keyframes micPulse { 50% { box-shadow: 0 0 0 6px rgba(217,48,37,.25); } }
+  .note-add .mic-lang { flex: none; height: 42px; min-width: 46px; padding: 0 8px; border-radius: 10px; font-size: 14px; font-weight: 800; color: var(--primary); }
+  .note-add .mic-lang.en { color: #b45309; background: #fff4e5; border-color: #f6d9a8; }
   .note-mic-hint { font-size: 12px; color: var(--muted); margin: 0 0 10px; min-height: 16px; }
   .note-modal-body textarea { min-height: 120px; }
 
@@ -937,6 +939,7 @@
   <div class="note-modal-body">
     <div class="note-add">
       <input id="noteQuick" enterkeyhint="send" placeholder="VD: 10am Adam hẹn may suit" aria-label="Ghi chú nhanh" autocomplete="off">
+      <button type="button" class="mic-lang" id="noteMicLang" title="Ngôn ngữ nói" aria-label="Ngôn ngữ nói">VI</button>
       <button type="button" class="mic-btn" id="noteMic" title="Nói để nhập" aria-label="Nhập bằng giọng nói">🎤</button>
       <button type="button" class="primary small" id="noteQuickAdd">＋ Thêm</button>
     </div>
@@ -2360,18 +2363,19 @@
   /* ----- Nhập ghi chú nhanh bằng giọng nói / bàn phím, tự xếp theo giờ ----- */
   const noteQuick = $('#noteQuick'), noteMic = $('#noteMic'), noteMicHint = $('#noteMicHint');
   // Lấy giờ ở đầu dòng: "10am", "10:30", "9h", "3 giờ chiều"... (không nhận ra giờ thì trả null)
+  const NOTE_TIME_RE = /^\s*(\d{1,2})\s*(?:[:h]\s*(\d{1,2})?|(?:giờ|gio|o['’]?clock)\s*(\d{1,2})?|(a\.?\s?m\.?|p\.?\s?m\.?))\s*(a\.?\s?m\.?|p\.?\s?m\.?|sáng|chiều|tối|trưa|in the morning|in the afternoon|in the evening|at night|tonight)?/i;
   function noteTimeOf(line) {
-    const m = line.match(/^\s*(\d{1,2})\s*(?:[:h]\s*(\d{1,2})?|(?:giờ|gio)\s*(\d{1,2})?|(a\.?\s?m\.?|p\.?\s?m\.?))\s*(a\.?\s?m\.?|p\.?\s?m\.?|sáng|chiều|tối|trưa)?/i);
+    const m = line.match(NOTE_TIME_RE);
     if (!m) return null;
     let h = +m[1], min = +(m[2] || m[3] || 0);
     const suf = (m[4] || m[5] || '').toLowerCase().replace(/[\s.]/g, '');
-    if (/^p/.test(suf) || suf === 'chiều' || suf === 'tối') { if (h < 12) h += 12; }
-    else if (/^a/.test(suf) || suf === 'sáng') { if (h === 12) h = 0; }
+    if (/^p/.test(suf) || suf === 'chiều' || suf === 'tối' || suf === 'intheafternoon' || suf === 'intheevening' || suf === 'atnight' || suf === 'tonight') { if (h < 12) h += 12; }
+    else if (/^a/.test(suf) && suf !== 'atnight' || suf === 'sáng' || suf === 'inthemorning') { if (h === 12) h = 0; }
     if (h > 23 || min > 59) return null;
     return h * 60 + min;
   }
   function noteTimeText(line) {
-    const m = line.match(/^\s*(\d{1,2})\s*(?:[:h]\s*(\d{1,2})?|(?:giờ|gio)\s*(\d{1,2})?|(a\.?\s?m\.?|p\.?\s?m\.?))\s*(a\.?\s?m\.?|p\.?\s?m\.?|sáng|chiều|tối|trưa)?/i);
+    const m = line.match(NOTE_TIME_RE);
     return m && noteTimeOf(line) !== null ? m[0].trim() : '';
   }
   function dayNotesHTML() {
@@ -2407,19 +2411,45 @@
   const IS_STANDALONE = navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   const NOTE_IOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const SR = (IS_STANDALONE && NOTE_IOS) ? null : (window.SpeechRecognition || window.webkitSpeechRecognition);
+  // Ngôn ngữ nói riêng cho micro: VI (tiếng Việt) hoặc EN (tiếng Anh) — bấm nút VI/EN cạnh 🎤 để đổi, nhớ lại cho lần sau.
+  // (Bộ nhận giọng nói của trình duyệt chỉ nghe được 1 ngôn ngữ mỗi lần; nên khi nói câu có nhiều tiếng Anh, hãy chuyển sang EN.)
+  const MICLANG_KEY = 'phiphi_miclang_v1', MIC_CODES = { vi: 'vi-VN', en: 'en-US' };
+  let micLang = 'vi'; try { micLang = localStorage.getItem(MICLANG_KEY) === 'en' ? 'en' : 'vi'; } catch (e) {}
+  const noteMicLang = $('#noteMicLang');
+  function updateMicLang() {
+    noteMicLang.textContent = micLang === 'en' ? 'EN' : 'VI';
+    noteMicLang.classList.toggle('en', micLang === 'en');
+    const tip = micLang === 'en' ? L('Đang nghe tiếng Anh — bấm để chuyển sang tiếng Việt', 'Listening in English — tap to switch to Vietnamese') : L('Đang nghe tiếng Việt — bấm để chuyển sang tiếng Anh', 'Listening in Vietnamese — tap to switch to English');
+    noteMicLang.title = tip; noteMicLang.setAttribute('aria-label', tip);
+  }
+  noteMicLang.onclick = () => {
+    micLang = micLang === 'en' ? 'vi' : 'en';
+    try { localStorage.setItem(MICLANG_KEY, micLang); } catch (e) {}
+    updateMicLang();
+    if (rec) { stopMic(); }
+    noteMicHint.textContent = micLang === 'en' ? L('🎙 Đã chuyển sang nghe tiếng Anh', '🎙 Switched to English') : L('🎙 Đã chuyển sang nghe tiếng Việt', '🎙 Switched to Vietnamese');
+  };
+  updateMicLang();
+  // Sửa các từ tiếng Anh hay bị bộ nhận giọng tiếng Việt chép sai (VD "sút/suýt/xuýt" -> suit). Thêm từ mới vào bảng này khi gặp.
+  const VI_FIX = [
+    [/(^|\s)(sút|suýt|suyt|xuýt|xuyt|sui|su ít|xu ít|sua it|suit)(?=\s|$|[.,!?])/gi, '$1suit'],
+    [/(^|\s)(gia két|giắc két|dắc két|dạ két|gác két|jắc két|zắc két|giakét|gia ket|gi ác két|jacket)(?=\s|$|[.,!?])/gi, '$1jacket'],
+    [/(^|\s)(gi lê|ghi lê|gi-lê|ghi-lê|gile)(?=\s|$|[.,!?])/gi, '$1gile']
+  ];
+  const fixTerms = t => VI_FIX.reduce((a, [re, to]) => a.replace(re, to), String(t || ''));
   let rec = null, recText = '';
   function stopMic() { if (rec) { try { rec.stop(); } catch (e) {} } }
   function startMic() {
     if (!SR) { noteQuick.focus(); noteMicHint.textContent = L('🎙 Bấm biểu tượng micro trên bàn phím iPhone, nói xong bấm Gửi/＋ Thêm', '🎙 Tap the microphone key on the iPhone keyboard, then press Send/＋ Add'); return; }
     if (rec) { stopMic(); return; }
     rec = new SR();
-    rec.lang = lang === 'en' ? 'en-US' : 'vi-VN';
+    rec.lang = MIC_CODES[micLang];
     rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
     recText = '';
-    rec.onstart = () => { noteMic.classList.add('rec'); noteMicHint.textContent = L('🎙 Đang nghe... hãy nói, ví dụ "10 giờ Adam hẹn may suit"', '🎙 Listening... e.g. "10am Adam fitting for a suit"'); };
+    rec.onstart = () => { noteMic.classList.add('rec'); noteMicHint.textContent = micLang === 'en' ? L('🎙 Đang nghe TIẾNG ANH... ví dụ "10 am Adam fitting for a suit"', '🎙 Listening in ENGLISH... e.g. "10 am Adam fitting for a suit"') : L('🎙 Đang nghe TIẾNG VIỆT... ví dụ "10 giờ Adam hẹn may suit"', '🎙 Listening in VIETNAMESE... e.g. "10 giờ Adam hẹn may suit"'); };
     rec.onresult = ev => {
       let t = ''; for (let i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript;
-      recText = t; noteQuick.value = t;
+      recText = micLang === 'vi' ? fixTerms(t) : t; noteQuick.value = recText;
     };
     rec.onerror = ev => {
       const denied = ev.error === 'not-allowed' || ev.error === 'service-not-allowed';
@@ -3187,7 +3217,7 @@
   function setLang(l) {
     lang = l === 'en' ? 'en' : 'vi';
     try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
-    applyStatic(); updateNotifyBtn(); renderBkStatus(); calc(); updateFullBtn(); try { syncUI(); } catch (e) {} render();
+    applyStatic(); updateNotifyBtn(); try { updateMicLang(); } catch (e) {} renderBkStatus(); calc(); updateFullBtn(); try { syncUI(); } catch (e) {} render();
   }
   $('#langSeg').addEventListener('click', e => {
     const b = e.target.closest('[data-lang]');

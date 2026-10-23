@@ -562,6 +562,143 @@
     .col, .ccard, .event, .order-card { break-inside: avoid; }
     .app { max-width: none; padding: 0; }
   }
+
+  /* ===== iPhone: gom tab thành 1 nút + nút máy tính + nút sao lưu ===== */
+  .mtabs { display: none; }
+  @media (max-width: 560px) {
+    .toolrow .tabs { display: none; }
+    .mtabs { display: flex; gap: 6px; margin-bottom: 6px; position: relative; }
+    .mtabs button { min-height: 44px; }
+    .mtabs .mt-view { flex: 1; min-width: 0; text-align: left; font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .mtabs .mt-calc, .mtabs .mt-bk { flex: none; min-width: 48px; padding: 0 10px; font-size: 20px; }
+    .mtabs .mt-calc.on { background: var(--primary); border-color: var(--primary); }
+    .mtabs .mt-bk { background: #fff8e6; border-color: #f0c36d; position: relative; }
+    .mtabs .mt-bk::after { content: ''; position: absolute; top: 6px; right: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--danger); }
+    .mt-list { display: none; position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 35; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.18); padding: 6px; }
+    .mtabs.open .mt-list { display: block; }
+    .mt-list button { display: flex; width: 100%; align-items: center; justify-content: space-between; border: none; background: none; text-align: left; padding: 12px; border-radius: 8px; font-weight: 600; }
+    .mt-list button.active { background: #e8f0fe; color: var(--primary); font-weight: 700; }
+  }
+
+  /* ===== iPhone: chữ lớn hơn một cỡ ===== */
+  @media (max-width: 560px) {
+    body { font-size: 18px; }
+    .brand-icon { font-size: 23px; }
+    .brand h1 { font-size: 23px; }
+    .brand small { font-size: 16px; }
+    .menu-list button { font-size: 17px; }
+    .bk-status { font-size: 16px; }
+    button { font-size: 17px; }
+    button.small { font-size: 16px; }
+    .datebar .label { font-size: 19px; }
+    .datebar .label .rel { font-size: 16px; }
+    .cal { font-size: 17px; }
+    .cal-head { font-size: 18px; }
+    .cal-dow { font-size: 15.5px; }
+    .cal-day { font-size: 17px; }
+    .cal-foot { font-size: 15px; }
+    .tab-n { font-size: 14px; }
+    .late-days { font-size: 14.5px; }
+    .tab { font-size: 18px; }
+    .search { font-size: 18px; }
+    .group-title { font-size: 17px; }
+    .col-head b { font-size: 18px; }
+    .col-sub { font-size: 15px; }
+    .col-head span { font-size: 16px; }
+    .col-empty { font-size: 17px; }
+    .ctitle { font-size: 18px; }
+    .ctime { font-size: 15px; }
+    .ccard .edit-btn { font-size: 15px; }
+    .citems { font-size: 16px; }
+    .sub-chip { font-size: 14px; }
+    .cnext-title { font-size: 14px; }
+    .cnext-day { font-size: 15px; }
+    .cnext-n { font-size: 13.5px; }
+    .cnext-more { font-size: 14.5px; }
+    .cnext-item { font-size: 15.5px; }
+    .popover { font-size: 16px; }
+    .pop-head { font-size: 18px; }
+    .pop-close { font-size: 18px; }
+    .pop-line .pop-label { font-size: 14px; }
+    .pop-line .pop-val { font-size: 16px; }
+    .badge-done-pop { font-size: 14px; }
+    .note-modal-head { font-size: 19px; }
+    .note-modal-body textarea { font-size: 17px; }
+    .note-modal-foot { font-size: 15px; }
+    .event { font-size: 17px; }
+    .time { font-size: 17px; }
+    .meta { font-size: 16px; }
+    .badge { font-size: 14px; }
+    .empty { font-size: 17px; }
+    .order-card { font-size: 17px; }
+    .order-head b { font-size: 19px; }
+    .step { font-size: 16px; }
+    dialog#dlg { font-size: 17px; }
+    .modal-head { font-size: 19px; }
+    .field label { font-size: 15px; }
+    .field input { font-size: 17px; }
+    .ac-head { font-size: 14px; }
+    .ac-item { font-size: 17px; }
+    .ac-meta { font-size: 14.5px; }
+    .ac-del { font-size: 15px; }
+    .job-title { font-size: 19px; }
+    .j-items { font-size: 17px; }
+    .tl-label { font-size: 16px; }
+    .tl-block input[type=date], .tl-block select { font-size: 16px; }
+    .tl-block .clear { font-size: 16px; }
+    .cust-card-wrap .tl-label { font-size: 17px; }
+    .cust-items-input { font-size: 17px; }
+    .calc { font-size: 17px; }
+    .calc-reset { font-size: 17px; }
+    .cfield label { font-size: 16px; }
+    .cfield input { font-size: 19px; }
+    .seg button { font-size: 17px; }
+    .cline { font-size: 17px; }
+    .bk-banner { font-size: 16px; }
+    .topbar #btnNotify { font-size: 16px; }
+    .topbar .lang-seg button { font-size: 15px; }
+    .toolrow .tab { font-size: 17px; }
+    .toolrow .datebar .label { font-size: 19px; }
+    .kpi-label { font-size: 14px; }
+    .kpi-val { font-size: 23px; }
+    .kpi-val small { font-size: 16px; }
+    .kpi-sub { font-size: 15px; }
+    .toast { font-size: 16px; }
+    .edit-btn { font-size: 15px; }
+    .job-top-other .j-other-hint { font-size: 15px; }
+    .j-tailor { font-size: 17px; }
+    .lang-seg button { font-size: 16px; }
+    .cal { font-size: 18px; }
+    .cal-head { font-size: 20px; }
+    .cal-dow { font-size: 16px; }
+    .cal-day { font-size: 19px; }
+    .cal-day .sd { font-size: 19px; }
+    .cal-foot { font-size: 15px; }
+    .note-tip { font-size: 16px; }
+    .note-tip .nt-title { font-size: 15px; }
+    .note-tip .nt-hint { font-size: 14px; }
+    .cal-day .ld { font-size: 13px; }
+    .pop-title b { font-size: 19px; }
+    .pop-sub { font-size: 15px; }
+    .pop-block .pop-label { font-size: 14px; }
+    .pop-block .pop-val { font-size: 17px; }
+    .pop-note { font-size: 16px; }
+    .ps-line { font-size: 17px; }
+    .pl-qty { font-size: 17px; }
+    .ps-lines .ps-items { font-size: 17px; }
+    .cl { font-size: 15px; }
+    .cl b { font-size: 16px; }
+    .cl-extra { font-size: 15px; }
+    .lines-head { font-size: 15px; }
+    .line-row input { font-size: 17px; }
+    .dwrap .dshow { font-size: 17px; }
+    .line-row .qty button { font-size: 18px; }
+    .chip-add { font-size: 15px; }
+    .ps-main { font-size: 16px; }
+    .ccard.done .ctitle { font-size: 16px; }
+    input, select, textarea { font-size: 17px !important; }
+    .dwrap .dshow { font-size: 17px; }
+  }
 </style>
 </head>
 <body>
@@ -617,6 +754,12 @@
       <button type="button" class="tab" data-tab="late">⚠ <span id="lateTabTxt">Trễ / quá hạn</span> <span class="tab-n" id="lateN" hidden></span></button>
       <button type="button" class="tab" data-tab="calc">🧮 Máy tính</button>
     </div>
+      <div class="mtabs" id="mtabs">
+        <button type="button" class="mt-view" id="mtView" aria-haspopup="true"></button>
+        <button type="button" class="mt-calc" id="mtCalc" aria-label="Máy tính">🧮</button>
+        <button type="button" class="mt-bk" id="mtBk" hidden>💾</button>
+        <div class="mt-list" id="mtList" role="menu"></div>
+      </div>
       <div class="datebar">
         <div class="nav">
           <button type="button" id="prevDay" aria-label="Ngày trước">◀</button>
@@ -1275,6 +1418,7 @@
     renderFilters();
     const lateN = allEvents().filter(e => flags(e).late).length, ln = $('#lateN');
     ln.hidden = !lateN; ln.textContent = lateN;
+    updateMtabs();
     if (onDay) renderDay(); else if (state.tab === 'week') renderWeek(); else if (state.tab === 'orders') renderOrders(); else if (state.tab === 'late') renderLate();
     else $('#view').innerHTML = '';
   }
@@ -2010,6 +2154,25 @@
   menu.querySelector('.menu-list').addEventListener('click', () => setMenu(false));
   document.addEventListener('click', () => setMenu(false));
 
+  /* ===== Điện thoại: 1 nút chọn kiểu xem + 1 nút máy tính ===== */
+  const MT_VIEWS = [['day', 'Lịch trong ngày', 'Daily schedule'], ['week', '7 ngày tới', 'Next 7 days'], ['orders', 'Tất cả đơn', 'All orders'], ['late', '⚠ Trễ / quá hạn', '⚠ Late / overdue']];
+  function updateMtabs() {
+    const lateN = Number($('#lateN').textContent) || 0, cur = MT_VIEWS.find(v => v[0] === state.tab) || MT_VIEWS[0];
+    const badge = lateN ? `<span class="tab-n">${lateN}</span>` : '';
+    $('#mtView').innerHTML = `<span>${L(cur[1], cur[2])}</span><span>${badge} ▾</span>`;
+    $('#mtList').innerHTML = MT_VIEWS.map(v => `<button type="button" role="menuitem" data-mt="${v[0]}" class="${v[0] === state.tab ? 'active' : ''}"><span>${L(v[1], v[2])}</span>${v[0] === 'late' && lateN ? `<span class="tab-n">${lateN}</span>` : ''}</button>`).join('');
+    $('#mtCalc').classList.toggle('on', state.tab === 'calc');
+    $('#mtCalc').setAttribute('aria-label', L('Máy tính', 'Calculator'));
+  }
+  $('#mtView').onclick = e => { e.stopPropagation(); $('#mtabs').classList.toggle('open'); };
+  $('#mtList').addEventListener('click', e => {
+    const b = e.target.closest('[data-mt]'); if (!b) return;
+    state.tab = b.dataset.mt; $('#mtabs').classList.remove('open'); render();
+  });
+  $('#mtCalc').onclick = () => { state.tab = state.tab === 'calc' ? 'day' : 'calc'; $('#mtabs').classList.remove('open'); render(); };
+  $('#mtBk').onclick = () => (BK.supported ? $('#btnBkPick') : $('#btnExport')).click();
+  document.addEventListener('click', () => $('#mtabs').classList.remove('open'));
+
   document.querySelector('.tabs').addEventListener('click', e => {
     const t = e.target.closest('.tab');
     if (!t) return;
@@ -2328,9 +2491,11 @@
   function updateBkBanner() {
     const box = $('#bkBanner'), txt = $('#bkBannerText'), btn = $('#bkBannerBtn');
     const risky = BK.ready && (orders.length || Object.keys(notes).length) && !BK.handle && !bkBannerHidden;
-    box.hidden = !risky;
+    const mob = window.innerWidth <= 560, mb = $('#mtBk');
+    box.hidden = !risky || mob;
+    if (mb) { mb.hidden = !(risky && mob); mb.title = BK.supported ? L('Chưa bật tự động sao lưu — bấm để bật', 'Auto backup is off — tap to turn on') : L('Nhớ xuất file sao lưu thường xuyên — bấm để xuất', 'Remember to export backups — tap to export'); mb.setAttribute('aria-label', mb.title); }
     if (!risky) return;
-    if (window.innerWidth <= 560) {   // điện thoại: một dòng gọn
+    if (mob) {   // điện thoại: chỉ còn một nút biểu tượng 💾 cạnh nút máy tính
       txt.textContent = BK.supported ? L('⚠ Chưa bật tự động sao lưu', '⚠ Auto backup is off') : L('💾 Nhớ xuất file sao lưu thường xuyên', '💾 Remember to export backups');
       btn.textContent = BK.supported ? L('Bật', 'Turn on') : L('Xuất file', 'Export');
       btn.onclick = () => BK.supported ? $('#btnBkPick').click() : $('#btnExport').click();

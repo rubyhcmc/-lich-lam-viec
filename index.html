@@ -459,7 +459,17 @@
   body { padding-bottom: env(safe-area-inset-bottom); -webkit-tap-highlight-color: transparent; }
   .cal-toggle { display: none; }
   .fab { display: none; }
-  .col-hint { display: none; }
+  .col-hint { font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .col.collapsible .col-head { cursor: pointer; user-select: none; -webkit-user-select: none; }
+  .col.collapsible:not(.is-open) .col-body, .col.collapsible:not(.is-open) .col-sub { display: none; }
+  .col.collapsible:not(.is-open) .col-head { border-bottom: none; }
+  .col-head:hover { background: #f1f5fb; }
+  .col-head .col-hint:empty { display: none; }
+  .col-head b { flex: 1 1 auto; }
+  .col-head { justify-content: flex-start; }
+  .col-head .col-chev { flex: none; display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; margin-left: 2px; color: var(--c); background: color-mix(in srgb, var(--c) 14%, #fff); border: 1.5px solid color-mix(in srgb, var(--c) 45%, #fff); transition: transform .2s, background .15s; }
+  .col-head:hover .col-chev { background: color-mix(in srgb, var(--c) 26%, #fff); }
+  .col:not(.is-open) .col-head .col-chev { transform: rotate(-90deg); }
   .ct-txt { display: none; }
   /* dùng chung máy tính + điện thoại */
   #today.is-today { display: none; }
@@ -530,7 +540,7 @@
     #prevDay, #nextDay, #today, #btnCalToggle, #btnDayNote { min-height: 42px; }
     .col-head b { font-size: 15px; }
     .col-empty { padding: 6px; font-size: 13px; }
-    .col-hint { display: inline; margin-left: 8px; font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+    .col-hint { margin-left: 8px; }
     .col-head { gap: 6px; }
     .col-head span { margin-left: auto; }
     .col.collapsible:not(.is-open) .col-body, .col.collapsible:not(.is-open) .col-sub { display: none; }
@@ -1516,7 +1526,7 @@
     return cols;
   }
 
-  const colOpen = new Set();
+  const colState = new Map();   // ckey -> true (mở) / false (đóng): lựa chọn của người dùng, nếu chưa chọn thì cột trống/đã xong hết tự thu gọn
   function renderDay() {
     const evs = allEvents();
     const dayEvs = evs.filter(e => e.date === state.day);
@@ -1555,10 +1565,10 @@
       }
 
       // Điện thoại: cột trống hoặc đã xong hết thì thu gọn thành một dòng, chạm vào tiêu đề để mở
-      const collapsible = list.length === 0 || done === list.length, ckey = state.day + '|' + c.key, isOpen = colOpen.has(ckey);
+      const collapsible = list.length === 0 || done === list.length, ckey = state.day + '|' + c.key, isOpen = colState.has(ckey) ? colState.get(ckey) : !collapsible;
       const hint = !collapsible ? '' : list.length === 0 ? L('Trống', 'Empty') : L('✔ Xong hết', '✔ All done');
-      return `<section class="col ${collapsible ? 'collapsible' : ''} ${collapsible && isOpen ? 'is-open' : ''}" data-ckey="${esc(ckey)}" style="--c:${c.color}">
-        <div class="col-head"><b>${c.title}</b><span>${done}/${list.length}</span><em class="col-hint">${collapsible ? hint + (isOpen ? " ▾" : " ▸") : ""}</em></div>${pcs}
+      return `<section class="col collapsible ${isOpen ? 'is-open' : ''}" data-ckey="${esc(ckey)}" data-auto="${collapsible ? 1 : 0}" style="--c:${c.color}">
+        <div class="col-head" role="button" tabindex="0" aria-expanded="${isOpen ? 'true' : 'false'}" title="${L('Bấm để mở / thu gọn', 'Tap to expand / collapse')}"><b>${c.title}</b><span>${done}/${list.length}</span><em class="col-hint">${hint}</em><i class="col-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></i></div>${pcs}
         <div class="col-body">${list.length ? list.map(colCardHTML).join('') : `<div class="col-empty">${L('Không có lịch ngày này', 'Nothing scheduled for this day')}</div>`}${nextHTML}</div>
       </section>`;
     }).join('') + `</div>`;
@@ -2018,11 +2028,14 @@
   };
 
   $('#view').addEventListener('click', e => {
-    const h = e.target.closest('.col-head'); if (!h || window.innerWidth > 560) return;
+    const h = e.target.closest('.col-head'); if (!h) return;
     const sec = h.closest('.col.collapsible'); if (!sec) return;
-    const k = sec.dataset.ckey; colOpen.has(k) ? colOpen.delete(k) : colOpen.add(k);
-    sec.classList.toggle('is-open', colOpen.has(k));
-    const em = h.querySelector('.col-hint'); if (em) em.textContent = em.textContent.replace(/[▾▸]/, colOpen.has(k) ? '▾' : '▸');
+    const open = !sec.classList.contains('is-open');
+    colState.set(sec.dataset.ckey, open);
+    sec.classList.toggle('is-open', open); h.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  $('#view').addEventListener('keydown', e => {   // bàn phím: Enter / Space trên tiêu đề cột
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('col-head')) { e.preventDefault(); e.target.click(); }
   });
   $('#fabAdd').onclick = () => $('#btnAdd').click();
   $('#btnCalToggle').onclick = () => { const h = $('#home'); h.classList.toggle('cal-open'); $('#btnCalToggle').classList.toggle('on', h.classList.contains('cal-open')); };

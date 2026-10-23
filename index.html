@@ -2274,7 +2274,7 @@
     $('#noteModalState').textContent = notes[k] ? L('Đã có nội dung · tự động lưu', 'Has content · auto-saved') : L('Trống · tự động lưu', 'Empty · auto-saved');
     noteQuick.value = ''; noteMicHint.textContent = SR ? '' : L('Bấm 🎤 rồi dùng micro trên bàn phím để đọc, hoặc gõ ở ô trên', 'Tap 🎤 then use the keyboard mic, or type above');
     noteDlg.showModal();
-    if (!IS_TOUCH) noteQuick.focus();
+    if (!NOTE_IOS && !/Android/i.test(navigator.userAgent)) noteQuick.focus();
   }
 
   let lastTap = { k: '', t: 0 }, calCollapseTimer;
@@ -2379,7 +2379,8 @@
 
   // iPhone mở từ biểu tượng Màn hình chính: iOS không cho trang dùng bộ nhận giọng nói riêng -> dùng micro trên bàn phím
   const IS_STANDALONE = navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
-  const SR = (IS_STANDALONE && IS_TOUCH) ? null : (window.SpeechRecognition || window.webkitSpeechRecognition);
+  const NOTE_IOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const SR = (IS_STANDALONE && NOTE_IOS) ? null : (window.SpeechRecognition || window.webkitSpeechRecognition);
   let rec = null, recText = '';
   function stopMic() { if (rec) { try { rec.stop(); } catch (e) {} } }
   function startMic() {

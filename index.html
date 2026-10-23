@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v2.4</title>
+<title>Lịch Làm Việc v1.9</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -119,13 +119,6 @@
   
   .cnext { border-top: 1px dashed var(--line); margin-top: 10px; padding-top: 8px; }
   .cnext-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-  .cnext-day { display: flex; align-items: center; gap: 8px; margin: 8px 0 2px; font-size: 13px; color: var(--text); }
-  .cnext-day:first-of-type { margin-top: 0; }
-  .cnext-day b { font-weight: 800; }
-  .cnext-n { font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: #eef2fb; color: var(--primary); }
-  .cnext-day.is-done { opacity: .55; }
-  .cnext-time { display: inline-block; min-width: 54px; margin-right: 6px; font-weight: 600; color: var(--muted); }
-  .cnext-more { font-size: 12.5px; color: var(--muted); padding: 4px 4px 0; }
   .cnext-item { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 4px; font-size: 13.5px; border-radius: 6px; cursor: pointer; }
   .cnext-item:hover { background: #f0f4fc; }
   .cnext-item.is-done { opacity: 0.55; text-decoration: line-through; }
@@ -143,8 +136,8 @@
   .badge-done-pop { background: #ecf8f0; color: var(--ok); font-size: 12px; padding: 1px 6px; border-radius: 4px; margin-left: 6px; }
 
   /* Popup Ghi Chú Ngày (Modal) */
-  dialog#noteDlg, dialog#syncDlg, dialog#importDlg { border: none; border-radius: 14px; padding: 0; width: min(460px, 92vw); box-shadow: 0 20px 50px rgba(0,0,0,.25); }
-  dialog#noteDlg::backdrop, dialog#syncDlg::backdrop, dialog#importDlg::backdrop { background: rgba(0,0,0,.4); }
+  dialog#noteDlg { border: none; border-radius: 14px; padding: 0; width: min(460px, 92vw); box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+  dialog#noteDlg::backdrop { background: rgba(0,0,0,.4); }
   .note-modal-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 17px; background: #f8f9fb; }
   .note-modal-body { padding: 16px; }
   .note-modal-body textarea { width: 100%; min-height: 140px; resize: vertical; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 15px; line-height: 1.45; background: #fffef8; }
@@ -454,15 +447,6 @@
   .cal-toggle { display: none; }
   .fab { display: none; }
   .col-hint { display: none; }
-  .ct-txt { display: none; }
-  /* dùng chung máy tính + điện thoại */
-  #today.is-today { display: none; }
-  .datebar .label .rel:not(.other) { display: none; }
-  .ccard.done { padding: 5px 10px; margin-bottom: 5px; opacity: .6; }
-  .ccard.done .ccard-row2, .ccard.done .clines, .ccard.done .citems, .ccard.done .sub-events-row { display: none; }
-  .ccard.done .ccard-row1 { margin-bottom: 0; }
-  .ccard.done .ctitle { font-size: 14px; font-weight: 600; }
-  .ccard.done .edit-btn { top: 3px; right: 6px; background: transparent; }
   @media (max-width: 560px) {
     .app { padding: 8px max(8px, env(safe-area-inset-right)) 8px max(8px, env(safe-area-inset-left)); padding-top: max(8px, env(safe-area-inset-top)); }
     input, select, textarea { font-size: 16px !important; }   /* iOS tự phóng to trang nếu chữ < 16px */
@@ -496,32 +480,6 @@
     .fab { display: flex; position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(18px, calc(env(safe-area-inset-bottom) + 8px)); z-index: 40; width: 58px; height: 58px; padding: 0; border: none; border-radius: 50%; background: var(--primary); color: #fff; font-size: 32px; line-height: 1; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(26,115,232,.55); }
     .fab:active { transform: scale(.94); }
     .app { padding-bottom: 90px; }
-    /* --- v2.0: đầu trang gọn, không lặp --- */
-    .topbar { flex-wrap: nowrap; justify-content: space-between; align-items: center; padding: 0 0 6px; }
-    .topbar .brand { min-width: 0; gap: 8px; }
-    .topbar h1 { font-size: 18px; white-space: nowrap; }
-    .topbar .actions { width: auto; flex: none; gap: 6px; }
-    .topbar .lang-seg button { padding: 7px 9px; font-size: 12.5px; }
-    .topbar #btnNotify { flex: none; width: 42px; height: 38px; padding: 0; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; }
-    .topbar #btnNotify .nt-txt { display: none; }
-    .topbar #btnNotify .nt-ic { font-size: 19px; line-height: 1; }
-    .topbar #btnMenu { width: 42px; height: 38px; padding: 0; border-radius: 10px; }
-    .topbar #btnMenu .mn-txt { display: none; }
-    .topbar #btnMenu .mn-ic { font-size: 22px; line-height: 1; }
-    .bk-banner { flex-wrap: nowrap; align-items: center; padding: 6px 8px 6px 10px; font-size: 13px; margin-bottom: 8px; }
-    .bk-banner span { flex: 1 1 auto; min-width: 0; }
-    .bk-banner button.small, .bk-banner .primary { flex: none; padding: 6px 12px; font-size: 13px; }
-    .toolrow { display: block; padding: 6px; }
-    .toolrow .tabs { margin-bottom: 6px; }
-    .toolrow .datebar { display: grid; grid-template-columns: 44px 1fr 1fr 44px; gap: 6px; align-items: center; }
-    .toolrow .datebar .nav { display: contents; }
-    #prevDay { grid-column: 1; grid-row: 1; } #nextDay { grid-column: 4; grid-row: 1; }
-    .toolrow .datebar .label { grid-column: 2 / 4; grid-row: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; white-space: normal; font-size: 16px; }
-    #today { grid-column: 1 / -1; grid-row: 3; }
-    #btnCalToggle { grid-column: 1 / 3; grid-row: 2; }
-    #btnCalToggle .ct-txt { display: inline; font-size: 14px; font-weight: 600; margin-left: 4px; }
-    #btnDayNote { grid-column: 3 / 5; grid-row: 2; justify-content: center; }
-    #prevDay, #nextDay, #today, #btnCalToggle, #btnDayNote { min-height: 42px; }
     .col-head b { font-size: 15px; }
     .col-empty { padding: 6px; font-size: 13px; }
     .col-hint { display: inline; margin-left: 8px; font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
@@ -579,30 +537,25 @@
       <button type="button" id="btnFull" class="icon-btn" title="Toàn màn hình" aria-label="Toàn màn hình"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/></svg></button>
       <button type="button" id="btnNotify" title="Nhắc việc sắp đến hạn">🔕 Nhắc việc: Tắt</button>
       <div class="menu" id="menu">
-        <button type="button" id="btnMenu" aria-haspopup="true"><span class="mn-ic">⋯</span><span class="mn-txt"> Tiện ích ▾</span></button>
+        <button type="button" id="btnMenu" aria-haspopup="true">⋯ Tiện ích ▾</button>
         <div class="menu-list">
           <button type="button" id="btnPrint">🖨 In lịch</button>
           <button type="button" id="btnFixItems">🧵 Chuyển đồ cũ thành danh sách món…</button>
           <hr>
           <button type="button" id="btnExport">⬇ Xuất file sao lưu</button>
           <button type="button" id="btnImport">⬆ Nhập file sao lưu</button>
-          <button type="button" id="btnUndoImport" hidden>↩ Khôi phục dữ liệu trước lần nhập gần nhất</button>
-          <button type="button" id="btnSync">☁ Đồng bộ Google Drive…</button>
           <hr>
           <div class="bk-status" id="bkStatus"></div>
           <button type="button" id="btnBkPick">💾 Bật tự động sao lưu…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi tên / nơi lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <button type="button" id="btnSaveOver">💾 Lưu đè file JSON</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 2.4</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
-      <input type="file" id="fileImport" accept=".json,application/json,text/plain" hidden>
+      <input type="file" id="fileImport" accept="application/json,.json" hidden>
     </div>
   </header>
 
-  <div class="bk-banner" id="syncBanner" hidden><span id="syncBannerText"></span><button type="button" class="small primary" id="syncBannerBtn"></button></div>
   <div class="bk-banner" id="bkBanner" hidden><span id="bkBannerText"></span><button type="button" class="small primary" id="bkBannerBtn"></button><button type="button" class="bk-x" id="bkBannerX" aria-label="Đóng">✕</button></div>
 
   <div class="toolrow">
@@ -620,7 +573,7 @@
           <button type="button" id="nextDay" aria-label="Ngày sau">▶</button>
         </div>
         <div class="label" id="dateLabel"></div>
-        <button type="button" class="cal-toggle" id="btnCalToggle" aria-label="Chọn ngày">📅<span class="ct-txt"> Chọn ngày</span></button>
+        <button type="button" class="cal-toggle" id="btnCalToggle" aria-label="Chọn ngày">📅</button>
         <button type="button" class="note-btn" id="btnDayNote">📝 Ghi chú ngày</button>
       </div>
   </div>
@@ -712,35 +665,6 @@
   </div>
 </dialog>
 
-<dialog id="importDlg">
-  <div class="note-modal-head"><b id="impTitle">⬆ Nhập file sao lưu</b></div>
-  <div class="note-modal-body">
-    <p id="impSummary" style="margin:0 0 12px;font-size:14px;line-height:1.6"></p>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <button type="button" class="primary" id="impMerge">➕ Gộp vào dữ liệu hiện có (khuyên dùng)</button>
-      <button type="button" class="danger" id="impReplace">♻ Thay thế toàn bộ bằng file này</button>
-    </div>
-    <p id="impHint" style="margin:10px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5">Gộp: giữ đơn đang có, đơn trùng thì lấy bản trong file. Sau khi nhập vẫn có thể khôi phục lại trong menu Tiện ích.</p>
-  </div>
-  <div class="note-modal-foot"><span></span><button type="button" id="impCancel" class="small">Hủy</button></div>
-</dialog>
-
-<dialog id="syncDlg">
-  <div class="note-modal-head"><b id="syncTitle">☁ Đồng bộ Google Drive</b></div>
-  <div class="note-modal-body">
-    <p id="syncIntro" style="margin:0 0 10px;font-size:14px;line-height:1.5">Lịch, ghi chú và danh sách khách được gộp tự động giữa các máy qua một file trong Google Drive của bạn. Sửa ở máy tính thì điện thoại cũng thấy và ngược lại. Dữ liệu trên máy này sẽ được <b>gộp</b> với dữ liệu trên Drive, không bị xóa.</p>
-    <label for="syncCid" id="syncCidLbl" style="font-weight:700;font-size:13px">Google Client ID</label>
-    <input id="syncCid" placeholder="xxxxxxxx.apps.googleusercontent.com" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;margin:4px 0 10px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:14px">
-    <div id="syncStatus" style="font-size:14px;font-weight:600;margin-bottom:10px"></div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <button type="button" class="primary" id="syncConnect">🔑 Đăng nhập Google &amp; bật đồng bộ</button>
-      <button type="button" id="syncNowBtn" hidden>🔄 Đồng bộ ngay</button>
-      <button type="button" class="danger" id="syncOff" hidden>⏹ Tắt đồng bộ</button>
-    </div>
-  </div>
-  <div class="note-modal-foot"><span></span><button type="button" id="syncClose" class="small">Đóng</button></div>
-</dialog>
-
 <div class="note-tip" id="noteTip" role="tooltip"></div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -785,9 +709,6 @@
   const parseKey = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
   const addDays = (k, n) => { const d = parseKey(k); d.setDate(d.getDate() + n); return dateKey(d); };
   const todayKey = () => dateKey(new Date());
-  // Tên file sao lưu: lich + yymmdd (VD 23/10/2026 -> lich261023)
-  const jsonBase = () => { const d = new Date(); return `lich${pad(d.getFullYear() % 100)}${pad(d.getMonth() + 1)}${pad(d.getDate())}`; };
-  const jsonName = () => jsonBase() + '.json';
   const nowKey = () => { const d = new Date(); return `${dateKey(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -995,7 +916,6 @@
   };
   const saveCustomers = () => {
     try { localStorage.setItem(CUST_KEY, JSON.stringify(customers)); } catch (e) { /* bỏ qua */ }
-    try { syncSchedule(); } catch (e) {}
     scheduleBackup();
   };
   // Thêm tên vào danh sách (nếu đã có thì chỉ cập nhật lần dùng gần nhất, giữ cách viết vừa nhập)
@@ -1032,191 +952,14 @@
   }
   let state = { day: todayKey(), tab: 'day', q: '', editingId: null };
 
-  /* ===== ĐỒNG BỘ GOOGLE DRIVE (gộp dữ liệu giữa máy tính và điện thoại) ===== */
-  // Điền Client ID của bạn vào đây (hoặc dán trong hộp thoại ☁ Đồng bộ). Client ID không phải mật khẩu.
-  const GD_CLIENT_ID_DEFAULT = '';
-  const GD_SCOPE = 'https://www.googleapis.com/auth/drive.file';   // chỉ truy cập file do chính app này tạo
-  const GD_FILE_NAME = 'Lich-Lam-Viec-DongBo.json';
-  const SK = { meta: 'phiphi_sync_meta_v1', on: 'phiphi_sync_on_v1', cid: 'phiphi_gd_client_v1', fid: 'phiphi_gd_file_v1', tok: 'phiphi_gd_token_v1', snap: 'phiphi_pre_sync_snapshot_v1' };
-  const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
-  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
-  // Dấu thời gian sửa của từng đơn / từng ghi chú ngày, để gộp đúng khi hai máy cùng sửa
-  let sm = (() => { try { const m = JSON.parse(lsGet(SK.meta)); if (m && typeof m === 'object') return { ts: m.ts || {}, h: m.h || {}, dead: m.dead || {}, nts: m.nts || {}, nh: m.nh || {}, inited: !!m.inited }; } catch (e) {} return { ts: {}, h: {}, dead: {}, nts: {}, nh: {}, inited: false }; })();
-  const smSave = () => lsSet(SK.meta, JSON.stringify(sm));
-  function syncStamp() {
-    const now = Date.now();
-    orders.forEach(o => { const h = JSON.stringify(o); if (sm.h[o.id] === h) return; sm.h[o.id] = h; sm.ts[o.id] = sm.inited ? now : (sm.ts[o.id] || 0); delete sm.dead[o.id]; });
-    smSave();
-  }
-  function syncStampNotes(inferDelete) {
-    const now = Date.now();
-    Object.keys(notes).forEach(d => { if (sm.nh[d] === notes[d]) return; sm.nh[d] = notes[d]; sm.nts[d] = sm.inited ? now : (sm.nts[d] || 0); });
-    if (inferDelete) Object.keys(sm.nh).forEach(d => { if (!(d in notes) && sm.nh[d] !== '') { sm.nh[d] = ''; sm.nts[d] = now; } });
-    smSave();
-  }
-  function syncMarkDead(id) { sm.dead[id] = Date.now(); delete sm.h[id]; delete sm.ts[id]; smSave(); }
-  const gdOn = () => lsGet(SK.on) === '1';
-  const gdClientId = () => (lsGet(SK.cid) || GD_CLIENT_ID_DEFAULT || '').trim();
-  const gd = { token: '', exp: 0, busy: false, again: false, needAuth: false, err: '', last: 0, timer: null };
-  try { const t = JSON.parse(lsGet(SK.tok)); if (t && t.t && t.exp > Date.now()) { gd.token = t.t; gd.exp = t.exp; } } catch (e) {}
-
-  const sortObj = o => Object.keys(o || {}).sort().reduce((a, k) => (a[k] = o[k], a), {});
-  const canon = (ord, nts, meta) => JSON.stringify({ o: ord.slice().sort((a, b) => a.id < b.id ? -1 : 1), n: sortObj(nts), t: sortObj(meta.ts), d: sortObj(meta.dead), z: sortObj(meta.nts) });
-  const localMeta = () => ({ ts: sm.ts, dead: sm.dead, nts: sm.nts });
-  const syncPayload = () => ({ version: 3, savedAt: new Date().toISOString(), orders, notes, customers, meta: localMeta() });
-
-  // Gộp dữ liệu từ Drive vào máy này: không bao giờ ghi đè cả bộ; từng đơn lấy bản sửa mới hơn
-  function syncMerge(remote) {
-    const rm = remote.meta || {}, rts = rm.ts || {}, rdead = rm.dead || {}, rnts = rm.nts || {};
-    const rOrders = Array.isArray(remote.orders) ? remote.orders.map(migrate).filter(Boolean) : [];
-    const rById = new Map(rOrders.map(o => [o.id, o])), lById = new Map(orders.map(o => [o.id, o]));
-    const dead = { ...sm.dead }; Object.keys(rdead).forEach(id => { dead[id] = Math.max(dead[id] || 0, rdead[id] || 0); });
-    const out = [], ts = {};
-    [...new Set([...lById.keys(), ...rById.keys()])].forEach(id => {
-      const l = lById.get(id), r = rById.get(id), lt = sm.ts[id] || 0, rt = rts[id] || 0;
-      let pick, t;
-      if (l && r) { if (rt > lt) { pick = r; t = rt; } else { pick = l; t = lt; } } else if (l) { pick = l; t = lt; } else { pick = r; t = rt; }
-      const dt = dead[id] || 0;
-      if (dt && dt > t) return;      // đã bị xóa sau lần sửa cuối
-      if (dt) delete dead[id];
-      out.push(pick); ts[id] = t;
-    });
-    const rNotes = remote.notes && typeof remote.notes === 'object' ? remote.notes : {}, mNotes = {}, nts = {};
-    new Set([...Object.keys(notes), ...Object.keys(sm.nts), ...Object.keys(rNotes), ...Object.keys(rnts)]).forEach(d => {
-      const lt = sm.nts[d] || 0, rt = rnts[d] || 0, lv = notes[d] || '', rv = rNotes[d] || '';
-      let v, t; if (rt > lt) { v = rv; t = rt; } else if (lt > rt) { v = lv; t = lt; } else { v = lv || rv; t = lt; }
-      if (typeof v === 'string' && v) mNotes[d] = v; nts[d] = t;
-    });
-    const cust = customers.map(c => ({ ...c }));
-    (Array.isArray(remote.customers) ? remote.customers : []).forEach(c => {
-      if (!c || typeof c.name !== 'string') return;
-      const hit = cust.find(x => nameKey(x.name) === nameKey(c.name));
-      if (hit) hit.last = Math.max(hit.last || 0, Number(c.last) || 0); else cust.push({ name: c.name, last: Number(c.last) || 0 });
-    });
-    return { orders: out, notes: mNotes, customers: cust, meta: { ts, dead, nts } };
-  }
-  function syncApply(m) {
-    lsSet(SK.snap, JSON.stringify({ t: Date.now(), orders, notes }));   // bản chụp trước khi gộp, để cứu khi cần
-    orders = m.orders; notes = m.notes; customers = m.customers;
-    sm.ts = m.meta.ts; sm.dead = m.meta.dead; sm.nts = m.meta.nts; sm.h = {}; orders.forEach(o => { sm.h[o.id] = JSON.stringify(o); }); sm.nh = { ...notes };
-    smSave();
-    lsSet(STORAGE_KEY, JSON.stringify(orders)); lsSet(NOTES_KEY, JSON.stringify(notes)); lsSet(CUST_KEY, JSON.stringify(customers));
-  }
-
-  /* --- Đăng nhập Google (Google Identity Services) --- */
-  const gdSecure = () => location.protocol === 'https:' || location.hostname === 'localhost';
-  function gdLoadGis() {
-    return new Promise((res, rej) => {
-      if (window.google && google.accounts && google.accounts.oauth2) return res();
-      const s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
-      s.onload = () => res(); s.onerror = () => rej(new Error('Không tải được thư viện đăng nhập Google (kiểm tra mạng)'));
-      document.head.appendChild(s);
-    });
-  }
-  function gdAuth(interactive) {
-    return new Promise(async (res, rej) => {
-      try {
-        const cid = gdClientId(); if (!cid) return rej(new Error('Chưa nhập Client ID'));
-        if (!gdSecure()) return rej(new Error('Chỉ dùng được khi mở app bằng địa chỉ web (https)'));
-        await gdLoadGis();
-        const tc = google.accounts.oauth2.initTokenClient({
-          client_id: cid, scope: GD_SCOPE,
-          callback: r => {
-            if (r.error) return rej(Object.assign(new Error(r.error), { auth: true }));
-            gd.token = r.access_token; gd.exp = Date.now() + Math.max(60, (Number(r.expires_in) || 3600) - 120) * 1000;
-            lsSet(SK.tok, JSON.stringify({ t: gd.token, exp: gd.exp })); gd.needAuth = false; res();
-          },
-          error_callback: e => rej(Object.assign(new Error((e && e.type) || 'popup'), { auth: true }))
-        });
-        tc.requestAccessToken({ prompt: interactive ? '' : 'none' });
-      } catch (e) { rej(e); }
-    });
-  }
-  async function gdEnsureToken() { if (gd.token && gd.exp > Date.now()) return; await gdAuth(false); }
-  async function gdFetch(url, opts = {}) {
-    const r = await fetch(url, { ...opts, headers: { ...(opts.headers || {}), Authorization: 'Bearer ' + gd.token } });
-    if (r.status === 401) { gd.token = ''; gd.exp = 0; throw Object.assign(new Error('auth'), { auth: true }); }
-    if (!r.ok) throw new Error('Drive ' + r.status);
-    return r;
-  }
-  async function gdFindFile() {
-    const cached = lsGet(SK.fid);
-    if (cached) {
-      try { const r = await fetch(`https://www.googleapis.com/drive/v3/files/${cached}?fields=id,trashed`, { headers: { Authorization: 'Bearer ' + gd.token } });
-        if (r.status === 401) { gd.token = ''; gd.exp = 0; throw Object.assign(new Error('auth'), { auth: true }); }
-        if (r.ok) { const j = await r.json(); if (!j.trashed) return cached; } } catch (e) { if (e.auth) throw e; }
-    }
-    const q = encodeURIComponent(`name='${GD_FILE_NAME}' and trashed=false`);
-    const j = await (await gdFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&orderBy=modifiedTime desc&pageSize=5&fields=files(id)`)).json();
-    const id = j.files && j.files[0] && j.files[0].id; if (id) lsSet(SK.fid, id); return id || '';
-  }
-  async function gdCreate(text) {
-    const b = 'lvb' + Date.now(), body = `--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({ name: GD_FILE_NAME, mimeType: 'application/json' })}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${text}\r\n--${b}--`;
-    const j = await (await gdFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', { method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + b }, body })).json();
-    lsSet(SK.fid, j.id); return j.id;
-  }
-  const gdUpdate = (id, text) => gdFetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: text });
-
-  const syncBusyUI = () => dlg.open || noteDlg.open || popover.classList.contains('open');
-  async function syncRun(interactive) {
-    if (!gdOn() && !interactive) return;
-    if (!navigator.onLine) { gd.err = 'offline'; syncUI(); return; }
-    if (gd.busy) { gd.again = true; return; }
-    if (!interactive && syncBusyUI()) { syncSchedule(8000); return; }   // đang nhập liệu: không đổi dữ liệu bên dưới
-    gd.busy = true; gd.err = ''; syncUI();
-    try {
-      if (interactive) await gdAuth(true); else await gdEnsureToken();
-      let id = await gdFindFile(), remote = null;
-      if (id) { try { remote = JSON.parse(await (await gdFetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`)).text()); } catch (e) { if (e.auth) throw e; remote = null; } }
-      let before = canon(orders, notes, localMeta());
-      if (remote && typeof remote === 'object') {
-        const m = syncMerge(remote), after = canon(m.orders, m.notes, m.meta);
-        if (after !== before || JSON.stringify(m.customers) !== JSON.stringify(customers)) { syncApply(m); render(); }
-      }
-      const text = JSON.stringify(syncPayload());
-      const same = remote && canon(Array.isArray(remote.orders) ? remote.orders.map(migrate).filter(Boolean) : [], remote.notes || {}, remote.meta || { ts: {}, dead: {}, nts: {} }) === canon(orders, notes, localMeta());
-      if (!id) await gdCreate(text); else if (!same) await gdUpdate(id, text);
-      gd.last = Date.now(); gd.needAuth = false; gd.err = '';
-    } catch (e) {
-      if (e.auth) { gd.needAuth = true; gd.err = ''; } else gd.err = e.message || 'error';
-    } finally {
-      gd.busy = false; syncUI();
-      if (gd.again) { gd.again = false; syncSchedule(2000); }
-    }
-  }
-  function syncSchedule(ms) { if (!gdOn()) return; clearTimeout(gd.timer); gd.timer = setTimeout(() => syncRun(false), ms == null ? 4000 : ms); }
-  function syncUI() {
-    const b = document.getElementById('syncBanner'), st = document.getElementById('syncStatus');
-    if (b) {
-      const show = gdOn() && gd.needAuth;
-      b.hidden = !show;
-      if (show) { document.getElementById('syncBannerText').textContent = L('☁ Cần đăng nhập Google để đồng bộ', '☁ Sign in to Google to sync'); document.getElementById('syncBannerBtn').textContent = L('Đăng nhập', 'Sign in'); }
-    }
-    if (!st) return;
-    const pad2 = n => String(n).padStart(2, '0'), t = gd.last ? new Date(gd.last) : null;
-    let msg;
-    if (!gdSecure()) msg = L('⚠ Chỉ dùng được khi mở app bằng địa chỉ web (https://…), không phải file trên máy.', '⚠ Works only when the app is opened from a web address (https://…), not a local file.');
-    else if (!gdOn()) msg = L('Chưa bật đồng bộ.', 'Sync is off.');
-    else if (gd.busy) msg = L('⏳ Đang đồng bộ…', '⏳ Syncing…');
-    else if (gd.needAuth) msg = L('⚠ Cần đăng nhập Google lại (bấm nút bên dưới).', '⚠ Please sign in to Google again (tap the button below).');
-    else if (gd.err === 'offline') msg = L('📴 Đang offline — sẽ đồng bộ khi có mạng.', '📴 Offline — will sync when back online.');
-    else if (gd.err) msg = L('⚠ Lỗi đồng bộ: ', '⚠ Sync error: ') + gd.err;
-    else msg = t ? L(`✔ Đã đồng bộ lúc ${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}`, `✔ Last synced ${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}`) : L('Bật đồng bộ — chưa có lần đồng bộ nào.', 'Sync on — nothing synced yet.');
-    st.textContent = msg;
-    const c = document.getElementById('syncConnect'); if (c) c.textContent = gdOn() ? L('🔑 Đăng nhập lại Google', '🔑 Sign in to Google again') : L('🔑 Đăng nhập Google & bật đồng bộ', '🔑 Sign in to Google & turn on sync');
-    const n = document.getElementById('syncNowBtn'), o = document.getElementById('syncOff'); if (n) n.hidden = !gdOn(); if (o) o.hidden = !gdOn();
-  }
-
   function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(orders)); }
     catch (e) { toast(L('⚠ Không lưu được dữ liệu vào trình duyệt', '⚠ Could not save data in the browser')); }
-    try { syncStamp(); syncSchedule(); } catch (e) {}
     scheduleBackup(); try { updateBkBanner(); } catch (e) {}
   }
-  function saveNotes(bulk) {
+  function saveNotes() {
     try { localStorage.setItem(NOTES_KEY, JSON.stringify(notes)); }
     catch (e) { toast(L('⚠ Không lưu được ghi chú vào trình duyệt', '⚠ Could not save notes in the browser')); }
-    try { syncStampNotes(!bulk); syncSchedule(); } catch (e) {}
     scheduleBackup();
   }
 
@@ -1256,7 +999,7 @@
   function render() {
     if (!keepPop) hidePopover();
     const day = state.day, rel = dayDiffLabel(day);
-    $('#dateLabel').innerHTML = `<span>${esc(fmtDate(day))}</span>${rel ? `<span class="rel ${rel === L('Hôm nay', 'Today') ? '' : 'other'}">${rel}</span>` : ''}`;
+    $('#dateLabel').innerHTML = `<span>${esc(fmtDate(day))}</span>${lunarChip(day)}${rel ? `<span class="rel ${rel === L('Hôm nay', 'Today') ? '' : 'other'}">${rel}</span>` : ''}`;
     const onDay = state.tab === 'day';
     $('#home').classList.toggle('with-cal', onDay);
     if (onDay) {
@@ -1264,7 +1007,6 @@
       renderCal();
     }
     updateNoteBtn();
-    $('#today').classList.toggle('is-today', state.day === todayKey());
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === state.tab));
     $('.datebar').style.display = onDay ? '' : 'none';
     $('#calc').style.display = state.tab === 'calc' ? 'block' : 'none';
@@ -1385,24 +1127,15 @@
         const ls = dayEvs.filter(e => e.colKey === c.key).flatMap(e => e.lines || []), tot = ls.reduce((a, l) => a + l.qty, 0);
         if (tot) pcs = `<div class="col-sub">🧵 ${ls.filter(l => l.done).reduce((a, l) => a + l.qty, 0)}/${tot} ${L('món đã giao/lấy', 'items handed over')}</div>`;
       }
-      // "Sắp tới": gộp theo ngày — mỗi ngày một tiêu đề, bên dưới là các khách của ngày đó
-      const upAll = groupEvents(evs.filter(e => e.colKey === c.key && e.date > state.day)).sort((a, b) => a.first.at.localeCompare(b.first.at));
-      const MAX_ROWS = 8, upG = upAll.slice(0, MAX_ROWS), more = upAll.length - upG.length;
-      let nextHTML = '';
-      if (upG.length) {
-        const byDay = new Map(); upG.forEach(g => { const k = g.first.date; if (!byDay.has(k)) byDay.set(k, []); byDay.get(k).push(g); });
-        nextHTML = `<div class="cnext"><div class="cnext-title">${L('Sắp tới', 'Upcoming')}</div>` + [...byDay.entries()].map(([k, gs]) => {
-          const d = parseKey(k), allDone = gs.every(g => g.done);
-          const head = `<div class="cnext-day ${allDone ? 'is-done' : ''}"><b>${shortWeekdays()[d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}</b>${gs.length > 1 ? `<span class="cnext-n">${gs.length} ${L('khách', 'customers')}</span>` : ''}</div>`;
-          return head + gs.map(g => {
-            const e = g.first;
-            return `<div class="cnext-item ${g.done ? 'is-done' : ''}" ${popAttrs(e, groupItems(g), g.done, g.evs.map(keyOf).join(','))}>
-              <div class="cnext-info" title="${esc(e.order.name)}"><span class="cnext-time">${fmtTimeOnly(e.at)}</span><b>${esc(e.order.name)}</b></div>
-              <button type="button" class="edit-btn" style="position:static;" data-edit="${e.order.id}" aria-label="${L('Sửa đơn', 'Edit order')}">✎</button>
-            </div>`;
-          }).join('');
-        }).join('') + (more > 0 ? `<div class="cnext-more">+${more} ${L('lịch nữa', 'more')}</div>` : '') + `</div>`;
-      }
+      const upG = groupEvents(evs.filter(e => e.colKey === c.key && e.date > state.day)).slice(0, 5);
+
+      const nextHTML = upG.length ? `<div class="cnext"><div class="cnext-title">${L('Sắp tới', 'Upcoming')}</div>${upG.map(g => {
+        const e = g.first;
+        return `<div class="cnext-item ${g.done ? 'is-done' : ''}" ${popAttrs(e, groupItems(g), g.done, g.evs.map(keyOf).join(','))}>
+          <div class="cnext-info" title="${esc(e.order.name)}"><b>${fmtCompactDateTime(e.at)}</b> · <b>${esc(e.order.name)}</b></div>
+          <button type="button" class="edit-btn" style="position:static;" data-edit="${e.order.id}" aria-label="${L('Sửa đơn', 'Edit order')}">✎</button>
+        </div>`;
+      }).join('')}</div>` : '';
 
       // Điện thoại: cột trống hoặc đã xong hết thì thu gọn thành một dòng, chạm vào tiêu đề để mở
       const collapsible = list.length === 0 || done === list.length, ckey = state.day + '|' + c.key, isOpen = colOpen.has(ckey);
@@ -1849,7 +1582,6 @@
   $('#orderForm').addEventListener('submit', submitForm);
   $('#btnDelete').onclick = () => {
     if (!state.editingId || !confirm(L('Xóa vĩnh viễn đơn hàng này?', 'Permanently delete this order?'))) return;
-    syncMarkDead(state.editingId);
     orders = orders.filter(o => o.id !== state.editingId);
     save(); dlg.close(); render(); toast(L('Đã xóa đơn hàng', 'Order deleted'));
   };
@@ -2021,7 +1753,7 @@
   });
 
   /* ===== IN / XUẤT / NHẬP ===== */
-  const backupPayload = () => ({ app: 'lich-lam-viec', version: 3, savedAt: new Date().toISOString(), counts: { orders: orders.length, notes: Object.keys(notes).length, customers: customers.length }, orders, notes, customers });
+  const backupPayload = () => ({ version: 2, savedAt: new Date().toISOString(), orders, notes, customers });
   $('#btnPrint').onclick = () => window.print();
 
   /* Chuyển đồ nhập chữ tự do (đơn cũ) thành danh sách món có số lượng. Chỉ chuyển khi đọc được số lượng; phần còn lại giữ ở ghi chú. */
@@ -2057,7 +1789,7 @@
   }
   $('#btnFixItems').onclick = migrateLegacyItems;
   $('#btnExport').onclick = async () => {
-    const text = JSON.stringify(backupPayload(), null, 2), fname = jsonName();
+    const text = JSON.stringify(backupPayload(), null, 2), fname = `lich-${todayKey()}.json`;
     // Điện thoại: mở bảng chia sẻ (Lưu vào Tệp, AirDrop, Zalo, Mail...) — chắc chắn hơn tải file trên Safari
     try {
       const file = new File([text], fname, { type: 'application/json' });
@@ -2074,66 +1806,27 @@
     toast(L('Đã xuất file sao lưu', 'Backup file exported'));
   };
   $('#btnImport').onclick = () => $('#fileImport').click();
-  /* --- Nhập file JSON: xem trước số liệu, chọn GỘP hoặc THAY THẾ, có thể hoàn tác --- */
-  const IMPORT_SNAP = 'phiphi_pre_import_v1';
-  let pendingImport = null;
-  function parseBackup(raw) {
-    const data = Array.isArray(raw) ? raw : raw && raw.orders;
-    if (!Array.isArray(data)) return null;
-    return {
-      orders: data.map(migrate).filter(Boolean),
-      notes: raw && raw.notes && typeof raw.notes === 'object' && !Array.isArray(raw.notes) ? raw.notes : null,
-      customers: raw && Array.isArray(raw.customers) ? raw.customers : []
-    };
-  }
-  const undoImportUI = () => { $('#btnUndoImport').hidden = !lsGet(IMPORT_SNAP); };
-  function finishImport(msg) {
-    saveCustomers(); save(); saveNotes(true); render(); undoImportUI(); toast(msg);
-  }
   $('#fileImport').onchange = e => {
     const f = e.target.files[0]; if (!f) return;
     const r = new FileReader();
     r.onload = () => {
       try {
-        const p = parseBackup(JSON.parse(r.result)); if (!p) throw new Error('bad');
-        pendingImport = p;
-        $('#impSummary').innerHTML = L(
-          `File có <b>${p.orders.length}</b> đơn, <b>${p.notes ? Object.keys(p.notes).length : 0}</b> ghi chú ngày, <b>${p.customers.length}</b> tên khách.<br>Máy này đang có <b>${orders.length}</b> đơn, <b>${Object.keys(notes).length}</b> ghi chú ngày.`,
-          `The file has <b>${p.orders.length}</b> orders, <b>${p.notes ? Object.keys(p.notes).length : 0}</b> day notes, <b>${p.customers.length}</b> customer names.<br>This device has <b>${orders.length}</b> orders, <b>${Object.keys(notes).length}</b> day notes.`);
-        $('#importDlg').showModal();
+        const raw = JSON.parse(r.result);
+        const data = Array.isArray(raw) ? raw : raw && raw.orders;
+        if (!Array.isArray(data)) throw new Error('bad');
+        const imported = data.map(migrate).filter(Boolean);
+        if (!confirm(L(`Nhập ${imported.length} đơn từ file?\nDữ liệu hiện tại (${orders.length} đơn) sẽ bị thay thế.`, `Import ${imported.length} orders from the file?\nCurrent data (${orders.length} orders) will be replaced.`))) return;
+        orders = imported;
+        if (raw && raw.notes && typeof raw.notes === 'object' && !Array.isArray(raw.notes)) notes = raw.notes;
+        // Danh sách tên khách: gộp thêm (không xóa tên đang có)
+        if (raw && Array.isArray(raw.customers)) raw.customers.forEach(c => { if (c && typeof c.name === 'string') rememberCustomer(c.name, Number(c.last) || 0); });
+        imported.forEach((o, i) => rememberCustomer(o.name, i + 1));
+        saveCustomers();
+        save(); saveNotes(); render(); toast(L(`Đã nhập ${imported.length} đơn thành công`, `Imported ${imported.length} orders successfully`));
       } catch { toast(L('⚠ File không hợp lệ', '⚠ Invalid file')); }
     };
     r.readAsText(f); e.target.value = '';
   };
-  function snapshotBeforeImport() { lsSet(IMPORT_SNAP, JSON.stringify({ t: Date.now(), orders, notes, customers })); }
-  $('#impMerge').onclick = () => {
-    const p = pendingImport; if (!p) return; snapshotBeforeImport();
-    const map = new Map(orders.map(o => [o.id, o])); p.orders.forEach(o => map.set(o.id, o)); orders = [...map.values()];
-    if (p.notes) notes = { ...notes, ...p.notes };
-    p.customers.forEach(c => { if (c && typeof c.name === 'string') rememberCustomer(c.name, Number(c.last) || 0); });
-    orders.forEach((o, i) => rememberCustomer(o.name, i + 1));
-    $('#importDlg').close(); pendingImport = null;
-    finishImport(L(`✔ Đã gộp ${p.orders.length} đơn từ file`, `✔ Merged ${p.orders.length} orders from the file`));
-  };
-  $('#impReplace').onclick = () => {
-    const p = pendingImport; if (!p) return;
-    if (!confirm(L(`Thay thế toàn bộ dữ liệu trên máy này bằng ${p.orders.length} đơn trong file?`, `Replace all data on this device with the ${p.orders.length} orders in the file?`))) return;
-    snapshotBeforeImport();
-    orders = p.orders; if (p.notes) notes = p.notes;
-    p.customers.forEach(c => { if (c && typeof c.name === 'string') rememberCustomer(c.name, Number(c.last) || 0); });
-    orders.forEach((o, i) => rememberCustomer(o.name, i + 1));
-    $('#importDlg').close(); pendingImport = null;
-    finishImport(L(`✔ Đã thay bằng ${p.orders.length} đơn từ file`, `✔ Replaced with ${p.orders.length} orders from the file`));
-  };
-  $('#impCancel').onclick = () => { pendingImport = null; $('#importDlg').close(); };
-  $('#btnUndoImport').onclick = () => {
-    let snap; try { snap = JSON.parse(lsGet(IMPORT_SNAP)); } catch (e) {}
-    if (!snap || !Array.isArray(snap.orders)) { undoImportUI(); return; }
-    if (!confirm(L(`Khôi phục dữ liệu như trước lần nhập gần nhất (${snap.orders.length} đơn)? Dữ liệu hiện tại sẽ bị thay.`, `Restore data as it was before the last import (${snap.orders.length} orders)? Current data will be replaced.`))) return;
-    orders = snap.orders.map(migrate).filter(Boolean); notes = snap.notes && typeof snap.notes === 'object' ? snap.notes : {}; customers = Array.isArray(snap.customers) ? snap.customers : customers;
-    lsSet(IMPORT_SNAP, ''); finishImport(L('✔ Đã khôi phục dữ liệu trước lần nhập', '✔ Data restored to before the import'));
-  };
-  undoImportUI();
 
   /* ===== TỰ ĐỘNG SAO LƯU (File System Access API) ===== */
   const BK = { ready: false, supported: typeof window.showSaveFilePicker === 'function' && 'indexedDB' in window, handle: null, last: null, err: '', needPerm: false, timer: null, dirty: false };
@@ -2157,7 +1850,6 @@
       const on = autoDlOn();
       st.textContent = L('Trình duyệt này không cho chọn thư mục sao lưu (chỉ Chrome/Edge trên máy tính mới có). ', 'This browser cannot pick a backup folder (only Chrome/Edge on a computer can). ')
         + (on ? L('Đang bật tự tải file sao lưu về thư mục Tải xuống mỗi khi có thay đổi.', 'Auto-download backup is ON: a backup file is saved to your Downloads folder after changes.') : L('Bạn có thể bật tự tải file sao lưu về thư mục Tải xuống.', 'You can turn on auto-download backups to your Downloads folder.'));
-      if (IS_TOUCH) { st.textContent = L('Trên điện thoại hãy dùng "Xuất file sao lưu" (chọn Lưu vào Tệp) thường xuyên. Chọn thư mục tự động sao lưu chỉ có trên Chrome/Edge máy tính.', 'On a phone, use "Export backup file" (Save to Files) regularly. Automatic folder backup is only available in desktop Chrome/Edge.'); pick.hidden = now.hidden = off.hidden = ren.hidden = true; return; }
       pick.hidden = false; pick.textContent = on ? L('⏹ Tắt tự tải file sao lưu', '⏹ Turn off auto-download backup') : L('💾 Bật tự tải file sao lưu', '💾 Turn on auto-download backup');
       now.hidden = off.hidden = ren.hidden = true; return;
     }
@@ -2188,14 +1880,12 @@
     if (b.raw && b.raw.notes && typeof b.raw.notes === 'object' && !Array.isArray(b.raw.notes)) notes = b.raw.notes;
     if (b.raw && Array.isArray(b.raw.customers)) b.raw.customers.forEach(c => { if (c && typeof c.name === 'string') rememberCustomer(c.name, Number(c.last) || 0); });
     orders.forEach((o, i) => rememberCustomer(o.name, i + 1));
-    saveCustomers(); save(); saveNotes(true); render();
+    saveCustomers(); save(); saveNotes(); render();
   }
 
   /* Dự phòng cho trình duyệt không có File System Access API (Firefox, Safari...): tự tải file .json về thư mục Tải xuống */
   const AUTODL_KEY = 'phiphi_autodl_v1';
-  const IS_TOUCH = (() => { try { return window.matchMedia('(pointer: coarse)').matches || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); } catch (e) { return false; } })();
-  // Điện thoại: tự tải file làm bật màn xem file và đẩy người dùng ra khỏi app -> không dùng; xuất file bằng tay qua bảng chia sẻ
-  const autoDlOn = () => { if (IS_TOUCH) return false; try { return localStorage.getItem(AUTODL_KEY) === '1'; } catch (e) { return false; } };
+  const autoDlOn = () => { try { return localStorage.getItem(AUTODL_KEY) === '1'; } catch (e) { return false; } };
   let autoDlTimer = null, autoDlLast = 0;
   function autoDlSchedule() {
     if (BK.supported || !autoDlOn()) return;
@@ -2203,9 +1893,10 @@
     autoDlTimer = setTimeout(() => {
       if (Date.now() - autoDlLast < 10 * 60 * 1000) { autoDlSchedule(); return; }   // tối đa 1 file / 10 phút
       autoDlLast = Date.now();
+      const nm = (BK_NAME_KEY && (localStorage.getItem(BK_NAME_KEY) || '')) || 'lich-lam-viec';
       const blob = new Blob([JSON.stringify(backupPayload(), null, 2)], { type: 'application/json' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-      a.download = jsonName();
+      a.download = `${nm.replace(/\.json$/i, '')}-${todayKey()}.json`;
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       toast(L('💾 Đã tự tải file sao lưu về thư mục Tải xuống', '💾 Backup file saved to Downloads'));
     }, 20000);
@@ -2251,9 +1942,21 @@
     BK.timer = setTimeout(() => writeBackup(false), 1500);
   }
 
-  // Chọn file sao lưu: tên gợi ý luôn là lich + yymmdd (vẫn sửa được trong hộp chọn file)
+  // Tự đặt tên file sao lưu: hỏi tên trước, rồi mở hộp chọn thư mục (trong đó vẫn sửa được tên)
+  const BK_NAME_KEY = 'phiphi_backup_name_v1';
   async function chooseBackupFile(renaming) {
-    await pickBackupFile(jsonName(), renaming ? BK.handle : null);
+    let def = 'phiphi-lich-sao-luu';
+    try { def = localStorage.getItem(BK_NAME_KEY) || def; } catch (e) {}
+    // Đổi tên / nơi lưu: mở thẳng hộp chọn thư mục + tên file (bắt đầu ở thư mục hiện tại)
+    if (renaming) {
+      const cur = (BK.handle && BK.handle.name || def + '.json');
+      await pickBackupFile(cur, BK.handle); return;
+    }
+    const typed = window.prompt(L('Đặt tên cho file sao lưu (không cần gõ đuôi .json):', 'Name your backup file (no need to type .json):'), def);
+    if (typed === null) return;   // bấm Hủy
+    const name = (typed.replace(/\.json$/i, '').replace(/[\\/:*?"<>|]+/g, ' ').trim() || def).slice(0, 80);
+    try { localStorage.setItem(BK_NAME_KEY, name); } catch (e) {}
+    await pickBackupFile(name + '.json', null);
   }
   $('#btnBkRename').onclick = () => chooseBackupFile(true);
   $('#btnBkPick').onclick = () => {
@@ -2282,15 +1985,6 @@
     } catch (err) { if (!err || err.name !== 'AbortError') toast(L('⚠ Không bật được tự động sao lưu', '⚠ Could not turn on auto backup')); }
     renderBkStatus();
   }
-  /* Lưu đè file JSON: máy tính (Chrome/Edge) ghi thẳng đè lên file đã chọn; iPhone/Safari không cho ghi đè ngầm nên mở bảng chia sẻ với tên lichyymmdd.json (chọn Lưu vào Tệp → Thay thế) */
-  $('#btnSaveOver').onclick = async () => {
-    if (!BK.supported) { $('#btnExport').click(); return; }
-    if (!BK.handle) { await chooseBackupFile(false); return; }
-    // Thử đổi tên file đang lưu sang tên hôm nay (một số trình duyệt không hỗ trợ -> bỏ qua, vẫn ghi đè bình thường)
-    try { if (BK.handle.name !== jsonName() && typeof BK.handle.move === 'function') { await BK.handle.move(jsonName()); try { await bkIdb('readwrite', s => s.put(BK.handle, 'file')); } catch (e) {} } } catch (e) {}
-    toast(await writeBackup(true) ? L(`✔ Đã lưu đè file ${BK.handle.name}`, `✔ Overwrote ${BK.handle.name}`) : L('⚠ Chưa lưu đè được — xem trạng thái trong menu', '⚠ Could not overwrite — see the status in the menu'));
-    renderBkStatus();
-  };
   $('#btnBkNow').onclick = async () => { toast(await writeBackup(true) ? L('✔ Đã sao lưu', '✔ Backed up') : L('⚠ Chưa sao lưu được — xem trạng thái trong menu', '⚠ Could not back up — see the status in the menu')); };
   $('#btnBkOff').onclick = async () => {
     clearTimeout(BK.timer); BK.handle = null; BK.last = null; BK.err = ''; BK.needPerm = false;
@@ -2316,11 +2010,7 @@
     const risky = BK.ready && (orders.length || Object.keys(notes).length) && !BK.handle && !bkBannerHidden;
     box.hidden = !risky;
     if (!risky) return;
-    if (window.innerWidth <= 560) {   // điện thoại: một dòng gọn
-      txt.textContent = BK.supported ? L('⚠ Chưa bật tự động sao lưu', '⚠ Auto backup is off') : L('💾 Nhớ xuất file sao lưu thường xuyên', '💾 Remember to export backups');
-      btn.textContent = BK.supported ? L('Bật', 'Turn on') : L('Xuất file', 'Export');
-      btn.onclick = () => BK.supported ? $('#btnBkPick').click() : $('#btnExport').click();
-    } else if (BK.supported) {
+    if (BK.supported) {
       txt.textContent = L('⚠ Chưa bật tự động sao lưu — dữ liệu chỉ nằm trong trình duyệt, xóa dữ liệu duyệt web là mất hết.', '⚠ Auto backup is off — your data lives only in this browser and is lost if browsing data is cleared.');
       btn.textContent = L('Bật sao lưu ngay', 'Turn on backup'); btn.onclick = () => $('#btnBkPick').click();
     } else {
@@ -2368,7 +2058,7 @@
 
   function updateNotifyBtn() {
     const b = $('#btnNotify');
-    b.innerHTML = `<span class="nt-ic">${notifyOn ? '🔔' : '🔕'}</span><span class="nt-txt"> ${notifyOn ? L('Nhắc việc: Bật', 'Reminders: On') : L('Nhắc việc: Tắt', 'Reminders: Off')}</span>`;
+    b.textContent = notifyOn ? L('🔔 Nhắc việc: Bật', '🔔 Reminders: On') : L('🔕 Nhắc việc: Tắt', '🔕 Reminders: Off');
     b.classList.toggle('on', notifyOn);
   }
   function checkReminders() {
@@ -2471,32 +2161,12 @@
   syncMethodUI(); calc();
 
   /* ===== NGÔN NGỮ: dịch phần HTML tĩnh + nút VIE/ENG ===== */
-  const syncDlg = $('#syncDlg');
-  $('#btnSync').onclick = () => { $('#syncCid').value = gdClientId(); syncUI(); if (!syncDlg.open) syncDlg.showModal(); };
-  $('#syncClose').onclick = () => syncDlg.close();
-  $('#syncConnect').onclick = async () => {
-    const v = $('#syncCid').value.trim(); if (v) lsSet(SK.cid, v);
-    if (!gdClientId()) { $('#syncStatus').textContent = L('⚠ Hãy dán Google Client ID trước.', '⚠ Paste your Google Client ID first.'); return; }
-    lsSet(SK.on, '1'); await syncRun(true);
-    if (!gd.err && !gd.needAuth) toast(L('✔ Đã bật đồng bộ Google Drive', '✔ Google Drive sync is on'));
-  };
-  $('#syncNowBtn').onclick = () => syncRun(false);
-  $('#syncOff').onclick = () => { if (!confirm(L('Tắt đồng bộ trên máy này? (File trên Drive vẫn còn)', 'Turn off sync on this device? (The file on Drive stays)'))) return; lsSet(SK.on, '0'); gd.token = ''; gd.exp = 0; lsSet(SK.tok, ''); gd.needAuth = false; syncUI(); };
-  $('#syncBannerBtn').onclick = () => syncRun(true);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && gdOn()) syncSchedule(600); });
-  window.addEventListener('online', () => syncSchedule(1000));
-  setInterval(() => { if (document.visibilityState === 'visible' && gdOn()) syncRun(false); }, 60000);
-  // Lần đầu có dữ liệu: ghi nhận mốc 0 cho dữ liệu cũ (để bản mới hơn ở máy khác luôn thắng)
-  if (!sm.inited) { syncStamp(); syncStampNotes(false); sm.inited = true; smSave(); }
-  if (gdOn()) setTimeout(() => syncRun(false), 1500);
-  syncUI();
-
   const STATIC = [
     ['.brand h1', 'Work Schedule'], ['.brand small', 'Pickup · Fitting · Delivery'],
     ['#prevDay', 'Previous day', 'aria-label'], ['#today', 'Today'], ['#nextDay', 'Next day', 'aria-label'],
-    ['#btnNotify', 'Remind me of upcoming tasks', 'title'], ['#btnMenu .mn-txt', ' Tools ▾'],
-    ['#btnPrint', '🖨 Print schedule'], ['#btnSync', '☁ Google Drive sync…'], ['#btnUndoImport', '↩ Restore data from before the last import'], ['#impTitle', '⬆ Import backup file'], ['#impMerge', '➕ Merge into existing data (recommended)'], ['#impReplace', '♻ Replace everything with this file'], ['#impCancel', 'Cancel'], ['#impHint', 'Merge keeps your current orders; on a clash the file version wins. You can restore afterwards from the Tools menu.'], ['#syncTitle', '☁ Google Drive sync'], ['#syncCidLbl', 'Google Client ID'], ['#syncClose', 'Close'], ['#btnFixItems', '🧵 Convert old items to item lists…'], ['#btnExport', '⬇ Export backup file'], ['#btnImport', '⬆ Import backup file'],
-    ['#btnBkPick', '💾 Turn on auto backup…'], ['#btnBkRename', '✏ Rename / change location…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '💾 Overwrite JSON file'], ['#btnBkOff', '⏹ Turn off auto backup'],
+    ['#btnNotify', 'Remind me of upcoming tasks', 'title'], ['#btnMenu', '⋯ Tools ▾'],
+    ['#btnPrint', '🖨 Print schedule'], ['#btnFixItems', '🧵 Convert old items to item lists…'], ['#btnExport', '⬇ Export backup file'], ['#btnImport', '⬆ Import backup file'],
+    ['#btnBkPick', '💾 Turn on auto backup…'], ['#btnBkRename', '✏ Rename / change location…'], ['#btnBkNow', '🔄 Back up now'], ['#btnBkOff', '⏹ Turn off auto backup'],
     ['#btnAdd', '＋ Add schedule'],
     ['.tab[data-tab="day"]', 'Daily schedule'], ['.tab[data-tab="week"]', 'Next 7 days'],
     ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="calc"]', '🧮 Calculator'],

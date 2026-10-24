@@ -185,6 +185,7 @@
   .day-notes .dn-day { cursor: pointer; }
   .day-notes .dn-sub { font-size: 12px; font-weight: 800; text-transform: uppercase; color: #92660a; margin: 8px 0 2px; }
   .day-notes .dn-hist { border: 1px solid #e3cf86; background: #fff; border-radius: 8px; padding: 2px 8px; font-size: 12px; font-weight: 700; color: #92660a; cursor: pointer; }
+  .dn-src { font-style: normal; font-size: 12px; margin-right: 4px; opacity: .75; }
   .nh-group { margin-bottom: 12px; }
   .nh-day { font-weight: 800; font-size: 14px; color: #5b4306; padding: 2px 0 4px; }
   .nh-row { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-top: 1px dashed var(--line); font-size: 15px; line-height: 1.4; }
@@ -203,6 +204,7 @@
   .qn-item.done .qn-txt { text-decoration: line-through; color: var(--muted); }
   .qn-del { flex: none; border: none; background: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 0 4px; }
   @media (max-width: 560px) { .qn-item, .nh-row { font-size: 17px; } .qn-input { font-size: 16px; } }
+  #noteModalClear.armed { background: #d93025; color: #fff; border-color: #d93025; }
   /* (cũ) Cột "Ghi chú" trong bảng */
   .nc-add { width: 100%; margin-bottom: 8px; padding: 10px 12px; border: 1px dashed #e0b24a; background: #fffbe6; color: #92660a; border-radius: 10px; font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
   .nc-group { background: #fffbe6; border: 1px solid #f0dc8a; border-left: 4px solid #f59e0b; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; cursor: pointer; }
@@ -393,6 +395,8 @@
   .j-tailor { padding: 7px 8px; border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: 15px; font-weight: 700; background: #fff; }
   .modal-foot .foot-r { display: inline-flex; gap: 8px; }
   .note-modal-head b { min-width: 0; word-break: break-word; }
+  dialog#noteDlg .note-modal-head { padding: 8px 12px; font-size: 16px; }
+  dialog#noteDlg .note-modal-head .small { padding: 4px 10px; min-height: 34px; font-size: 14px; }
 
   @media (max-width: 760px) {
     .app { padding: 10px; }
@@ -978,7 +982,7 @@
 <dialog id="noteDlg">
   <div class="note-modal-head">
     <b id="noteModalTitle">📝 Ghi chú</b>
-    <button type="button" class="small danger" id="noteModalClear">Xóa ghi chú</button>
+    <button type="button" class="small danger" id="noteModalClear" title="Xóa ghi chú của ngày này" aria-label="Xóa ghi chú">🗑 Xoá</button>
   </div>
   <div class="note-modal-body">
     <div class="note-add">
@@ -2300,7 +2304,7 @@
   /* ===== LỊCH THÁNG + GHI CHÚ NGÀY ===== */
   const calBox = $('#cal');
   const noteDlg = $('#noteDlg');
-  let activeNoteDate = null, notePending = false, modalNoteTimer;
+  let activeNoteDate = null, activeNoteDay = '', noteQuickMode = false, notePending = false, modalNoteTimer;   // activeNoteDate = khoá lưu thật: 'YYYY-MM-DD' (ghi chú lịch tháng) hoặc '@YYYY-MM-DD' (thẻ Ghi chú) -> hai kho độc lập
 
   function renderCal() {
     hideNoteTip();
@@ -2328,18 +2332,21 @@
   }
 
   function updateNoteBtn() {
-    const b = $('#btnDayNote'), has = !!notes[state.day];
+    const b = $('#btnDayNote'), has = !!notes['@' + state.day];   // nút/thẻ Ghi chú chỉ phản ánh ghi chú nhanh của chính nó
     b.classList.toggle('has-note', has);
     b.textContent = has ? L('📝 Ghi chú •', '📝 Notes •') : L('📝 Ghi chú', '📝 Notes');
   }
 
-  function openNote(k) {
+  // quick = false: ghi chú trên lịch tháng (hẹn khách, có ngày giờ) · quick = true: thẻ "Ghi chú" (việc cần làm nhanh trong ngày). Hai kho dữ liệu riêng, xoá bên này không ảnh hưởng bên kia.
+  function openNote(k, quick) {
     if (noteDlg.open) return;
     hideNoteTip();
-    activeNoteDate = k;
-    $('#noteModalTitle').textContent = `${L('📝 Ghi chú', '📝 Notes for')} ${fmtDate(k)}`;
-    $('#noteModalText').value = notes[k] || '';
-    $('#noteModalState').textContent = notes[k] ? L('Đã có nội dung · tự động lưu', 'Has content · auto-saved') : L('Trống · tự động lưu', 'Empty · auto-saved');
+    resetClearBtn(); noteQuickMode = !!quick; activeNoteDay = k; activeNoteDate = quick ? '@' + k : k;
+    { const d = parseKey(k); $('#noteModalTitle').textContent = `${quick ? '📝' : '📅'} ${shortWeekdays()[d.getDay()]}, ${pad(d.getDate())}/${pad(d.getMonth() + 1)}${d.getFullYear() !== new Date().getFullYear() ? '/' + d.getFullYear() : ''}`; }
+    $('#noteModalText').placeholder = quick ? L('Việc cần làm trong ngày sẽ hiện ở đây...', 'Today\'s to-dos will show here...') : L('Các ghi chú trong ngày sẽ hiện ở đây...', 'Notes for this day will show here...');
+    noteQuick.placeholder = quick ? L('VD: gọi thợ cắt vải', 'e.g. call the cutter') : L('VD: 10am Adam hẹn may suit', 'e.g. 10am Adam suit fitting');
+    $('#noteModalText').value = notes[activeNoteDate] || '';
+    $('#noteModalState').textContent = notes[activeNoteDate] ? L('Đã có nội dung · tự động lưu', 'Has content · auto-saved') : L('Trống · tự động lưu', 'Empty · auto-saved');
     noteQuick.value = ''; noteMicHint.textContent = SR ? '' : L('Bấm 🎤 rồi dùng micro trên bàn phím để đọc, hoặc gõ ở ô trên', 'Tap 🎤 then use the keyboard mic, or type above');
     noteDlg.showModal();
     if (!NOTE_IOS && !/Android/i.test(navigator.userAgent)) noteQuick.focus({ preventScroll: true });
@@ -2390,8 +2397,8 @@
   calBox.addEventListener('focusin', e => { const b = e.target.closest('[data-day]'); if (b) showNoteTip(b); });
   calBox.addEventListener('focusout', hideNoteTip);
   window.addEventListener('scroll', hideNoteTip, true);
-  $('#btnDayNote').onclick = () => openNote(state.day);
-  $('#view').addEventListener('click', e => { if (e.target.closest('[data-note-done],[data-note-history]')) return; const t = e.target.closest('[data-daynote]'); if (t) openNote(t.dataset.daynote || state.day); });
+  $('#btnDayNote').onclick = () => openNote(state.day, true);
+  $('#view').addEventListener('click', e => { if (e.target.closest('[data-note-done],[data-note-history]')) return; const q = e.target.closest('[data-quicknote]'); if (q) { openNote(q.dataset.quicknote, true); return; } const t = e.target.closest('[data-daynote]'); if (t) openNote(t.dataset.daynote || state.day); });
 
   function flushNote() {
     clearTimeout(modalNoteTimer);
@@ -2432,16 +2439,19 @@
   const isDoneLine = t => /^✔/.test(t), stripDone = t => t.replace(/^✔\s*/, '');   // dòng xong được đánh dấu "✔ " ở đầu dòng (tự đồng bộ cùng dữ liệu ghi chú)
   const rawLines = k => (notes[k] || '').split('\n').map(x => x.trim()).filter(Boolean);
   function writeLines(k, lines) { if (lines.length) notes[k] = lines.join('\n'); else delete notes[k]; saveNotes(); }
-  function entriesOf(k) {
+  function entriesOf(k) {   // k = 'YYYY-MM-DD' (ghi chú lịch tháng) hoặc '@YYYY-MM-DD' (thẻ Ghi chú)
+    const quick = k[0] === '@', day = quick ? k.slice(1) : k;
     const now = new Date(), nowMin = now.getHours() * 60 + now.getMinutes(), today = todayKey();
     return rawLines(k).map((raw, i) => {
       const done = isDoneLine(raw), text = stripDone(raw), tm = noteTimeMatch(text), tmin = tm ? tm.min : null;
-      const past = k < today || (k === today && tmin !== null && tmin < nowMin);   // ngày đã qua, hoặc hôm nay mà giờ hẹn đã qua
-      return { k, i, raw, text, done, tmin, past };
+      const past = day < today || (day === today && tmin !== null && tmin < nowMin);   // ngày đã qua, hoặc hôm nay mà giờ hẹn đã qua
+      return { k, day, quick, i, raw, text, done, tmin, past };
     });
   }
-  const byTime = (a, b) => (a.tmin === null) - (b.tmin === null) || (a.tmin !== null && a.tmin - b.tmin) || a.i - b.i;   // có giờ lên trên theo giờ, không giờ xuống dưới
+  const byTime = (a, b) => (a.tmin === null) - (b.tmin === null) || (a.tmin !== null && a.tmin - b.tmin) || (a.quick - b.quick) || a.i - b.i;   // có giờ lên trên theo giờ, không giờ xuống dưới
   const isActive = e => !e.done && !e.past;
+  const dayStores = day => [day, '@' + day];
+  const dayKeysOf = () => [...new Set(Object.keys(notes).map(k => k[0] === '@' ? k.slice(1) : k).filter(k => DATE_KEY_RE.test(k)))].sort();
   function noteHL(text) {
     const t = noteTimeMatch(text);
     return t ? `${esc(text.slice(0, t.start))}<b class="dn-time">${esc(text.slice(t.start, t.end))}</b>${esc(text.slice(t.end))}` : esc(text);
@@ -2451,13 +2461,12 @@
 
   // --- Thẻ ghi chú hẹn trên trang chủ: chỉ hiện khi có ghi chú còn hiệu lực ---
   function apptPanelHTML() {
-    const day = entriesOf(state.day).filter(isActive).sort(byTime), ups = [];
-    for (const k of Object.keys(notes).filter(k => DATE_KEY_RE.test(k) && k > state.day).sort()) {
-      const es = entriesOf(k).filter(isActive).sort(byTime); if (es.length) ups.push([k, es]); if (ups.length >= 6) break;
-    }
+    const activeOf = day => dayStores(day).flatMap(entriesOf).filter(isActive).sort(byTime);
+    const day = activeOf(state.day), ups = [];
+    for (const k of dayKeysOf().filter(k => k > state.day)) { const es = activeOf(k); if (es.length) ups.push([k, es]); if (ups.length >= 6) break; }
     if (!day.length && !ups.length) return '';
-    const row = e => `<div class="dn-row"><input type="checkbox" class="dn-chk" data-note-done="${e.k}|${e.i}" aria-label="${L('Đánh dấu xong', 'Mark done')}"><span class="dn-txt" data-daynote="${e.k}">${noteHL(e.text)}</span></div>`;
-    const chip = n => n > 1 ? `<span class="dn-n">${n} ${L('hẹn', 'items')}</span>` : '';
+    const row = e => `<div class="dn-row"><input type="checkbox" class="dn-chk" data-note-done="${e.k}|${e.i}" aria-label="${L('Đánh dấu xong', 'Mark done')}"><span class="dn-txt" ${e.quick ? 'data-quicknote' : 'data-daynote'}="${e.day}"><i class="dn-src" aria-hidden="true">${e.quick ? '📝' : '📅'}</i>${noteHL(e.text)}</span></div>`;
+    const chip = n => n > 1 ? `<span class="dn-n">${n} ${L('mục', 'items')}</span>` : '';
     let h = `<div class="day-notes" data-appt="1"><div class="dn-title">📝 ${L('Ghi chú', 'Notes')}<button type="button" class="dn-hist" data-note-history="1">🕘 ${L('Lịch sử', 'History')}</button></div>`;
     if (day.length) h += `<div class="dn-day" data-daynote="${state.day}"><span>${esc(fmtDate(state.day))}</span>${chip(day.length)}</div>${day.map(row).join('')}`;
     if (ups.length) h += `<div class="dn-sub">${L('Sắp tới', 'Upcoming')}</div>` + ups.map(([k, es]) => {
@@ -2479,20 +2488,20 @@
   // --- Lịch sử ghi chú: đã xong hoặc đã qua ngày giờ hẹn ---
   const noteHistDlg = $('#noteHistDlg');
   function renderNoteHistory() {
-    const groups = new Map(); let n = 0;
-    Object.keys(notes).filter(k => DATE_KEY_RE.test(k)).sort().reverse().forEach(k => {
-      const es = entriesOf(k).filter(e => !isActive(e)).sort((a, b) => -byTime(a, b));
-      if (es.length) { groups.set(k, es); n += es.length; }
+    const groups = []; let n = 0;
+    dayKeysOf().reverse().forEach(day => {
+      const es = dayStores(day).flatMap(entriesOf).filter(e => !isActive(e)).sort((a, b) => -byTime(a, b));
+      if (es.length) { groups.push([day, es]); n += es.length; }
     });
-    $('#noteHistBody').innerHTML = n ? [...groups.entries()].slice(0, 60).map(([k, es]) =>
-      `<div class="nh-group"><div class="nh-day">${esc(fmtDate(k))}</div>${es.map(e => `<div class="nh-row ${e.done ? 'is-done' : ''}"><span class="nh-txt">${noteHL(e.text)}</span><span class="nh-tag">${e.done ? '✔ ' + L('Xong', 'Done') : '⌛ ' + L('Đã qua', 'Past')}</span>${e.done && !e.past ? `<button type="button" data-nh-restore="${e.k}|${e.i}" title="${L('Khôi phục về trang chủ', 'Restore to home')}">↩</button>` : ''}<button type="button" data-nh-del="${e.k}|${e.i}" title="${L('Xoá', 'Delete')}">🗑</button></div>`).join('')}</div>`).join('')
+    $('#noteHistBody').innerHTML = n ? groups.slice(0, 60).map(([day, es]) =>
+      `<div class="nh-group"><div class="nh-day">${esc(fmtDate(day))}</div>${es.map(e => `<div class="nh-row ${e.done ? 'is-done' : ''}"><span class="nh-txt"><i class="dn-src" aria-hidden="true">${e.quick ? '📝' : '📅'}</i>${noteHL(e.text)}</span><span class="nh-tag">${e.done ? '✔ ' + L('Xong', 'Done') : '⌛ ' + L('Đã qua', 'Past')}</span>${e.done && !e.past ? `<button type="button" data-nh-restore="${e.k}|${e.i}" title="${L('Khôi phục về trang chủ', 'Restore to home')}">↩</button>` : ''}<button type="button" data-nh-del="${e.k}|${e.i}" title="${L('Xoá', 'Delete')}">🗑</button></div>`).join('')}</div>`).join('')
       : `<div style="color:var(--muted);padding:8px 0">${L('Chưa có ghi chú nào trong lịch sử.', 'No notes in history yet.')}</div>`;
   }
   function openNoteHistory() { renderNoteHistory(); if (!noteHistDlg.open) noteHistDlg.showModal(); }
   $('#btnNoteHist').onclick = openNoteHistory;
   $('#noteHistClose').onclick = $('#noteHistOk').onclick = () => noteHistDlg.close();
   noteHistDlg.addEventListener('click', e => { if (e.target === noteHistDlg) noteHistDlg.close(); });
-  noteHistDlg.addEventListener('close', () => { renderCal(); updateNoteBtn(); refreshApptPanel(); });
+  noteHistDlg.addEventListener('close', () => { renderCal(); updateNoteBtn(); refreshApptPanel(); refreshQuickCol(); });
   $('#noteHistBody').addEventListener('click', e => {
     const r = e.target.closest('[data-nh-restore]'), d = e.target.closest('[data-nh-del]');
     if (r) { const [k, i] = r.dataset.nhRestore.split('|'); toggleDoneLine(k, +i); renderNoteHistory(); }
@@ -2527,17 +2536,17 @@
   function addQuickTodo(inp) {
     const text = inp.value.replace(/\s+/g, ' ').trim(); if (!text) return;
     const ls = rawLines(qKey(state.day)); ls.push(text); writeLines(qKey(state.day), ls);
-    inp.value = ''; refreshQuickCol();
+    inp.value = ''; refreshQuickCol(); refreshApptPanel();
     try { inp.focus({ preventScroll: true }); } catch (e) {}
   }
   $('#view').addEventListener('click', e => {
     const nd = e.target.closest('[data-note-done]');
-    if (nd) { const [k, i] = nd.dataset.noteDone.split('|'); toggleDoneLine(k, +i); refreshApptPanel(); renderCal(); updateNoteBtn(); return; }
+    if (nd) { const [k, i] = nd.dataset.noteDone.split('|'); toggleDoneLine(k, +i); refreshApptPanel(); refreshQuickCol(); renderCal(); updateNoteBtn(); return; }
     if (e.target.closest('[data-note-history]')) { openNoteHistory(); return; }
     const qd = e.target.closest('[data-qn-done]');
-    if (qd) { const ls = rawLines(qKey(state.day)), i = +qd.dataset.qnDone; if (ls[i] !== undefined) { ls[i] = isDoneLine(ls[i]) ? stripDone(ls[i]) : '✔ ' + ls[i]; writeLines(qKey(state.day), ls); refreshQuickCol(); } return; }
+    if (qd) { const ls = rawLines(qKey(state.day)), i = +qd.dataset.qnDone; if (ls[i] !== undefined) { ls[i] = isDoneLine(ls[i]) ? stripDone(ls[i]) : '✔ ' + ls[i]; writeLines(qKey(state.day), ls); refreshQuickCol(); refreshApptPanel(); } return; }
     const qx = e.target.closest('[data-qn-del]');
-    if (qx) { const ls = rawLines(qKey(state.day)); ls.splice(+qx.dataset.qnDel, 1); writeLines(qKey(state.day), ls); refreshQuickCol(); return; }
+    if (qx) { const ls = rawLines(qKey(state.day)); ls.splice(+qx.dataset.qnDel, 1); writeLines(qKey(state.day), ls); refreshQuickCol(); refreshApptPanel(); return; }
     const ab = e.target.closest('.qn-add-btn'); if (ab) { addQuickTodo(ab.closest('.qn-add').querySelector('.qn-input')); }
   });
   $('#view').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('qn-input')) { e.preventDefault(); addQuickTodo(e.target); } });
@@ -2556,7 +2565,7 @@
     const ta = $('#noteModalText');
     const lines = ta.value.split('\n').map(x => x.trim()).filter(Boolean);
     lines.push(text);
-    ta.value = sortNoteLines(lines).join('\n');
+    ta.value = (noteQuickMode ? lines : sortNoteLines(lines)).join('\n');   // việc nhanh giữ nguyên thứ tự nhập; ghi chú hẹn xếp theo giờ
     ta.dispatchEvent(new Event('input', { bubbles: true }));   // dùng lại cơ chế tự lưu sẵn có
     ta.scrollTop = ta.scrollHeight;
     return true;
@@ -2624,22 +2633,34 @@
   }
   noteMic.onclick = startMic;
 
-  $('#noteModalClear').onclick = () => {
-    if (!activeNoteDate || !notes[activeNoteDate]) return;
-    if (confirm(L(`Xóa ghi chú của ${fmtDate(activeNoteDate)}?`, `Delete the note for ${fmtDate(activeNoteDate)}?`))) {
-      delete notes[activeNoteDate];
-      notePending = true; flushNote();
-      $('#noteModalText').value = '';
-      $('#noteModalState').textContent = L('Đã xóa', 'Deleted');
+  // Nút Xoá: bấm lần 1 để "lên đạn" (đổi sang đỏ), bấm lần 2 trong 3 giây là xoá. Không dùng hộp thoại confirm() của trình duyệt vì trên iPhone/ứng dụng màn hình chính nó có thể bị chặn nên nút như không hoạt động.
+  const clearBtn = $('#noteModalClear');
+  let clearArmTimer;
+  function resetClearBtn() { clearTimeout(clearArmTimer); clearBtn.classList.remove('armed'); clearBtn.textContent = L('🗑 Xoá', '🗑 Clear'); }
+  clearBtn.onclick = () => {
+    if (!activeNoteDate) return;
+    const ta = $('#noteModalText');
+    if (!ta.value.trim() && !notes[activeNoteDate]) { toast(L('Chưa có gì để xoá', 'Nothing to clear')); return; }
+    if (!clearBtn.classList.contains('armed')) {
+      clearBtn.classList.add('armed'); clearBtn.textContent = L('❗ Bấm lại để xoá', '❗ Tap again to clear');
+      clearArmTimer = setTimeout(resetClearBtn, 3000); return;
     }
+    resetClearBtn();
+    clearTimeout(modalNoteTimer);
+    delete notes[activeNoteDate];
+    notePending = true; flushNote();
+    ta.value = '';
+    $('#noteModalState').textContent = L('Đã xóa', 'Deleted');
+    refreshApptPanel(); refreshQuickCol();   // cập nhật ngay khung trang chủ và thẻ Ghi chú
+    toast(noteQuickMode ? L('Đã xoá thẻ Ghi chú của ngày này', 'Notes card cleared for this day') : L('Đã xoá ghi chú lịch tháng của ngày này', 'Calendar note cleared for this day'));
   };
   $('#noteModalClose').onclick = () => noteDlg.close();
   // Đóng bằng Esc / bấm nền cũng lưu ngay phần đang gõ dở
   noteDlg.addEventListener('close', () => {
-    stopMic(); if (noteQuick.value.trim()) { addQuickNote(noteQuick.value); noteQuick.value = ''; }
+    stopMic(); resetClearBtn(); if (noteQuick.value.trim()) { addQuickNote(noteQuick.value); noteQuick.value = ''; }
     flushNote(); activeNoteDate = null;
     // Đóng xong mới cập nhật một lần: chỉ dựng lại cả bảng nếu ngày đã đổi, còn lại chỉ thay riêng thẻ ghi chú
-    requestAnimationFrame(() => { if (state.tab === 'day' && lastDay !== state.day) render(); else refreshDayNotesPanel(); });
+    requestAnimationFrame(() => { if (state.tab === 'day' && lastDay !== state.day) render(); else { refreshApptPanel(); refreshQuickCol(); } });
   });
   noteDlg.addEventListener('click', e => { if (e.target === noteDlg) noteDlg.close(); });
 
@@ -3362,7 +3383,7 @@
     ['label[for="fNote"]', 'General note'], ['#fNote', 'Measurements, alteration requests...', 'placeholder'],
     ['#addJob', '＋ Add another tailor'], ['#btnDelete', 'Delete order'], ['#btnCancel', 'Cancel'],
     ['#orderForm button[type="submit"]', 'Save'],
-    ['#noteModalClear', 'Clear note'], ['#noteModalText', 'Write a note for this day...', 'placeholder'],
+    ['#noteModalClear', '🗑 Clear'], ['#noteModalText', 'Write a note for this day...', 'placeholder'],
     ['#noteModalText', 'Note content', 'aria-label'], ['#noteModalClose', 'Close'], ['#noteModalState', 'Auto-saved']
   ];
   function applyStatic() {

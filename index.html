@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v3.5</title>
+<title>Lịch Làm Việc v3.6</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -893,7 +893,7 @@
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
           <button type="button" id="btnSaveOver">💾 Lưu đè file JSON</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 3.5</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 3.6</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -952,7 +952,7 @@
   <section class="calc" id="calc">
     <div class="calc-body">
       <div class="calc-in">
-        <div class="cfield"><label for="cAmount">Tiền hàng (đ)</label><input id="cAmount" inputmode="numeric" autocomplete="off" placeholder="VD: 3.500.000"></div>
+        <div class="cfield"><label for="cAmount">Tiền hàng (đ)</label><input id="cAmount" inputmode="numeric" autocomplete="off"></div>
         <div class="crow">
           <div class="cfield"><label for="cDiscount">Giảm giá (%)</label><input id="cDiscount" inputmode="decimal" autocomplete="off" placeholder="0"></div>
           <div class="cfield"><label for="cDeposit">Đã cọc (đ)</label><input id="cDeposit" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -966,7 +966,7 @@
         <div class="crow" id="cCardOpts" hidden>
           <div class="cfield"><label for="cFee">Phí cà thẻ (%)</label><input id="cFee" inputmode="decimal" autocomplete="off" value="0"></div>
         </div>
-        <div class="cfield" id="cGivenWrap"><label for="cGiven">Khách đưa (đ)</label><input id="cGiven" inputmode="numeric" autocomplete="off" placeholder="VD: 4.000.000"></div>
+        <div class="cfield" id="cGivenWrap"><label for="cGiven">Khách đưa (đ)</label><input id="cGiven" inputmode="numeric" autocomplete="off"></div>
         <button type="button" class="calc-reset" id="calcReset">↺ Làm lại</button>
       </div>
       <div class="calc-out" id="cOut"></div>
@@ -982,7 +982,7 @@
       <div class="top-row">
         <div class="field ac">
           <label for="fName">Tên khách *</label>
-          <input id="fName" required placeholder="VD: David Sin" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="acList">
+          <input id="fName" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="acList">
           <div class="ac-list" id="acList" role="listbox" aria-label="Gợi ý tên khách"></div>
         </div>
         <div class="field"><label for="fNote">Ghi chú chung</label><input id="fNote" autocomplete="off"></div>
@@ -3414,12 +3414,12 @@
     ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="calc"]', '🧮 Calculator'],
     ['#popover', 'Customer details', 'aria-label'], ['#popClose', 'Close', 'aria-label'],
     ['#popEdit', '✎ Edit this order'],
-    ['label[for="cAmount"]', 'Subtotal (đ)'], ['#cAmount', 'e.g. 3.500.000', 'placeholder'],
+    ['label[for="cAmount"]', 'Subtotal (đ)'], ['#cAmount', '', 'placeholder'],
     ['label[for="cDiscount"]', 'Discount (%)'], ['label[for="cDeposit"]', 'Deposit paid (đ)'],
     ['#cMethodLbl', 'Payment method'], ['#cMethod [data-m="cash"]', '💵 Cash'], ['#cMethod [data-m="card"]', '💳 Card'],
-    ['label[for="cFee"]', 'Card fee (%)'], ['label[for="cGiven"]', 'Customer gives (đ)'], ['#cGiven', 'e.g. 4.000.000', 'placeholder'],
+    ['label[for="cFee"]', 'Card fee (%)'], ['label[for="cGiven"]', 'Customer gives (đ)'], ['#cGiven', '', 'placeholder'],
     ['#calcReset', '↺ Reset'],
-    ['label[for="fName"]', 'Customer name *'], ['#fName', 'e.g. David Sin', 'placeholder'],
+    ['label[for="fName"]', 'Customer name *'], ['#fName', '', 'placeholder'],
     ['#acList', 'Customer name suggestions', 'aria-label'],
     ['label[for="fNote"]', 'General note'], ['#fNote', '', 'placeholder'],
     ['#addJob', '＋ Add another tailor'], ['#btnDelete', 'Delete order'], ['#btnCancel', 'Cancel'],

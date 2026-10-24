@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v3.8</title>
+<title>Lịch Làm Việc v4.0</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -605,7 +605,7 @@
   .ccard.done .ccard-row2, .ccard.done .clines, .ccard.done .citems, .ccard.done .sub-events-row { display: none; }
   .ccard.done .ccard-row1 { margin-bottom: 0; }
   .ccard.done .ctitle { font-size: 14px; font-weight: 600; }
-  .ccard.done .edit-btn { top: 3px; right: 6px; background: transparent; }
+  .ccard.done .edit-btn { top: 3px; right: 6px; }
   @media (max-width: 560px) {
     .app { padding: 8px max(8px, env(safe-area-inset-right)) 8px max(8px, env(safe-area-inset-left)); padding-top: max(8px, env(safe-area-inset-top)); }
     input, select, textarea { font-size: 16px !important; }   /* iOS tự phóng to trang nếu chữ < 16px */
@@ -685,7 +685,7 @@
     .ccard.done .ccard-row1 { margin-bottom: 0; }
     .ccard.done .ctitle { font-size: 14px; font-weight: 600; }
     .ccard.done input[type=checkbox] { width: 18px; height: 18px; }
-    .ccard.done .edit-btn { top: 3px; right: 6px; min-height: 28px; padding: 0 8px; background: transparent; }
+    .ccard.done .edit-btn { top: 3px; right: 6px; min-height: 28px; padding: 0 8px; }
     .cnext { margin-top: 6px; padding-top: 6px; }
     .cnext-item { padding: 2px 4px; font-size: 13px; }
     .cnext-item .edit-btn { min-height: 30px; }
@@ -861,6 +861,13 @@
     input, select, textarea { font-size: 17px !important; }
     .dwrap .dshow { font-size: 17px; }
   }
+
+  /* Giám sát: dòng chi tiết trong "Sắp tới"; cột thu gọn vẫn hiện sẵn "Sắp tới" */
+  .cnext-detail { font-size: 12.5px; font-weight: 600; color: var(--muted); margin-top: 1px; padding-left: 60px; line-height: 1.3; }
+  .col.collapsible.has-next:not(.is-open) .col-body { display: block; padding-top: 4px; }
+  .col.collapsible.has-next:not(.is-open) .col-body > :not(.cnext) { display: none; }
+  .col.collapsible.has-next:not(.is-open) .cnext { border-top: none; margin-top: 0; padding-top: 0; }
+  @media (max-width: 560px) { .cnext-detail { font-size: 14.5px; padding-left: 62px; } }
 </style>
 </head>
 <body>
@@ -901,7 +908,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 3.8</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 4.0</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -1783,7 +1790,10 @@
         if (tot) pcs = `<div class="col-sub">🧵 ${ls.filter(l => l.done).reduce((a, l) => a + l.qty, 0)}/${tot} ${L('món đã giao/lấy', 'items handed over')}</div>`;
       }
       // "Sắp tới": gộp theo ngày — mỗi ngày một tiêu đề, bên dưới là các khách của ngày đó
-      const upAll = groupEvents(evs.filter(e => e.colKey === c.key && e.date > state.day)).sort((a, b) => a.first.at.localeCompare(b.first.at));
+      // Gộp theo (đơn + ngày): cùng một khách có mốc ở nhiều ngày khác nhau thì mỗi ngày hiện một dòng riêng, không bị mất mốc sau
+      const upMap = new Map();
+      evs.filter(e => e.colKey === c.key && e.date > state.day).forEach(e => { const k = `${e.order.id}_${e.date}`; if (!upMap.has(k)) upMap.set(k, []); upMap.get(k).push(e); });
+      const upAll = [...upMap.values()].map(g => { g.sort((x, y) => x.at.localeCompare(y.at)); return { evs: g, done: g.every(e => e.done), first: g[0] }; }).sort((a, b) => a.first.at.localeCompare(b.first.at));
       const MAX_ROWS = 8, upG = upAll.slice(0, MAX_ROWS), more = upAll.length - upG.length;
       let nextHTML = '';
       if (upG.length) {
@@ -1793,8 +1803,12 @@
           const head = `<div class="cnext-day ${allDone ? 'is-done' : ''}"><b>${fmtDate(k)}</b>${gs.length > 1 ? `<span class="cnext-n">${gs.length} ${L('khách', 'customers')}</span>` : ''}</div>`;
           return head + gs.map(g => {
             const e = g.first;
+            // Dòng chi tiết để giám sát: thợ -> loại mốc + số lượng đồ; khách -> danh sách món + ghi chú
+            const detail = e.tailor
+              ? [groupItems(g) ? '🧵 ' + groupItems(g) : '', g.evs.filter(x => x.date === e.date).map(x => `${(EVENT_TYPES[x.type] || {}).chip || ''}${x.evItems ? ' ' + x.evItems : ''}`.trim()).filter(Boolean).join(' · ')].filter(Boolean).join(' — ')
+              : [(e.lines || []).map(l => `${l.qty} ${l.name}`).join(', '), e.extra || ''].filter(Boolean).join(' · ') || groupItems(g);
             return `<div class="cnext-item ${g.done ? 'is-done' : ''}" ${popAttrs(e, groupItems(g), g.done, g.evs.map(keyOf).join(','))}>
-              <div class="cnext-info" title="${esc(e.order.name)}"><span class="cnext-time">${fmtTimeOnly(e.at)}</span><b>${esc(e.order.name)}</b></div>
+              <div class="cnext-info" title="${esc(e.order.name)}"><span class="cnext-time">${fmtTimeOnly(e.at)}</span><b>${esc(e.order.name)}</b>${detail ? `<div class="cnext-detail">${esc(detail)}</div>` : ''}</div>
               <button type="button" class="edit-btn" style="position:static;" data-edit="${e.order.id}" aria-label="${L('Sửa đơn', 'Edit order')}">✎</button>
             </div>`;
           }).join('');
@@ -1804,7 +1818,7 @@
       // Điện thoại: cột trống hoặc đã xong hết thì thu gọn thành một dòng, chạm vào tiêu đề để mở
       const collapsible = list.length === 0 || done === list.length, ckey = state.day + '|' + c.key, isOpen = colState.has(ckey) ? colState.get(ckey) : !collapsible;
       const hint = !collapsible ? '' : list.length === 0 ? L('Trống', 'Empty') : L('✔ Xong hết', '✔ All done');
-      return `<section class="col collapsible ${isOpen ? 'is-open' : ''}" data-ckey="${esc(ckey)}" data-auto="${collapsible ? 1 : 0}" style="--c:${c.color}">
+      return `<section class="col collapsible ${isOpen ? 'is-open' : ''} ${nextHTML ? 'has-next' : ''}" data-ckey="${esc(ckey)}" data-auto="${collapsible ? 1 : 0}" style="--c:${c.color}">
         <div class="col-head" role="button" tabindex="0" aria-expanded="${isOpen ? 'true' : 'false'}" title="${L('Bấm để mở / thu gọn', 'Tap to expand / collapse')}"><b>${c.title}</b><span>${done}/${list.length}</span><em class="col-hint">${hint}</em><i class="col-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></i></div>${pcs}
         <div class="col-body">${list.length ? list.map(colCardHTML).join('') : `<div class="col-empty">${(state.day === todayKey() ? L('Không có lịch hôm nay', 'Nothing scheduled today') : L('Không có lịch ngày này', 'Nothing scheduled for this day'))}</div>`}${nextHTML}</div>
       </section>`;

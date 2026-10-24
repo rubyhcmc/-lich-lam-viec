@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v3.0</title>
+<title>Lịch Làm Việc v3.1</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -183,6 +183,11 @@
   .day-notes .dn-chk, .qn-chk { width: 22px; height: 22px; flex: none; margin: 1px 2px 0 0; accent-color: #16a34a; cursor: pointer; }
   .day-notes .dn-txt { cursor: pointer; flex: 1; min-width: 0; }
   .day-notes .dn-day { cursor: pointer; }
+  .day-notes .dn-toggle { display: inline-flex; align-items: center; gap: 8px; background: none; border: none; padding: 2px 0; font: inherit; font-weight: 800; text-transform: uppercase; color: inherit; cursor: pointer; min-height: 32px; }
+  .day-notes .dn-chev { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #fdeeb0; border: 1.5px solid #e3cf86; color: #92660a; transition: transform .2s; }
+  .day-notes.is-collapsed .dn-chev { transform: rotate(-90deg); }
+  .day-notes.is-collapsed .dn-title { margin-bottom: 0; }
+  .day-notes .dn-day.is-sel { background: #fdeeb0; border-radius: 6px; padding-left: 6px; }
   .day-notes .dn-sub { font-size: 12px; font-weight: 800; text-transform: uppercase; color: #92660a; margin: 8px 0 2px; }
   .day-notes .dn-hist { border: 1px solid #e3cf86; background: #fff; border-radius: 8px; padding: 2px 8px; font-size: 12px; font-weight: 700; color: #92660a; cursor: pointer; }
   .dn-src { font-style: normal; font-size: 12px; margin-right: 4px; opacity: .75; }
@@ -569,7 +574,7 @@
   html { -webkit-text-size-adjust: 100%; }
   body { padding-bottom: env(safe-area-inset-bottom); -webkit-tap-highlight-color: transparent; }
   .cal-toggle { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; min-width: 44px; font-size: 18px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
-  .cal-toggle.on { background: var(--primary); border-color: var(--primary); }
+  .cal-toggle.on { background: var(--primary); border-color: var(--primary); color: #fff; }
   .fab { display: none; }
   .col-hint { font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
   .col.collapsible .col-head { cursor: pointer; user-select: none; -webkit-user-select: none; }
@@ -605,7 +610,7 @@
     .toolrow .datebar { gap: 6px; flex-wrap: wrap; }
     .datebar .nav button { min-height: 40px; }
     .cal-toggle { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; min-width: 44px; font-size: 18px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
-    .cal-toggle.on { background: var(--primary); border-color: var(--primary); }
+    .cal-toggle.on { background: var(--primary); border-color: var(--primary); color: #fff; }
     .home.with-cal.cal-open { display: block; }   /* điện thoại: lịch ở trên, cột thợ/khách nối tiếp ngay bên dưới */
     .home.with-cal.cal-open .side { position: static; margin-bottom: 10px; }
     .edit-btn { min-width: 40px; min-height: 36px; }
@@ -881,7 +886,7 @@
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
           <button type="button" id="btnSaveOver">💾 Lưu đè file JSON</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 3.0</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 3.1</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -1738,7 +1743,6 @@
     const cols = TAILORS.filter(t => t.fixed).map(t => ({ key: t.name, title: `🧵 ${L('Thợ', 'Tailor')}: ${tl(t.name)}`, color: t.color }));
     cols.push({ key: 'fitting', title: L('👤 Khách thử đồ', '👤 Fitting'), color: EVENT_TYPES.fitting.color });
     cols.push({ key: 'delivery', title: L('✅ Khách lấy đồ', '✅ Pickup'), color: EVENT_TYPES.delivery.color });
-    cols.push({ key: 'notes', title: L('📝 Ghi chú', '📝 Notes'), color: '#f59e0b' });
     // Cột "Khác" chỉ hiện khi thực sự có lịch của thợ khác -> không bị mất dữ liệu
     if (evs.some(e => e.colKey === OTHER)) cols.push({ key: OTHER, title: `🧵 ${L('Thợ', 'Tailor')}: ${tl(OTHER)}`, color: tailorColor(OTHER) });
     return cols;
@@ -2413,7 +2417,7 @@
   calBox.addEventListener('focusout', hideNoteTip);
   window.addEventListener('scroll', hideNoteTip, true);
   $('#btnDayNote').onclick = () => openNote(state.day, true);
-  $('#view').addEventListener('click', e => { if (e.target.closest('[data-note-done],[data-note-history]')) return; const q = e.target.closest('[data-quicknote]'); if (q) { openNote(q.dataset.quicknote, true); return; } const t = e.target.closest('[data-daynote]'); if (t) openNote(t.dataset.daynote || state.day); });
+  $('#view').addEventListener('click', e => { if (e.target.closest('[data-appt-toggle]')) { apptCollapsed = !apptCollapsed; try { localStorage.setItem(APPT_COLL_KEY, apptCollapsed ? '1' : '0'); } catch (err) {} refreshApptPanel(); return; } if (e.target.closest('[data-note-done],[data-note-history]')) return; const q = e.target.closest('[data-quicknote]'); if (q) { openNote(q.dataset.quicknote, true); return; } const t = e.target.closest('[data-daynote]'); if (t) openNote(t.dataset.daynote || state.day); });
 
   function flushNote() {
     clearTimeout(modalNoteTimer);
@@ -2480,19 +2484,27 @@
   function deleteLine(k, i) { const ls = rawLines(k); ls.splice(i, 1); writeLines(k, ls); }
 
   // --- Thẻ ghi chú hẹn trên trang chủ: chỉ hiện khi có ghi chú còn hiệu lực ---
+  // Bảng ghi chú: LUÔN xếp theo ngày từ hôm nay trở đi (ngày gần nhất lên trên, trong ngày xếp theo giờ), không phụ thuộc ngày đang chọn.
+  // Thêm hẹn cho ngày khác thì tự chen vào đúng vị trí ngày đó. Có mũi tên để ẩn / bung cả bảng.
+  const APPT_COLL_KEY = 'phiphi_appt_collapsed_v1';
+  let apptCollapsed = false; try { apptCollapsed = localStorage.getItem(APPT_COLL_KEY) === '1'; } catch (e) {}
   function apptPanelHTML() {
-    const activeOf = day => dayStores(day).flatMap(entriesOf).filter(isActive).sort(byTime);
-    const day = activeOf(state.day), ups = [];
-    for (const k of dayKeysOf().filter(k => k > state.day)) { const es = activeOf(k); if (es.length) ups.push([k, es]); if (ups.length >= 6) break; }
-    if (!day.length && !ups.length) return '';
-    const row = e => `<div class="dn-row"><input type="checkbox" class="dn-chk" data-note-done="${e.k}|${e.i}" aria-label="${L('Đánh dấu xong', 'Mark done')}"><span class="dn-txt" ${e.quick ? 'data-quicknote' : 'data-daynote'}="${e.day}"><i class="dn-src" aria-hidden="true">${e.quick ? '📝' : '📅'}</i>${noteHL(e.text)}</span></div>`;
-    const chip = n => n > 1 ? `<span class="dn-n">${n} ${L('mục', 'items')}</span>` : '';
-    let h = `<div class="day-notes" data-appt="1"><div class="dn-title">📝 ${L('Ghi chú', 'Notes')}<button type="button" class="dn-hist" data-note-history="1">🕘 ${L('Lịch sử', 'History')}</button></div>`;
-    if (day.length) h += `<div class="dn-day" data-daynote="${state.day}"><span>${esc(fmtDate(state.day))}</span>${chip(day.length)}</div>${day.map(row).join('')}`;
-    if (ups.length) h += `<div class="dn-sub">${L('Sắp tới', 'Upcoming')}</div>` + ups.map(([k, es]) => {
-      const d = parseKey(k);
-      return `<div class="dn-day" data-daynote="${k}"><span>${shortWeekdays()[d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}</span>${chip(es.length)}</div>${es.map(row).join('')}`;
-    }).join('');
+    const today = todayKey(), tomorrow = addDays(today, 1), groups = []; let total = 0;
+    for (const k of dayKeysOf().filter(k => k >= today)) {
+      const es = dayStores(k).flatMap(entriesOf).filter(isActive).sort(byTime);
+      if (es.length) { groups.push([k, es]); total += es.length; }
+    }
+    if (!groups.length) return '';
+    const chev = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+    let h = `<div class="day-notes ${apptCollapsed ? 'is-collapsed' : ''}" data-appt="1"><div class="dn-title"><button type="button" class="dn-toggle" data-appt-toggle="1" aria-expanded="${apptCollapsed ? 'false' : 'true'}" title="${L('Bấm để ẩn / bung ghi chú', 'Tap to hide / show notes')}">📝 ${L('Ghi chú', 'Notes')} <span class="dn-n">${total}</span><i class="dn-chev" aria-hidden="true">${chev}</i></button><button type="button" class="dn-hist" data-note-history="1">🕘 ${L('Lịch sử', 'History')}</button></div>`;
+    if (!apptCollapsed) {
+      const row = e => `<div class="dn-row"><input type="checkbox" class="dn-chk" data-note-done="${e.k}|${e.i}" aria-label="${L('Đánh dấu xong', 'Mark done')}"><span class="dn-txt" ${e.quick ? 'data-quicknote' : 'data-daynote'}="${e.day}"><i class="dn-src" aria-hidden="true">${e.quick ? '📝' : '📅'}</i>${noteHL(e.text)}</span></div>`;
+      h += groups.map(([k, es]) => {
+        const d = parseKey(k), rel = k === today ? L('Hôm nay', 'Today') : k === tomorrow ? L('Ngày mai', 'Tomorrow') : '';
+        const label = `${rel ? rel + ' · ' : ''}${shortWeekdays()[d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}${d.getFullYear() !== new Date().getFullYear() ? '/' + d.getFullYear() : ''}`;
+        return `<div class="dn-day ${k === state.day ? 'is-sel' : ''}" data-daynote="${k}"><span>${esc(label)}</span>${es.length > 1 ? `<span class="dn-n">${es.length} ${L('mục', 'items')}</span>` : ''}</div>${es.map(row).join('')}`;
+      }).join('');
+    }
     return h + '</div>';
   }
   function refreshApptPanel() {

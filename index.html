@@ -175,7 +175,35 @@
   .day-notes .dn-row::before { content: '•'; color: #b45309; flex: none; }
   .day-notes { overflow-anchor: none; contain: layout style; }
   @media (max-width: 560px) { .day-notes .dn-row { font-size: 17px; } .day-notes .dn-title { font-size: 14px; } }
-  /* Cột "Ghi chú" trong bảng */
+  /* Thẻ ghi chú hẹn trên trang chủ (chỉ hiện khi có) + lịch sử */
+  .dn-time, .day-notes .dn-time { font-weight: 800; color: #b45309; background: #fdeeb0; border-radius: 4px; padding: 0 4px; }
+  .day-notes { cursor: default; }
+  .day-notes .dn-row::before { content: none; }
+  .day-notes .dn-row { align-items: flex-start; }
+  .day-notes .dn-chk, .qn-chk { width: 22px; height: 22px; flex: none; margin: 1px 2px 0 0; accent-color: #16a34a; cursor: pointer; }
+  .day-notes .dn-txt { cursor: pointer; flex: 1; min-width: 0; }
+  .day-notes .dn-day { cursor: pointer; }
+  .day-notes .dn-sub { font-size: 12px; font-weight: 800; text-transform: uppercase; color: #92660a; margin: 8px 0 2px; }
+  .day-notes .dn-hist { border: 1px solid #e3cf86; background: #fff; border-radius: 8px; padding: 2px 8px; font-size: 12px; font-weight: 700; color: #92660a; cursor: pointer; }
+  .nh-group { margin-bottom: 12px; }
+  .nh-day { font-weight: 800; font-size: 14px; color: #5b4306; padding: 2px 0 4px; }
+  .nh-row { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-top: 1px dashed var(--line); font-size: 15px; line-height: 1.4; }
+  .nh-row .nh-txt { flex: 1; min-width: 0; word-break: break-word; }
+  .nh-row.is-done .nh-txt { text-decoration: line-through; color: var(--muted); }
+  .nh-tag { flex: none; font-size: 12px; font-weight: 700; color: var(--muted); background: #eef1f6; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+  .nh-row button { flex: none; border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 2px 8px; cursor: pointer; font-size: 14px; }
+  /* Thẻ "Ghi chú" = việc cần làm nhanh trong ngày */
+  .qn-add { display: flex; gap: 6px; margin-bottom: 8px; }
+  .qn-input { flex: 1; min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 15px; background: #fff; }
+  .qn-input:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
+  .qn-add button { flex: none; min-width: 42px; }
+  .qn-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 2px; border-top: 1px dashed #ecdc9c; font-size: 15px; line-height: 1.4; }
+  .qn-item:first-child { border-top: none; }
+  .qn-txt { flex: 1; min-width: 0; word-break: break-word; }
+  .qn-item.done .qn-txt { text-decoration: line-through; color: var(--muted); }
+  .qn-del { flex: none; border: none; background: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 0 4px; }
+  @media (max-width: 560px) { .qn-item, .nh-row { font-size: 17px; } .qn-input { font-size: 16px; } }
+  /* (cũ) Cột "Ghi chú" trong bảng */
   .nc-add { width: 100%; margin-bottom: 8px; padding: 10px 12px; border: 1px dashed #e0b24a; background: #fffbe6; color: #92660a; border-radius: 10px; font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
   .nc-group { background: #fffbe6; border: 1px solid #f0dc8a; border-left: 4px solid #f59e0b; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; cursor: pointer; }
   .nc-group.nc-up { background: #fff; border-color: var(--line); border-left-color: #f59e0b; }
@@ -198,7 +226,7 @@
   .note-modal-body textarea { min-height: 120px; }
 
   /* Popup Ghi Chú Ngày (Modal) */
-  dialog#noteDlg, dialog#syncDlg, dialog#importDlg { border: none; border-radius: 14px; padding: 0; width: min(460px, 92vw); box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+  dialog#noteDlg, dialog#noteHistDlg, dialog#syncDlg, dialog#importDlg { border: none; border-radius: 14px; padding: 0; width: min(460px, 92vw); box-shadow: 0 20px 50px rgba(0,0,0,.25); }
   dialog#histDlg { border: none; border-radius: 14px; padding: 0; width: min(540px, 94vw); box-shadow: 0 20px 50px rgba(0,0,0,.25); }
   dialog#histDlg::backdrop { background: rgba(0,0,0,.4); }
   .hist-sec { font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
@@ -207,7 +235,7 @@
   .hist-row b { font-size: 15px; }
   .hist-row small { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
   .hist-empty { color: var(--muted); font-size: 14px; padding: 6px 2px; line-height: 1.5; }
-  dialog#noteDlg::backdrop, dialog#syncDlg::backdrop, dialog#importDlg::backdrop { background: rgba(0,0,0,.4); }
+  dialog#noteDlg::backdrop, dialog#noteHistDlg::backdrop, dialog#syncDlg::backdrop, dialog#importDlg::backdrop { background: rgba(0,0,0,.4); }
   .note-modal-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 17px; background: #f8f9fb; }
   .note-modal-body { padding: 16px; }
   .note-modal-body textarea { width: 100%; min-height: 140px; resize: vertical; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 15px; line-height: 1.45; background: #fffef8; }
@@ -870,6 +898,7 @@
         <div class="label" id="dateLabel"></div>
         <button type="button" class="cal-toggle" id="btnCalToggle" aria-label="Mở / tắt lịch tháng">📅<span class="ct-txt"> Lịch tháng</span></button>
         <button type="button" class="note-btn" id="btnDayNote">📝 Ghi chú</button>
+        <button type="button" class="note-btn" id="btnNoteHist" title="Lịch sử ghi chú" aria-label="Lịch sử ghi chú" style="margin-left:0">🕘</button>
       </div>
   </div>
 
@@ -965,6 +994,12 @@
     <span id="noteModalState">Tự động lưu</span>
     <button type="button" id="noteModalClose" class="primary small">Đóng lại</button>
   </div>
+</dialog>
+
+<dialog id="noteHistDlg">
+  <div class="note-modal-head"><b>🕘 Lịch sử ghi chú</b><button type="button" class="small" id="noteHistClose" aria-label="Đóng">✕</button></div>
+  <div class="note-modal-body" id="noteHistBody" style="max-height:66vh;overflow:auto"></div>
+  <div class="note-modal-foot"><span>Ghi chú đã xong hoặc đã qua ngày giờ hẹn</span><button type="button" id="noteHistOk" class="primary small">Đóng lại</button></div>
 </dialog>
 
 <dialog id="importDlg">
@@ -1694,7 +1729,7 @@
   function renderDay() {
     const evs = allEvents();
     const dayEvs = evs.filter(e => e.date === state.day);
-    let html = '';
+    let html = apptPanelHTML();
     if (state.day === todayKey()) {
       const over = evs.filter(e => !e.done && e.date < state.day);
       if (over.length) html += `<div class="group-title overdue">⚠ ${L('Việc quá hạn chưa hoàn thành', 'Overdue unfinished tasks')} (${over.length})</div>` + over.map(eventHTML).join('');
@@ -2356,7 +2391,7 @@
   calBox.addEventListener('focusout', hideNoteTip);
   window.addEventListener('scroll', hideNoteTip, true);
   $('#btnDayNote').onclick = () => openNote(state.day);
-  $('#view').addEventListener('click', e => { const t = e.target.closest('[data-daynote]'); if (t) openNote(t.dataset.daynote || state.day); });
+  $('#view').addEventListener('click', e => { if (e.target.closest('[data-note-done],[data-note-history]')) return; const t = e.target.closest('[data-daynote]'); if (t) openNote(t.dataset.daynote || state.day); });
 
   function flushNote() {
     clearTimeout(modalNoteTimer);
@@ -2392,45 +2427,124 @@
   }
   const noteTimeOf = line => { const t = noteTimeMatch(line); return t ? t.min : null; };
 
-  // Thẻ "Ghi chú" là một cột trong bảng (cạnh Khách thử đồ, Khách lấy đồ): ngày đang chọn + các ngày sắp tới có ghi chú, mỗi ngày gom thành một nhóm
-  const noteLinesOf = k => (notes[k] || '').split('\n').map(x => x.trim()).filter(Boolean)
-    .map((t, i) => { const m = noteTimeMatch(t); return { t, i, k: m ? m.min : null }; })
-    .sort((a, b) => (a.k === null) - (b.k === null) || (a.k !== null && a.k - b.k) || a.i - b.i)   // có giờ lên trên theo giờ, không giờ xuống dưới
-    .map(x => x.t);
-  function noteRowHTML(line) {
-    const t = noteTimeMatch(line);
-    const body = t ? `${esc(line.slice(0, t.start))}<b class="nc-time">${esc(line.slice(t.start, t.end))}</b>${esc(line.slice(t.end))}` : esc(line);
-    return `<div class="nc-row">${body}</div>`;
+  /* ===== Ghi chú HẸN (có ngày giờ) hiện ở trang chủ, xong / đã qua -> Lịch sử. Thẻ "Ghi chú" = việc cần làm nhanh trong ngày ===== */
+  const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
+  const isDoneLine = t => /^✔/.test(t), stripDone = t => t.replace(/^✔\s*/, '');   // dòng xong được đánh dấu "✔ " ở đầu dòng (tự đồng bộ cùng dữ liệu ghi chú)
+  const rawLines = k => (notes[k] || '').split('\n').map(x => x.trim()).filter(Boolean);
+  function writeLines(k, lines) { if (lines.length) notes[k] = lines.join('\n'); else delete notes[k]; saveNotes(); }
+  function entriesOf(k) {
+    const now = new Date(), nowMin = now.getHours() * 60 + now.getMinutes(), today = todayKey();
+    return rawLines(k).map((raw, i) => {
+      const done = isDoneLine(raw), text = stripDone(raw), tm = noteTimeMatch(text), tmin = tm ? tm.min : null;
+      const past = k < today || (k === today && tmin !== null && tmin < nowMin);   // ngày đã qua, hoặc hôm nay mà giờ hẹn đã qua
+      return { k, i, raw, text, done, tmin, past };
+    });
   }
-  function notesColHTML(c) {
-    const lines = noteLinesOf(state.day);
-    const upKeys = Object.keys(notes).filter(k => k > state.day && noteLinesOf(k).length).sort().slice(0, 6);
-    const collapsible = !lines.length && !upKeys.length, ckey = state.day + '|notes';
-    const isOpen = colState.has(ckey) ? colState.get(ckey) : !collapsible, hint = collapsible ? L('Trống', 'Empty') : '';
-    let body = `<button type="button" class="nc-add" data-daynote="${state.day}">＋ ${L('Thêm ghi chú', 'Add note')} · 🎤</button>`;
-    body += lines.length
-      ? `<div class="nc-group" data-daynote="${state.day}"><div class="nc-day"><b>${esc(fmtDate(state.day))}</b>${lines.length > 1 ? `<span class="nc-n">${lines.length} ${L('hẹn', 'items')}</span>` : ''}</div>${lines.map(noteRowHTML).join('')}</div>`
-      : `<div class="col-empty">${L('Chưa có ghi chú cho ngày này', 'No notes for this day')}</div>`;
-    if (upKeys.length) {
-      body += `<div class="cnext"><div class="cnext-title">${L('Sắp tới', 'Upcoming')}</div>` + upKeys.map(k => {
-        const d = parseKey(k), ls = noteLinesOf(k);
-        return `<div class="nc-group nc-up" data-daynote="${k}"><div class="nc-day"><b>${shortWeekdays()[d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}</b>${ls.length > 1 ? `<span class="nc-n">${ls.length} ${L('hẹn', 'items')}</span>` : ''}</div>${ls.map(noteRowHTML).join('')}</div>`;
-      }).join('') + `</div>`;
+  const byTime = (a, b) => (a.tmin === null) - (b.tmin === null) || (a.tmin !== null && a.tmin - b.tmin) || a.i - b.i;   // có giờ lên trên theo giờ, không giờ xuống dưới
+  const isActive = e => !e.done && !e.past;
+  function noteHL(text) {
+    const t = noteTimeMatch(text);
+    return t ? `${esc(text.slice(0, t.start))}<b class="dn-time">${esc(text.slice(t.start, t.end))}</b>${esc(text.slice(t.end))}` : esc(text);
+  }
+  function toggleDoneLine(k, i) { const ls = rawLines(k); if (!ls[i]) return; ls[i] = isDoneLine(ls[i]) ? stripDone(ls[i]) : '✔ ' + ls[i]; writeLines(k, ls); }
+  function deleteLine(k, i) { const ls = rawLines(k); ls.splice(i, 1); writeLines(k, ls); }
+
+  // --- Thẻ ghi chú hẹn trên trang chủ: chỉ hiện khi có ghi chú còn hiệu lực ---
+  function apptPanelHTML() {
+    const day = entriesOf(state.day).filter(isActive).sort(byTime), ups = [];
+    for (const k of Object.keys(notes).filter(k => DATE_KEY_RE.test(k) && k > state.day).sort()) {
+      const es = entriesOf(k).filter(isActive).sort(byTime); if (es.length) ups.push([k, es]); if (ups.length >= 6) break;
     }
-    return `<section class="col collapsible ${isOpen ? 'is-open' : ''}" data-ckey="${esc(ckey)}" data-auto="${collapsible ? 1 : 0}" data-notes-col="1" style="--c:${c.color}">
-      <div class="col-head" role="button" tabindex="0" aria-expanded="${isOpen ? 'true' : 'false'}" title="${L('Bấm để mở / thu gọn', 'Tap to expand / collapse')}"><b>${c.title}</b><span>${lines.length}</span><em class="col-hint">${hint}</em><i class="col-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></i></div>
-      <div class="col-body">${body}</div>
+    if (!day.length && !ups.length) return '';
+    const row = e => `<div class="dn-row"><input type="checkbox" class="dn-chk" data-note-done="${e.k}|${e.i}" aria-label="${L('Đánh dấu xong', 'Mark done')}"><span class="dn-txt" data-daynote="${e.k}">${noteHL(e.text)}</span></div>`;
+    const chip = n => n > 1 ? `<span class="dn-n">${n} ${L('hẹn', 'items')}</span>` : '';
+    let h = `<div class="day-notes" data-appt="1"><div class="dn-title">📝 ${L('Ghi chú', 'Notes')}<button type="button" class="dn-hist" data-note-history="1">🕘 ${L('Lịch sử', 'History')}</button></div>`;
+    if (day.length) h += `<div class="dn-day" data-daynote="${state.day}"><span>${esc(fmtDate(state.day))}</span>${chip(day.length)}</div>${day.map(row).join('')}`;
+    if (ups.length) h += `<div class="dn-sub">${L('Sắp tới', 'Upcoming')}</div>` + ups.map(([k, es]) => {
+      const d = parseKey(k);
+      return `<div class="dn-day" data-daynote="${k}"><span>${shortWeekdays()[d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}</span>${chip(es.length)}</div>${es.map(row).join('')}`;
+    }).join('');
+    return h + '</div>';
+  }
+  function refreshApptPanel() {
+    if (state.tab !== 'day') return;
+    const v = $('#view'), old = v.querySelector(':scope > .day-notes[data-appt]'), html = apptPanelHTML();
+    if (!html) { if (old) old.remove(); return; }
+    const tpl = document.createElement('template'); tpl.innerHTML = html.trim();
+    const el = tpl.content.firstElementChild;
+    if (old) { if (old.outerHTML !== el.outerHTML) old.replaceWith(el); } else v.insertBefore(el, v.firstChild);
+  }
+  function refreshDayNotesPanel() { refreshApptPanel(); }
+
+  // --- Lịch sử ghi chú: đã xong hoặc đã qua ngày giờ hẹn ---
+  const noteHistDlg = $('#noteHistDlg');
+  function renderNoteHistory() {
+    const groups = new Map(); let n = 0;
+    Object.keys(notes).filter(k => DATE_KEY_RE.test(k)).sort().reverse().forEach(k => {
+      const es = entriesOf(k).filter(e => !isActive(e)).sort((a, b) => -byTime(a, b));
+      if (es.length) { groups.set(k, es); n += es.length; }
+    });
+    $('#noteHistBody').innerHTML = n ? [...groups.entries()].slice(0, 60).map(([k, es]) =>
+      `<div class="nh-group"><div class="nh-day">${esc(fmtDate(k))}</div>${es.map(e => `<div class="nh-row ${e.done ? 'is-done' : ''}"><span class="nh-txt">${noteHL(e.text)}</span><span class="nh-tag">${e.done ? '✔ ' + L('Xong', 'Done') : '⌛ ' + L('Đã qua', 'Past')}</span>${e.done && !e.past ? `<button type="button" data-nh-restore="${e.k}|${e.i}" title="${L('Khôi phục về trang chủ', 'Restore to home')}">↩</button>` : ''}<button type="button" data-nh-del="${e.k}|${e.i}" title="${L('Xoá', 'Delete')}">🗑</button></div>`).join('')}</div>`).join('')
+      : `<div style="color:var(--muted);padding:8px 0">${L('Chưa có ghi chú nào trong lịch sử.', 'No notes in history yet.')}</div>`;
+  }
+  function openNoteHistory() { renderNoteHistory(); if (!noteHistDlg.open) noteHistDlg.showModal(); }
+  $('#btnNoteHist').onclick = openNoteHistory;
+  $('#noteHistClose').onclick = $('#noteHistOk').onclick = () => noteHistDlg.close();
+  noteHistDlg.addEventListener('click', e => { if (e.target === noteHistDlg) noteHistDlg.close(); });
+  noteHistDlg.addEventListener('close', () => { renderCal(); updateNoteBtn(); refreshApptPanel(); });
+  $('#noteHistBody').addEventListener('click', e => {
+    const r = e.target.closest('[data-nh-restore]'), d = e.target.closest('[data-nh-del]');
+    if (r) { const [k, i] = r.dataset.nhRestore.split('|'); toggleDoneLine(k, +i); renderNoteHistory(); }
+    else if (d) { const [k, i] = d.dataset.nhDel.split('|'); deleteLine(k, +i); renderNoteHistory(); }
+  });
+
+  // --- Thẻ "Ghi chú" (cột trong bảng): việc cần làm nhanh trong ngày, tick là xong ---
+  const qKey = day => '@' + day;
+  const quickItems = () => rawLines(qKey(state.day)).map((raw, i) => ({ i, done: isDoneLine(raw), text: stripDone(raw) }));
+  function quickListHTML(items) {
+    const sorted = [...items.filter(x => !x.done), ...items.filter(x => x.done)];
+    return sorted.length ? sorted.map(x => `<div class="qn-item ${x.done ? 'done' : ''}"><input type="checkbox" class="qn-chk" data-qn-done="${x.i}" ${x.done ? 'checked' : ''} aria-label="${L('Xong', 'Done')}"><span class="qn-txt">${esc(x.text)}</span><button type="button" class="qn-del" data-qn-del="${x.i}" aria-label="${L('Xoá', 'Delete')}">✕</button></div>`).join('')
+      : `<div class="col-empty">${L('Chưa có việc nào — gõ vào ô trên rồi bấm ＋', 'Nothing yet — type above and tap ＋')}</div>`;
+  }
+  function quickStats(items) { const done = items.filter(x => x.done).length; return { done, total: items.length, hint: !items.length ? L('Trống', 'Empty') : done === items.length ? L('✔ Xong hết', '✔ All done') : '' }; }
+  function notesColHTML(c) {
+    const items = quickItems(), st = quickStats(items), collapsible = !items.length || st.done === items.length, ckey = state.day + '|notes';
+    const isOpen = colState.has(ckey) ? colState.get(ckey) : !collapsible;
+    return `<section class="col collapsible ${isOpen ? 'is-open' : ''}" data-ckey="${esc(ckey)}" data-auto="${collapsible ? 1 : 0}" data-quick-col="1" style="--c:${c.color}">
+      <div class="col-head" role="button" tabindex="0" aria-expanded="${isOpen ? 'true' : 'false'}" title="${L('Bấm để mở / thu gọn', 'Tap to expand / collapse')}"><b>${c.title}</b><span>${st.done}/${st.total}</span><em class="col-hint">${st.hint}</em><i class="col-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></i></div>
+      <div class="col-body"><div class="qn-add"><input class="qn-input" enterkeyhint="done" placeholder="${L('Việc cần làm nhanh trong ngày...', 'Quick to-do for today...')}" aria-label="${L('Ghi chú nhanh', 'Quick note')}" autocomplete="off"><button type="button" class="primary small qn-add-btn">＋</button></div><div class="qn-list">${quickListHTML(items)}</div></div>
     </section>`;
   }
-  // Chỉ thay riêng cột Ghi chú, không dựng lại cả bảng thợ/khách -> không giật
-  function refreshDayNotesPanel() {
-    if (state.tab !== 'day') return;
-    const old = $('#view').querySelector('section[data-notes-col]');
-    if (!old) { render(); return; }
-    const tpl = document.createElement('template');
-    tpl.innerHTML = notesColHTML({ title: L('📝 Ghi chú', '📝 Notes'), color: '#f59e0b' }).trim();
-    old.replaceWith(tpl.content.firstElementChild);
+  function refreshQuickCol() {
+    const sec = $('#view').querySelector('section[data-quick-col]'); if (!sec) return;
+    const items = quickItems(), st = quickStats(items), collapsible = !items.length || st.done === items.length;
+    sec.querySelector('.qn-list').innerHTML = quickListHTML(items);
+    sec.querySelector('.col-head span').textContent = st.done + '/' + st.total;
+    sec.querySelector('.col-hint').textContent = st.hint;
+    sec.dataset.auto = collapsible ? 1 : 0;
   }
+  function addQuickTodo(inp) {
+    const text = inp.value.replace(/\s+/g, ' ').trim(); if (!text) return;
+    const ls = rawLines(qKey(state.day)); ls.push(text); writeLines(qKey(state.day), ls);
+    inp.value = ''; refreshQuickCol();
+    try { inp.focus({ preventScroll: true }); } catch (e) {}
+  }
+  $('#view').addEventListener('click', e => {
+    const nd = e.target.closest('[data-note-done]');
+    if (nd) { const [k, i] = nd.dataset.noteDone.split('|'); toggleDoneLine(k, +i); refreshApptPanel(); renderCal(); updateNoteBtn(); return; }
+    if (e.target.closest('[data-note-history]')) { openNoteHistory(); return; }
+    const qd = e.target.closest('[data-qn-done]');
+    if (qd) { const ls = rawLines(qKey(state.day)), i = +qd.dataset.qnDone; if (ls[i] !== undefined) { ls[i] = isDoneLine(ls[i]) ? stripDone(ls[i]) : '✔ ' + ls[i]; writeLines(qKey(state.day), ls); refreshQuickCol(); } return; }
+    const qx = e.target.closest('[data-qn-del]');
+    if (qx) { const ls = rawLines(qKey(state.day)); ls.splice(+qx.dataset.qnDel, 1); writeLines(qKey(state.day), ls); refreshQuickCol(); return; }
+    const ab = e.target.closest('.qn-add-btn'); if (ab) { addQuickTodo(ab.closest('.qn-add').querySelector('.qn-input')); }
+  });
+  $('#view').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('qn-input')) { e.preventDefault(); addQuickTodo(e.target); } });
+  $('#view').addEventListener('change', e => { if (e.target.classList && e.target.classList.contains('qn-input') && e.target.value.trim()) addQuickTodo(e.target); });   // đọc chính tả bằng bàn phím xong, chạm ra ngoài là tự thêm
+  // Đến giờ hẹn thì ghi chú tự chuyển vào Lịch sử
+  setInterval(() => { if (!document.hidden && state.tab === 'day' && !noteDlg.open && !noteHistDlg.open) refreshApptPanel(); }, 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && state.tab === 'day' && !noteDlg.open) refreshApptPanel(); });
   function sortNoteLines(lines) {
     return lines.map((t, i) => ({ t, i, k: noteTimeOf(t) }))
       .sort((a, b) => (a.k === null) - (b.k === null) || (a.k !== null && a.k - b.k) || a.i - b.i)   // có giờ lên trên theo giờ tăng dần, không có giờ xuống dưới

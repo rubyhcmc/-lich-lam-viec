@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v3.6</title>
+<title>Lịch Làm Việc v3.8</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -23,8 +23,9 @@
 
   header.top { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
   .brand { display: flex; align-items: center; gap: 12px; }
-  .brand-icon { width: 42px; height: 42px; border-radius: 11px; background: var(--primary); color: #fff; display: grid; place-items: center; font-size: 22px; flex: none; }
-  .brand h1 { margin: 0; font-size: 22px; letter-spacing: -.01em; line-height: 1.15; }
+  .brand-icon { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(145deg, #3b82f6, #1d4ed8); box-shadow: 0 2px 6px rgba(29,78,216,.35); color: #fff; display: grid; place-items: center; font-size: 22px; flex: none; }
+  .menu-list .mn-primary { font-weight: 700; color: var(--primary); }
+  .brand h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; color: #0f172a; }
   .brand small { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
   .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
   .menu { position: relative; }
@@ -721,6 +722,12 @@
     .toolrow .tabs { display: none; }
     .mtabs { display: flex; gap: 6px; margin-bottom: 6px; position: relative; }
     .mtabs button { min-height: 44px; }
+    .mtabs .mt-view .mv-l { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+    .mtabs .mt-view .mv-ic { color: var(--primary); flex: none; }
+    .mtabs .mt-view .mv-t { font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mtabs .mt-view .mv-r { display: inline-flex; align-items: center; gap: 8px; flex: none; }
+    .mtabs .mt-view .mv-chev { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #eef4ff; color: var(--primary); }
+    .mtabs.open .mt-view .mv-chev svg { transform: rotate(180deg); }
     .mtabs .mt-view { flex: 1; min-width: 0; text-align: left; font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .topbar .sync-chip { display: none; }
     .mtabs .mt-sync { display: inline-flex; flex: none; min-width: 56px; padding: 0 12px; font-size: 17px; justify-content: center; }
@@ -862,7 +869,7 @@
 
   <header class="topbar">
     <div class="brand">
-      <div class="brand-icon" aria-hidden="true">📅</div>
+      <div class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8.5 14.2l2.2 2.2 4.3-4.4"/></svg></div>
       <div>
         <h1>Lịch Làm Việc</h1>
         <small>Đặt xe · Thử đồ · Giao đồ</small>
@@ -878,6 +885,8 @@
       <div class="menu" id="menu">
         <button type="button" id="btnMenu" aria-haspopup="true"><span class="mn-ic">⋯</span><span class="mn-txt"> Tiện ích ▾</span></button>
         <div class="menu-list">
+          <button type="button" id="btnSaveOver" class="mn-primary">📄 Lưu đè file JSON</button>
+          <hr>
           <button type="button" id="btnPrint">🖨 In lịch</button>
           <button type="button" id="btnFixItems">🧵 Chuyển đồ cũ thành danh sách món…</button>
           <hr>
@@ -889,11 +898,10 @@
           <button type="button" id="btnUndoSync" hidden>↩ Hoàn tác lần đồng bộ gần nhất</button>
           <hr>
           <div class="bk-status" id="bkStatus"></div>
-          <button type="button" id="btnBkPick">💾 Bật tự động sao lưu (chọn thư mục)…</button>
+          <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <button type="button" id="btnSaveOver">💾 Lưu đè file JSON</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 3.6</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 3.8</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -917,7 +925,6 @@
         <button type="button" class="mt-view" id="mtView" aria-haspopup="true"></button>
         <button type="button" class="mt-sync sync-chip" id="mtSync" hidden></button>
         <button type="button" class="mt-calc" id="mtCalc" aria-label="Máy tính">🧮</button>
-        <button type="button" class="mt-bk" id="mtBk" hidden>💾</button>
         <div class="mt-list" id="mtList" role="menu"></div>
       </div>
       <div class="datebar">
@@ -1877,7 +1884,7 @@
       <select class="dt-time" aria-label="${L('Giờ', 'Time')}">${timeOptions(hm)}</select>
       <span class="dwrap" tabindex="0" role="button" aria-label="${L('Chọn ngày', 'Pick a date')}"><span class="dshow">${dShow(d)}</span><input type="hidden" class="dt-date" value="${esc(d)}"></span>
       <button type="button" class="clear" data-q="clear" title="${L('Xóa mốc này', 'Clear this entry')}" aria-label="${L('Xóa mốc này', 'Clear this entry')}">✕</button>
-      <input class="dt-items" placeholder="${type === 'pickupFinished' ? L('Tổng số đồ cần lấy', 'Total items to collect') : L('Số lượng đồ', 'Items')}" aria-label="${L('Số lượng đồ của mốc này', 'Items for this entry')}" value="${esc(v.items || '')}"></div>`;
+      <input class="dt-items" aria-label="${L('Số lượng đồ của mốc này', 'Items for this entry')}" value="${esc(v.items || '')}"></div>`;
   }
 
   const lineRowHTML = l => `<div class="line-row ${l.done ? 'is-done' : ''}" data-done="${l.done ? 1 : 0}">
@@ -1902,7 +1909,7 @@
         <div class="lines-list">${(v.lines || []).map(lineRowHTML).join('')}</div>
         <div class="lines-add">${ITEM_PRESETS.map(n => `<button type="button" class="chip-add" data-chip="${esc(n)}">＋ ${esc(n)}</button>`).join('')}<button type="button" class="chip-add alt" data-line-custom>＋ ${L('Món khác', 'Other')}</button></div>
       </div>
-      <input class="cust-items-input" data-cust-items="${type}" placeholder="${type === 'delivery' ? L('💰 Ghi chú / tiền (tùy chọn)', '💰 Note / payment (optional)') : L('📝 Ghi chú thêm (tùy chọn)', '📝 Extra note (optional)')}" title="${L('Để trống cả danh sách đồ và ô này = lấy theo đồ của thợ', 'Leave the item list and this field empty = use the tailor\'s items')}" value="${esc(free)}">
+      <input class="cust-items-input" data-cust-items="${type}" title="${L('Để trống cả danh sách đồ và ô này = lấy theo đồ của thợ', 'Leave the item list and this field empty = use the tailor\'s items')}" value="${esc(free)}">
     </div>`;
   }
 
@@ -1933,9 +1940,9 @@
       : `<select class="j-tailor" aria-label="${L('Thợ', 'Tailor')}">${tailorOptions(j.tailor)}</select>`;
     return `<div class="job" data-tailor="${esc(j.tailor)}" ${fixed ? 'data-fixed="1"' : ''} style="--c:${tailorColor(j.tailor)}">
       ${fixed
-        ? `<div class="job-top">${head}<input class="j-items" placeholder="${L('Đồ của thợ này', 'Items for this tailor')}" aria-label="${L('Đồ của thợ này', 'Items for this tailor')}" value="${esc(j.items)}"></div>`
+        ? `<div class="job-top">${head}<input class="j-items" aria-label="${L('Đồ của thợ này', 'Items for this tailor')}" value="${esc(j.items)}"></div>`
         : `<div class="job-top job-top-other">${head}<span class="j-other-hint">${L('Thợ khác', 'Other tailor')}</span><button type="button" class="small rm-job" title="${L('Xóa thợ này', 'Remove this tailor')}" aria-label="${L('Xóa thợ này', 'Remove this tailor')}">✕</button></div>
-      <div class="job-top"><input class="j-items" placeholder="${L('Đồ của thợ này', 'Items for this tailor')}" aria-label="${L('Đồ của thợ này', 'Items for this tailor')}" value="${esc(j.items)}"></div>`}
+      <div class="job-top"><input class="j-items" aria-label="${L('Đồ của thợ này', 'Items for this tailor')}" value="${esc(j.items)}"></div>`}
       ${JOB_TYPES.map(t => dtBlock(t, j[t])).join('')}
     </div>`;
   }
@@ -2717,7 +2724,7 @@
   function updateMtabs() {
     const lateN = Number($('#lateN').textContent) || 0, cur = MT_VIEWS.find(v => v[0] === state.tab) || MT_VIEWS[0];
     const badge = lateN ? `<span class="tab-n">${lateN}</span>` : '';
-    $('#mtView').innerHTML = `<span>${L(cur[1], cur[2])}</span><span>${badge} ▾</span>`;
+    $('#mtView').innerHTML = `<span class="mv-l"><svg class="mv-ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="mv-t">${L(cur[1], cur[2])}</span></span><span class="mv-r">${badge}<i class="mv-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></i></span>`;
     $('#mtList').innerHTML = MT_VIEWS.map(v => `<button type="button" role="menuitem" data-mt="${v[0]}" class="${v[0] === state.tab ? 'active' : ''}"><span>${L(v[1], v[2])}</span>${v[0] === 'late' && lateN ? `<span class="tab-n">${lateN}</span>` : ''}</button>`).join('');
     $('#mtCalc').classList.toggle('on', state.tab === 'calc');
     $('#mtCalc').setAttribute('aria-label', L('Máy tính', 'Calculator'));
@@ -2728,7 +2735,6 @@
     state.tab = b.dataset.mt; $('#mtabs').classList.remove('open'); render();
   });
   $('#mtCalc').onclick = () => { state.tab = state.tab === 'calc' ? 'day' : 'calc'; $('#mtabs').classList.remove('open'); render(); };
-  $('#mtBk').onclick = () => (BK.supported ? $('#btnBkPick') : $('#btnExport')).click();
   document.addEventListener('click', () => $('#mtabs').classList.remove('open'));
 
   document.querySelector('.tabs').addEventListener('click', e => {
@@ -2893,7 +2899,7 @@
       st.textContent = L('Trình duyệt này không cho chọn thư mục sao lưu (chỉ Chrome/Edge trên máy tính mới có). ', 'This browser cannot pick a backup folder (only Chrome/Edge on a computer can). ')
         + (on ? L('Đang bật tự tải file sao lưu về thư mục Tải xuống mỗi khi có thay đổi.', 'Auto-download backup is ON: a backup file is saved to your Downloads folder after changes.') : L('Bạn có thể bật tự tải file sao lưu về thư mục Tải xuống.', 'You can turn on auto-download backups to your Downloads folder.'));
       if (IS_TOUCH) { st.textContent = L('Trên điện thoại hãy dùng "Xuất file sao lưu" (chọn Lưu vào Tệp) thường xuyên. Chọn thư mục tự động sao lưu chỉ có trên Chrome/Edge máy tính.', 'On a phone, use "Export backup file" (Save to Files) regularly. Automatic folder backup is only available in desktop Chrome/Edge.'); pick.hidden = now.hidden = off.hidden = ren.hidden = true; return; }
-      pick.hidden = false; pick.textContent = on ? L('⏹ Tắt tự tải file sao lưu', '⏹ Turn off auto-download backup') : L('💾 Bật tự tải file sao lưu', '💾 Turn on auto-download backup');
+      pick.hidden = false; pick.textContent = on ? L('⏹ Tắt tự tải file sao lưu', '⏹ Turn off auto-download backup') : L('🛡 Bật tự tải file sao lưu', '🛡 Turn on auto-download backup');
       now.hidden = off.hidden = ren.hidden = true; return;
     }
     if (!BK.handle) { st.textContent = L('Chưa bật tự động sao lưu.', 'Auto backup is off.'); pick.hidden = false; now.hidden = off.hidden = ren.hidden = true; return; }
@@ -2951,7 +2957,7 @@
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
       a.download = jsonName();
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-      toast(L('💾 Đã tự tải file sao lưu về thư mục Tải xuống', '💾 Backup file saved to Downloads'));
+      toast(L('✔ Đã tự tải file sao lưu về thư mục Tải xuống', '✔ Backup file saved to Downloads'));
     }, 20000);
   }
   let bkChain = Promise.resolve();
@@ -3208,12 +3214,12 @@
   function updateBkBanner() {
     const box = $('#bkBanner'), txt = $('#bkBannerText'), btn = $('#bkBannerBtn');
     const risky = BK.ready && (orders.length || Object.keys(notes).length) && !BK.handle && !bkBannerHidden;
-    const mob = window.innerWidth <= 560, mb = $('#mtBk');
+    const mob = window.innerWidth <= 560, mb = null;
     box.hidden = !risky || mob;
     if (mb) { mb.hidden = !(risky && mob); mb.title = BK.supported ? L('Chưa bật tự động sao lưu — bấm để bật', 'Auto backup is off — tap to turn on') : L('Nhớ xuất file sao lưu thường xuyên — bấm để xuất', 'Remember to export backups — tap to export'); mb.setAttribute('aria-label', mb.title); }
     if (!risky) return;
-    if (mob) {   // điện thoại: chỉ còn một nút biểu tượng 💾 cạnh nút máy tính
-      txt.textContent = BK.supported ? L('⚠ Chưa bật tự động sao lưu', '⚠ Auto backup is off') : L('💾 Nhớ xuất file sao lưu thường xuyên', '💾 Remember to export backups');
+    if (mob) {   // điện thoại: chỉ còn một nút biểu tượng 🛡 cạnh nút máy tính
+      txt.textContent = BK.supported ? L('⚠ Chưa bật tự động sao lưu', '⚠ Auto backup is off') : L('🛡 Nhớ xuất file sao lưu thường xuyên', '🛡 Remember to export backups');
       btn.textContent = BK.supported ? L('Bật', 'Turn on') : L('Xuất file', 'Export');
       btn.onclick = () => BK.supported ? $('#btnBkPick').click() : $('#btnExport').click();
     } else if (BK.supported) {
@@ -3408,7 +3414,7 @@
     ['#prevDay', 'Previous day', 'aria-label'], ['#today', 'Today'], ['#nextDay', 'Next day', 'aria-label'],
     ['#btnNotify', 'Remind me of upcoming tasks', 'title'], ['#btnMenu .mn-txt', ' Tools ▾'],
     ['#btnPrint', '🖨 Print schedule'], ['#btnSync', '☁ Google Drive sync…'], ['#btnUndoImport', '↩ Undo the last file import'], ['#impTitle', '⬆ Import backup file'], ['#impMerge', '➕ Merge into existing data (recommended)'], ['#impReplace', '♻ Replace everything with this file'], ['#impCancel', 'Cancel'], ['#impHint', 'Merge keeps your current orders; on a clash the file version wins. You can restore afterwards from the Tools menu.'], ['#syncTitle', '☁ Google Drive sync'], ['#syncCidLbl', 'Google Client ID'], ['#syncClose', 'Close'], ['#btnFixItems', '🧵 Convert old items to item lists…'], ['#btnExport', '⬇ Export backup file'], ['#btnImport', '⬆ Import backup file'],
-    ['#btnBkPick', '💾 Turn on auto backup (pick a folder)…'], ['#btnBkRename', '✏ Change backup folder…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '💾 Overwrite JSON file'], ['#btnHist', '🕘 Version history — restore by date & time…'], ['#btnBkOff', '⏹ Turn off auto backup'],
+    ['#btnBkPick', '🛡 Turn on auto backup (pick a folder)…'], ['#btnBkRename', '✏ Change backup folder…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '📄 Overwrite JSON file'], ['#btnHist', '🕘 Version history — restore by date & time…'], ['#btnBkOff', '⏹ Turn off auto backup'],
     ['#btnAdd', '＋ Add schedule'],
     ['.tab[data-tab="day"]', 'Daily schedule'], ['.tab[data-tab="week"]', 'Next 7 days'],
     ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="calc"]', '🧮 Calculator'],

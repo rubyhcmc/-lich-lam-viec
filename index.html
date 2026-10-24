@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v4.1</title>
+<title>Lịch Làm Việc v4.2</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -336,6 +336,24 @@
 
   /* Máy tính tiền */
   .calc { display: none; max-width: 900px; margin: 8px auto 0; background: var(--card); border: 1px solid var(--line); border-top: 6px solid var(--primary); border-radius: var(--radius); overflow: hidden; font-size: 15px; }
+  .fx { display: none; padding-bottom: 80px !important; max-width: 900px; margin: 8px auto 0; background: var(--card); border: 1px solid var(--line); border-top: 6px solid #0f9d58; border-radius: var(--radius); padding: 14px 16px; font-size: 15px; }
+  .fx-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
+  .fx-head h2 { margin: 0; font-size: 18px; }
+  .fx-stat { color: var(--muted); font-size: 13.5px; margin-top: 2px; }
+  .fx-stat.warn { color: #b45309; font-weight: 600; }
+  .fx-conv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; padding: 12px; background: #f1f8f4; border: 1px solid #cfe8d9; border-radius: 12px; }
+  .fx-conv .full { grid-column: 1 / -1; }
+  .fx-conv label { display: block; font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 3px; }
+  .fx-conv input, .fx-conv select { width: 100%; box-sizing: border-box; font-size: 16px; padding: 9px 10px; }
+  .fx-result { grid-column: 1 / -1; font-size: 22px; font-weight: 800; color: #0b6b3a; word-break: break-word; }
+  .fx-result small { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+  .fx-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  .fx-table th, .fx-table td { padding: 7px 6px; border-bottom: 1px solid var(--line); text-align: right; }
+  .fx-table th:first-child, .fx-table td:first-child { text-align: left; }
+  .fx-table th { font-size: 12.5px; color: var(--muted); }
+  .fx-table tr.pick td { background: #eaf6ef; }
+  .fx-table .cn { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+  @media (max-width: 560px) { .fx { font-size: 17px; } .fx-table { font-size: 15.5px; } .fx-result { font-size: 24px; } }
   .calc-reset { width: 100%; margin-top: 4px; padding: 10px; font-size: 15px; color: var(--muted); }
   .calc-body { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; padding: 16px; }
   .cfield { margin-bottom: 10px; }
@@ -915,7 +933,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 4.1</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 4.2</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -934,6 +952,7 @@
       <button type="button" class="tab" data-tab="orders">Tất cả đơn</button>
       <button type="button" class="tab" data-tab="late">⚠ <span id="lateTabTxt">Trễ / quá hạn</span> <span class="tab-n" id="lateN" hidden></span></button>
       <button type="button" class="tab" data-tab="calc">🧮 Máy tính</button>
+      <button type="button" class="tab" data-tab="fx">💱 Tỷ giá</button>
     </div>
       <div class="mtabs" id="mtabs">
         <button type="button" class="mt-view" id="mtView" aria-haspopup="true"></button>
@@ -969,6 +988,23 @@
       <div class="pop-foot"><button type="button" class="ok" id="popDone">✔ Đã xong</button><button type="button" class="small primary" id="popEdit">✎ Sửa đơn này</button></div>
     </div>
   </div>
+
+  <section class="fx" id="fx">
+    <div class="fx-head">
+      <div><h2 id="fxTitle">💱 Tỷ giá ngoại tệ · Vietcombank</h2><div class="fx-stat" id="fxStat"></div></div>
+      <button type="button" class="small" id="fxRefresh">🔄 Cập nhật</button>
+    </div>
+    <div class="fx-conv">
+      <div class="full"><label for="fxAmt" id="fxAmtL">Số tiền</label><input id="fxAmt" inputmode="decimal" autocomplete="off" value="100"></div>
+      <div><label for="fxFrom" id="fxFromL">Từ</label><select id="fxFrom"></select></div>
+      <div><label for="fxTo" id="fxToL">Sang</label><select id="fxTo"></select></div>
+      <div class="full"><label for="fxBasis" id="fxBasisL">Khách đưa ngoại tệ theo giá mua</label>
+        <select id="fxBasis"><option value="cash">Tiền mặt</option><option value="transfer">Chuyển khoản</option></select></div>
+      <div class="fx-result" id="fxOut">—</div>
+    </div>
+    <div style="overflow-x:auto"><table class="fx-table" id="fxTable"></table></div>
+    <div class="fx-stat" style="margin-top:8px" id="fxNote"></div>
+  </section>
 
   <section class="calc" id="calc">
     <div class="calc-body">
@@ -1676,6 +1712,8 @@
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === state.tab));
     $('.datebar').style.display = onDay ? '' : 'none';
     $('#calc').style.display = state.tab === 'calc' ? 'block' : 'none';
+    $('#fx').style.display = state.tab === 'fx' ? 'block' : 'none';
+    if (state.tab === 'fx') fxShow();
     renderFilters();
     const lateN = allEvents().filter(e => flags(e).late).length, ln = $('#lateN');
     ln.hidden = !lateN; ln.textContent = lateN;
@@ -2745,7 +2783,7 @@
   document.addEventListener('click', () => setMenu(false));
 
   /* ===== Điện thoại: 1 nút chọn kiểu xem + 1 nút máy tính ===== */
-  const MT_VIEWS = [['day', 'Lịch trong ngày', 'Daily schedule'], ['week', '7 ngày tới', 'Next 7 days'], ['orders', 'Tất cả đơn', 'All orders'], ['late', '⚠ Trễ / quá hạn', '⚠ Late / overdue']];
+  const MT_VIEWS = [['day', 'Lịch trong ngày', 'Daily schedule'], ['week', '7 ngày tới', 'Next 7 days'], ['orders', 'Tất cả đơn', 'All orders'], ['late', '⚠ Trễ / quá hạn', '⚠ Late / overdue'], ['fx', '💱 Tỷ giá', '💱 Exchange rates']];
   function updateMtabs() {
     const lateN = Number($('#lateN').textContent) || 0, cur = MT_VIEWS.find(v => v[0] === state.tab) || MT_VIEWS[0];
     const badge = lateN ? `<span class="tab-n">${lateN}</span>` : '';
@@ -2761,6 +2799,102 @@
   });
   $('#mtCalc').onclick = () => { state.tab = state.tab === 'calc' ? 'day' : 'calc'; $('#mtabs').classList.remove('open'); render(); };
   document.addEventListener('click', () => $('#mtabs').classList.remove('open'));
+
+  /* ===== TỶ GIÁ VIETCOMBANK ===== */
+  const FX_URL = 'https://portal.vietcombank.com.vn/Usercontrols/TVPortal.TyGia/pXML.aspx';
+  const FX_KEY = 'phiphi_fx_v1';
+  const fxS = { data: null, loading: false, err: '', inited: false };
+  try { fxS.data = JSON.parse(localStorage.getItem(FX_KEY) || 'null'); } catch (_) {}
+  const fxNum = v => { const n = parseFloat(String(v || '').replace(/,/g, '')); return isFinite(n) && n > 0 ? n : null; };
+  function fxParse(xml) {
+    const d = new DOMParser().parseFromString(xml, 'text/xml');
+    const rows = [...d.querySelectorAll('Exrate')].map(x => ({
+      c: x.getAttribute('CurrencyCode'), n: x.getAttribute('CurrencyName') || '',
+      cash: fxNum(x.getAttribute('Buy')), tr: fxNum(x.getAttribute('Transfer')), sell: fxNum(x.getAttribute('Sell'))
+    })).filter(r => r.c && (r.cash || r.tr || r.sell));
+    if (!rows.length) throw new Error('empty');
+    const t = d.querySelector('DateTime');
+    let tm = t ? t.textContent.trim() : '';
+    const m = tm.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?/i);   // ngân hàng trả dạng tháng/ngày/năm → đổi sang ngày/tháng/năm
+    if (m) { let h = +m[4]; if (m[6]) { h = h % 12 + (/pm/i.test(m[6]) ? 12 : 0); } tm = `${String(h).padStart(2, '0')}:${m[5]} ${m[2].padStart(2, '0')}/${m[1].padStart(2, '0')}/${m[3]}`; }
+    return { time: tm, fetched: Date.now(), rows };
+  }
+  async function fxFetch() {
+    const tries = [FX_URL, 'https://corsproxy.io/?url=' + encodeURIComponent(FX_URL), 'https://api.allorigins.win/raw?url=' + encodeURIComponent(FX_URL)];
+    let last;
+    for (const u of tries) {
+      try {
+        const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 10000);
+        const r = await fetch(u, { cache: 'no-store', signal: ctl.signal }); clearTimeout(to);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return fxParse(await r.text());
+      } catch (e) { last = e; }
+    }
+    throw last || new Error('fail');
+  }
+  async function fxLoad(force) {
+    if (fxS.loading) return;
+    if (!force && fxS.data && Date.now() - fxS.data.fetched < 30 * 60000) return;
+    fxS.loading = true; fxS.err = ''; fxUI();
+    try { fxS.data = await fxFetch(); try { localStorage.setItem(FX_KEY, JSON.stringify(fxS.data)); } catch (_) {} }
+    catch (e) { fxS.err = 'x'; }
+    fxS.loading = false; fxUI();
+  }
+  function fxRate(code, side) {   // trả về số đồng VND cho 1 đơn vị ngoại tệ
+    if (code === 'VND') return 1;
+    const r = (fxS.data && fxS.data.rows || []).find(x => x.c === code); if (!r) return null;
+    if (side === 'sell') return r.sell;
+    return $('#fxBasis').value === 'transfer' ? (r.tr || r.cash) : (r.cash || r.tr);
+  }
+  const fxFmt = (n, d) => n.toLocaleString('vi-VN', { maximumFractionDigits: d == null ? 2 : d });
+  function fxParseAmt(t) {
+    t = String(t || '').replace(/\s/g, '');
+    if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+    else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
+    const n = parseFloat(t); return isFinite(n) ? n : NaN;
+  }
+  function fxConvert() {
+    const out = $('#fxOut'), a = fxParseAmt($('#fxAmt').value), f = $('#fxFrom').value, t = $('#fxTo').value;
+    if (!fxS.data) { out.innerHTML = '—'; return; }
+    if (!(a >= 0)) { out.innerHTML = '—'; return; }
+    if (f === t) { out.textContent = `${fxFmt(a)} ${t}`; return; }
+    const rf = fxRate(f, 'buy'), rt = fxRate(t, 'sell');   // ngân hàng MUA ngoại tệ khách đưa, BÁN ngoại tệ khách cần
+    if (!rf || !rt) { out.innerHTML = L('Ngân hàng không niêm yết giá cho loại này', 'No rate listed for this currency'); return; }
+    const vnd = a * rf, res = vnd / rt;
+    out.innerHTML = `${fxFmt(res, t === 'VND' ? 0 : 2)} ${t}<small>${f === 'VND' ? '' : `1 ${f} = ${fxFmt(rf, 2)} đ (${L('mua', 'buy')})`}${f !== 'VND' && t !== 'VND' ? ' · ' : ''}${t === 'VND' ? '' : `1 ${t} = ${fxFmt(rt, 2)} đ (${L('bán', 'sell')})`}</small>`;
+  }
+  function fxUI() {
+    const d = fxS.data, st = $('#fxStat');
+    $('#fxRefresh').disabled = fxS.loading;
+    $('#fxRefresh').textContent = fxS.loading ? L('⏳ Đang tải…', '⏳ Loading…') : L('🔄 Cập nhật', '🔄 Refresh');
+    $('#fxTitle').textContent = L('💱 Tỷ giá ngoại tệ · Vietcombank', '💱 Exchange rates · Vietcombank');
+    $('#fxAmtL').textContent = L('Số tiền', 'Amount'); $('#fxFromL').textContent = L('Từ', 'From'); $('#fxToL').textContent = L('Sang', 'To');
+    $('#fxBasisL').textContent = L('Khách đưa ngoại tệ theo giá mua', 'Foreign currency received at buy rate');
+    $('#fxBasis').options[0].text = L('Tiền mặt', 'Cash'); $('#fxBasis').options[1].text = L('Chuyển khoản', 'Transfer');
+    if (fxS.err) { st.className = 'fx-stat warn'; st.textContent = d ? L('⚠ Không tải được tỷ giá mới — đang hiện bảng đã lưu lúc ', '⚠ Could not refresh — showing saved rates from ') + new Date(d.fetched).toLocaleString('vi-VN') : L('⚠ Không tải được tỷ giá (kiểm tra mạng rồi bấm Cập nhật).', '⚠ Could not load rates (check connection, then Refresh).'); }
+    else if (d) { st.className = 'fx-stat'; st.textContent = L('Cập nhật của ngân hàng: ', 'Bank updated: ') + (d.time || '—') + ' · ' + L('tải lúc ', 'loaded ') + new Date(d.fetched).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }); }
+    else { st.className = 'fx-stat'; st.textContent = fxS.loading ? L('Đang tải tỷ giá…', 'Loading rates…') : ''; }
+    const codes = ['VND', ...((d && d.rows) || []).map(r => r.c)];
+    ['#fxFrom', '#fxTo'].forEach((id, i) => {
+      const el = $(id), cur = el.value || (i ? 'VND' : 'USD');
+      el.innerHTML = codes.map(c => `<option value="${c}">${c}</option>`).join('');
+      el.value = codes.includes(cur) ? cur : codes[i ? 0 : Math.min(1, codes.length - 1)];
+    });
+    const f = $('#fxFrom').value, t = $('#fxTo').value;
+    const rows = (d && d.rows) || [];
+    $('#fxTable').innerHTML = rows.length ? `<tr><th>${L('Mã', 'Code')}</th><th>${L('Mua tiền mặt', 'Buy cash')}</th><th>${L('Mua CK', 'Buy transfer')}</th><th>${L('Bán', 'Sell')}</th></tr>` +
+      rows.map(r => `<tr class="${r.c === f || r.c === t ? 'pick' : ''}"><td><b>${esc(r.c)}</b><span class="cn">${esc(r.n)}</span></td><td>${r.cash ? fxFmt(r.cash) : '–'}</td><td>${r.tr ? fxFmt(r.tr) : '–'}</td><td>${r.sell ? fxFmt(r.sell) : '–'}</td></tr>`).join('') : '';
+    $('#fxNote').textContent = L('Đơn vị: đồng / 1 ngoại tệ. Nguồn: vietcombank.com.vn — chỉ để tham khảo, tỷ giá thực tế theo ngân hàng tại thời điểm giao dịch.', 'Unit: VND per 1 unit of foreign currency. Source: vietcombank.com.vn — for reference only.');
+    fxConvert();
+  }
+  function fxShow() {
+    if (!fxS.inited) {
+      fxS.inited = true;
+      ['#fxAmt', '#fxFrom', '#fxTo', '#fxBasis'].forEach(id => $(id).addEventListener('input', () => { if (id === '#fxFrom' || id === '#fxTo') fxUI(); else fxConvert(); }));
+      $('#fxRefresh').onclick = () => fxLoad(true);
+    }
+    fxUI(); fxLoad(false);
+  }
 
   document.querySelector('.tabs').addEventListener('click', e => {
     const t = e.target.closest('.tab');
@@ -3442,7 +3576,7 @@
     ['#btnBkPick', '🛡 Turn on auto backup (pick a folder)…'], ['#btnBkRename', '✏ Change backup folder…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '📄 Overwrite JSON file'], ['#btnHist', '🕘 Version history — restore by date & time…'], ['#btnBkOff', '⏹ Turn off auto backup'],
     ['#btnAdd', '＋ Add schedule'],
     ['.tab[data-tab="day"]', 'Daily schedule'], ['.tab[data-tab="week"]', 'Next 7 days'],
-    ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="calc"]', '🧮 Calculator'],
+    ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="calc"]', '🧮 Calculator'], ['.tab[data-tab="fx"]', '💱 Exchange rates'],
     ['#popover', 'Customer details', 'aria-label'], ['#popClose', 'Close', 'aria-label'],
     ['#popEdit', '✎ Edit this order'],
     ['label[for="cAmount"]', 'Subtotal (đ)'], ['#cAmount', '', 'placeholder'],

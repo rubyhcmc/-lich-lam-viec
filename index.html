@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v3.4</title>
+<title>Lịch Làm Việc v3.5</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -95,12 +95,19 @@
   .col-body { padding: 10px; }
   .col-empty { text-align: center; color: var(--muted); padding: 12px 6px; font-size: 15px; }
 
-  .ccard { position: relative; background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--c); border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+  .ccard { position: relative; background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--c); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; }
   .ccard.done { opacity: .55; background: #fafafa; } 
   .ccard.done .ctitle { text-decoration: line-through; color: var(--muted); }
   .ccard.late { background: #fff6f5; border-color: #f3c3bf; border-left-color: var(--danger); }
   
-  .ccard-row1 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; padding-right: 28px; }
+  .ccard-row1 { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-bottom: 4px; padding-right: 34px; }
+  .ccard-row1 .ctitle { flex: 0 1 auto; min-width: 0; }
+  .ccard-row1 .ctime, .ccard-row1 .badge { flex: none; }
+  .ccard-row1 .badge { margin: 0; }
+  .ccard.done .ccard-row1 .ctime, .ccard.done .ccard-row1 .badge { display: none; }
+  .ccard .citems { margin-bottom: 4px; }
+  .ccard .clines { margin-top: 2px; }
+  .ccard .sub-events-row { margin-top: 2px; }
   .ctitle { font-weight: 700; font-size: 16px; color: #111827; cursor: pointer; word-break: break-word; line-height: 1.3; }
   .ctitle:hover { color: var(--primary); }
 
@@ -886,7 +893,7 @@
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
           <button type="button" id="btnSaveOver">💾 Lưu đè file JSON</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 3.4</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 3.5</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -978,7 +985,7 @@
           <input id="fName" required placeholder="VD: David Sin" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="acList">
           <div class="ac-list" id="acList" role="listbox" aria-label="Gợi ý tên khách"></div>
         </div>
-        <div class="field"><label for="fNote">Ghi chú chung</label><input id="fNote" placeholder="Số đo, yêu cầu sửa..." autocomplete="off"></div>
+        <div class="field"><label for="fNote">Ghi chú chung</label><input id="fNote" autocomplete="off"></div>
         <button type="button" class="small" id="addJob">＋ Thêm thợ khác</button>
       </div>
       <div class="two-col">
@@ -1006,13 +1013,13 @@
   </div>
   <div class="note-modal-body">
     <div class="note-add">
-      <input id="noteQuick" enterkeyhint="send" placeholder="VD: 10am Adam hẹn may suit" aria-label="Ghi chú nhanh" autocomplete="off">
+      <input id="noteQuick" enterkeyhint="send" placeholder="Nhập ghi chú…" aria-label="Ghi chú nhanh" autocomplete="off">
       <button type="button" class="mic-lang" id="noteMicLang" title="Ngôn ngữ nói" aria-label="Ngôn ngữ nói">VI</button>
       <button type="button" class="mic-btn" id="noteMic" title="Nói để nhập" aria-label="Nhập bằng giọng nói">🎤</button>
       <button type="button" class="primary small" id="noteQuickAdd">＋ Thêm</button>
     </div>
     <p class="note-mic-hint" id="noteMicHint"></p>
-    <textarea id="noteModalText" placeholder="Các ghi chú trong ngày sẽ hiện ở đây..." aria-label="Nội dung ghi chú"></textarea>
+    <textarea id="noteModalText" placeholder="" aria-label="Nội dung ghi chú"></textarea>
   </div>
   <div class="note-modal-foot">
     <span id="noteModalState">Tự động lưu</span>
@@ -1730,8 +1737,8 @@
       <div class="ccard-row1">
         <input type="checkbox" data-toggle="${evs.map(keyOf).join(',')}" aria-label="${L('Đã xong', 'Done')}" ${g.done ? 'checked' : ''}>
         <span class="ctitle" ${popAttrs(e0, itemsText, g.done, evs.map(keyOf).join(','))}>${esc(e0.order.name)}</span>
+        ${e0.tailor ? '' : `<span class="ctime">${fmtTimeOnly(e0.at)}</span>`}${flag}
       </div>
-      ${e0.tailor && !flag ? '' : `<div class="ccard-row2">${e0.tailor ? '' : `<span class="ctime">${fmtTimeOnly(e0.at)}</span>`} ${flag}</div>`}
       ${(e0.lines && e0.lines.length && !e0.tailor)
         ? `<div class="clines" ${popAttrs(e0, itemsText, g.done, evs.map(keyOf).join(','))}>${e0.lines.map(l => `<span class="cl ${l.done ? 'is-done' : ''}" title="${esc(l.note)}"><b>${l.qty}</b> ${esc(l.name)}${l.note ? '<i>*</i>' : ''}</span>`).join('')}${e0.extra ? `<span class="cl-extra">${esc(e0.extra)}</span>` : ''}</div>`
         : (itemsText ? `<div class="citems" ${popAttrs(e0, itemsText, g.done, evs.map(keyOf).join(','))}>🧵 ${esc(itemsText)}</div>` : '')}
@@ -1870,7 +1877,7 @@
       <select class="dt-time" aria-label="${L('Giờ', 'Time')}">${timeOptions(hm)}</select>
       <span class="dwrap" tabindex="0" role="button" aria-label="${L('Chọn ngày', 'Pick a date')}"><span class="dshow">${dShow(d)}</span><input type="hidden" class="dt-date" value="${esc(d)}"></span>
       <button type="button" class="clear" data-q="clear" title="${L('Xóa mốc này', 'Clear this entry')}" aria-label="${L('Xóa mốc này', 'Clear this entry')}">✕</button>
-      <input class="dt-items" placeholder="${type === 'pickupFinished' ? L('Tổng số đồ cần lấy (VD: lấy hết 3 cái)', 'Total items to collect (e.g. all 3 pieces)') : L('Số lượng đồ (VD: may 1 cái quần)', 'Items (e.g. 1 pair of trousers)')}" aria-label="${L('Số lượng đồ của mốc này', 'Items for this entry')}" value="${esc(v.items || '')}"></div>`;
+      <input class="dt-items" placeholder="${type === 'pickupFinished' ? L('Tổng số đồ cần lấy', 'Total items to collect') : L('Số lượng đồ', 'Items')}" aria-label="${L('Số lượng đồ của mốc này', 'Items for this entry')}" value="${esc(v.items || '')}"></div>`;
   }
 
   const lineRowHTML = l => `<div class="line-row ${l.done ? 'is-done' : ''}" data-done="${l.done ? 1 : 0}">
@@ -2362,8 +2369,8 @@
     hideNoteTip();
     resetClearBtn(); noteQuickMode = !!quick; activeNoteDay = k; activeNoteDate = quick ? '@' + k : k;
     { const d = parseKey(k); $('#noteModalTitle').textContent = `${quick ? '📝' : '📅'} ${fmtDate(k)}`; }
-    $('#noteModalText').placeholder = quick ? L('Việc cần làm trong ngày sẽ hiện ở đây...', 'Today\'s to-dos will show here...') : L('Các ghi chú trong ngày sẽ hiện ở đây...', 'Notes for this day will show here...');
-    noteQuick.placeholder = quick ? L('VD: gọi thợ cắt vải', 'e.g. call the cutter') : L('VD: 10am Adam hẹn may suit', 'e.g. 10am Adam suit fitting');
+    $('#noteModalText').placeholder = '';
+    noteQuick.placeholder = L('Nhập ghi chú…', 'Type a note…');
     $('#noteModalText').value = notes[activeNoteDate] || '';
     $('#noteModalState').textContent = notes[activeNoteDate] ? L('Đã có nội dung · tự động lưu', 'Has content · auto-saved') : L('Trống · tự động lưu', 'Empty · auto-saved');
     noteQuick.value = ''; noteMicHint.textContent = SR ? '' : L('Bấm 🎤 rồi dùng micro trên bàn phím để đọc, hoặc gõ ở ô trên', 'Tap 🎤 then use the keyboard mic, or type above');
@@ -2647,7 +2654,7 @@
     rec.lang = MIC_CODES[micLang];
     rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
     recText = '';
-    rec.onstart = () => { noteMic.classList.add('rec'); noteMicHint.textContent = micLang === 'en' ? L('🎙 Đang nghe TIẾNG ANH... ví dụ "10 am Adam fitting for a suit"', '🎙 Listening in ENGLISH... e.g. "10 am Adam fitting for a suit"') : L('🎙 Đang nghe TIẾNG VIỆT... ví dụ "10 giờ Adam hẹn may suit"', '🎙 Listening in VIETNAMESE... e.g. "10 giờ Adam hẹn may suit"'); };
+    rec.onstart = () => { noteMic.classList.add('rec'); noteMicHint.textContent = micLang === 'en' ? L('🎙 Đang nghe TIẾNG ANH…', '🎙 Listening in ENGLISH…') : L('🎙 Đang nghe TIẾNG VIỆT…', '🎙 Listening in VIETNAMESE…'); };
     rec.onresult = ev => {
       let t = ''; for (let i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript;
       recText = micLang === 'vi' ? fixTerms(t) : t; noteQuick.value = recText;
@@ -3414,10 +3421,10 @@
     ['#calcReset', '↺ Reset'],
     ['label[for="fName"]', 'Customer name *'], ['#fName', 'e.g. David Sin', 'placeholder'],
     ['#acList', 'Customer name suggestions', 'aria-label'],
-    ['label[for="fNote"]', 'General note'], ['#fNote', 'Measurements, alteration requests...', 'placeholder'],
+    ['label[for="fNote"]', 'General note'], ['#fNote', '', 'placeholder'],
     ['#addJob', '＋ Add another tailor'], ['#btnDelete', 'Delete order'], ['#btnCancel', 'Cancel'],
     ['#orderForm button[type="submit"]', 'Save'],
-    ['#noteModalClear', '🗑 Clear'], ['#noteModalText', 'Write a note for this day...', 'placeholder'],
+    ['#noteModalClear', '🗑 Clear'], ['#noteModalText', '', 'placeholder'],
     ['#noteModalText', 'Note content', 'aria-label'], ['#noteModalClose', 'Close'], ['#noteModalState', 'Auto-saved']
   ];
   function applyStatic() {

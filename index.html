@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v5.0</title>
+<title>Lịch Làm Việc v5.1</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -944,7 +944,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 5.0</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 5.1</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -1007,7 +1007,7 @@
       <button type="button" class="small" id="fxRefresh">🔄 Cập nhật</button>
     </div>
     <div class="fx-conv">
-      <div class="full"><label for="fxAmt" id="fxAmtL">Số tiền</label><input id="fxAmt" inputmode="text" autocomplete="off" value="100"><div class="fx-hint" id="fxHint"></div></div>
+      <div class="full"><label for="fxAmt" id="fxAmtL">Số tiền</label><input id="fxAmt" inputmode="text" autocomplete="off" value=""><div class="fx-hint" id="fxHint"></div></div>
       <div class="full fx-pair">
         <div><label for="fxFrom" id="fxFromL">Từ</label><select id="fxFrom"></select></div>
         <button type="button" id="fxSwap" class="fx-swap" aria-label="Đảo chiều" title="Đảo chiều">⇅</button>
@@ -2914,7 +2914,7 @@
   }
   function fxConvert() {
     const out = $('#fxOut'), a = fxParseAmt($('#fxAmt').value), f = $('#fxFrom').value, t = $('#fxTo').value;
-    $('#fxHint').textContent = a >= 0 ? `= ${fxFmt(a)} ${f}` : '';
+    $('#fxHint').textContent = a >= 0 && /[^\d.,\s]/.test($('#fxAmt').value) ? `= ${fxFmt(a)} ${f}` : '';   // chỉ hiện khi gõ chữ tắt (5tr, 500k)
     if (!fxS.data) { out.innerHTML = '—'; return; }
     if (!(a >= 0)) { out.innerHTML = '—'; return; }
     if (f === t) { out.textContent = `${fxFmt(a)} ${t}`; return; }
@@ -2928,7 +2928,7 @@
     $('#fxRefresh').disabled = fxS.loading;
     $('#fxRefresh').textContent = fxS.loading ? L('⏳ Đang tải…', '⏳ Loading…') : L('🔄 Cập nhật', '🔄 Refresh');
     $('#fxTitle .tx').textContent = L('Tỷ giá ngoại tệ · Vietcombank', 'Exchange rates · Vietcombank');
-    $('#fxAmtL').textContent = L('Số tiền (gõ 5tr = 5 triệu, 500k = 500 nghìn)', 'Amount (5tr = 5 million, 500k = 500 thousand)'); $('#fxSwap').title = L('Đảo chiều', 'Swap'); $('#fxFromL').textContent = L('Từ', 'From'); $('#fxToL').textContent = L('Sang', 'To');
+    $('#fxAmtL').textContent = L('Số tiền', 'Amount'); $('#fxSwap').title = L('Đảo chiều', 'Swap'); $('#fxFromL').textContent = L('Từ', 'From'); $('#fxToL').textContent = L('Sang', 'To');
     $('#fxBasisL').textContent = L('Khách đưa ngoại tệ theo giá mua', 'Foreign currency received at buy rate');
     $('#fxBasis').options[0].text = L('Tiền mặt', 'Cash'); $('#fxBasis').options[1].text = L('Chuyển khoản', 'Transfer');
     if (fxS.err) { st.className = 'fx-stat warn'; st.textContent = d ? L('⚠ Không tải được tỷ giá mới — đang hiện bảng đã lưu lúc ', '⚠ Could not refresh — showing saved rates from ') + new Date(d.fetched).toLocaleString('vi-VN') : L('⚠ Không tải được tỷ giá (kiểm tra mạng rồi bấm Cập nhật).', '⚠ Could not load rates (check connection, then Refresh).'); }

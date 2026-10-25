@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v4.6</title>
+<title>Lịch Làm Việc v4.7</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -351,6 +351,11 @@
   .fx-conv .full { grid-column: 1 / -1; }
   .fx-conv label { display: block; font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 3px; }
   .fx-conv input, .fx-conv select { width: 100%; box-sizing: border-box; font-size: 16px; padding: 9px 10px; }
+  .fx-pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: end; }
+  .fx-swap { width: 46px; height: 42px; padding: 0; font-size: 22px; line-height: 1; border-radius: 10px; background: #fff; border: 1px solid #b7d9c5; color: #0b6b3a; font-weight: 800; }
+  .fx-swap:active { background: #dff1e6; }
+  @media (max-width: 560px) { .fx-pair { grid-template-columns: 1fr; gap: 6px; } .fx-swap { width: 100%; height: 38px; } }
+  .fx-hint { font-size: 13px; color: var(--muted); margin-top: 3px; min-height: 16px; }
   .fx-result { grid-column: 1 / -1; font-size: 22px; font-weight: 800; color: #0b6b3a; word-break: break-word; }
   .fx-result small { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 2px; }
   .fx-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
@@ -939,7 +944,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 4.6</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 4.7</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -1002,9 +1007,12 @@
       <button type="button" class="small" id="fxRefresh">🔄 Cập nhật</button>
     </div>
     <div class="fx-conv">
-      <div class="full"><label for="fxAmt" id="fxAmtL">Số tiền</label><input id="fxAmt" inputmode="decimal" autocomplete="off" value="100"></div>
-      <div><label for="fxFrom" id="fxFromL">Từ</label><select id="fxFrom"></select></div>
-      <div><label for="fxTo" id="fxToL">Sang</label><select id="fxTo"></select></div>
+      <div class="full"><label for="fxAmt" id="fxAmtL">Số tiền</label><input id="fxAmt" inputmode="text" autocomplete="off" value="100"><div class="fx-hint" id="fxHint"></div></div>
+      <div class="full fx-pair">
+        <div><label for="fxFrom" id="fxFromL">Từ</label><select id="fxFrom"></select></div>
+        <button type="button" id="fxSwap" class="fx-swap" aria-label="Đảo chiều" title="Đảo chiều">⇅</button>
+        <div><label for="fxTo" id="fxToL">Sang</label><select id="fxTo"></select></div>
+      </div>
       <div class="full"><label for="fxBasis" id="fxBasisL">Khách đưa ngoại tệ theo giá mua</label>
         <select id="fxBasis"><option value="cash">Tiền mặt</option><option value="transfer">Chuyển khoản</option></select></div>
       <div class="fx-result" id="fxOut">—</div>
@@ -2868,14 +2876,17 @@
     return $('#fxBasis').value === 'transfer' ? (r.tr || r.cash) : (r.cash || r.tr);
   }
   const fxFmt = (n, d) => n.toLocaleString('vi-VN', { maximumFractionDigits: d == null ? 2 : d });
-  function fxParseAmt(t) {
-    t = String(t || '').replace(/\s/g, '');
+  function fxParseAmt(t) {   // nhận: 1000000, 1.000.000, 1,5tr (1,5 triệu), 500k (500 nghìn), 2 tỷ
+    t = String(t || '').trim().toLowerCase().replace(/\s/g, '');
+    let mul = 1; const m = t.match(/^([\d.,]+)(triệu|trieu|tr|m|nghìn|nghin|ngàn|ngan|k|tỷ|ty|b)$/);
+    if (m) { t = m[1]; const u = m[2]; mul = /^(tr|m)/.test(u) ? 1e6 : /^(ngh|ng|k)/.test(u) ? 1e3 : 1e9; }
     if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
     else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
-    const n = parseFloat(t); return isFinite(n) ? n : NaN;
+    const n = parseFloat(t); return isFinite(n) ? n * mul : NaN;
   }
   function fxConvert() {
     const out = $('#fxOut'), a = fxParseAmt($('#fxAmt').value), f = $('#fxFrom').value, t = $('#fxTo').value;
+    $('#fxHint').textContent = a >= 0 ? `= ${fxFmt(a)} ${f}` : '';
     if (!fxS.data) { out.innerHTML = '—'; return; }
     if (!(a >= 0)) { out.innerHTML = '—'; return; }
     if (f === t) { out.textContent = `${fxFmt(a)} ${t}`; return; }
@@ -2889,7 +2900,7 @@
     $('#fxRefresh').disabled = fxS.loading;
     $('#fxRefresh').textContent = fxS.loading ? L('⏳ Đang tải…', '⏳ Loading…') : L('🔄 Cập nhật', '🔄 Refresh');
     $('#fxTitle .tx').textContent = L('Tỷ giá ngoại tệ · Vietcombank', 'Exchange rates · Vietcombank');
-    $('#fxAmtL').textContent = L('Số tiền', 'Amount'); $('#fxFromL').textContent = L('Từ', 'From'); $('#fxToL').textContent = L('Sang', 'To');
+    $('#fxAmtL').textContent = L('Số tiền (gõ 5tr = 5 triệu, 500k = 500 nghìn)', 'Amount (5tr = 5 million, 500k = 500 thousand)'); $('#fxSwap').title = L('Đảo chiều', 'Swap'); $('#fxFromL').textContent = L('Từ', 'From'); $('#fxToL').textContent = L('Sang', 'To');
     $('#fxBasisL').textContent = L('Khách đưa ngoại tệ theo giá mua', 'Foreign currency received at buy rate');
     $('#fxBasis').options[0].text = L('Tiền mặt', 'Cash'); $('#fxBasis').options[1].text = L('Chuyển khoản', 'Transfer');
     if (fxS.err) { st.className = 'fx-stat warn'; st.textContent = d ? L('⚠ Không tải được tỷ giá mới — đang hiện bảng đã lưu lúc ', '⚠ Could not refresh — showing saved rates from ') + new Date(d.fetched).toLocaleString('vi-VN') : L('⚠ Không tải được tỷ giá (kiểm tra mạng rồi bấm Cập nhật).', '⚠ Could not load rates (check connection, then Refresh).'); }
@@ -2913,6 +2924,7 @@
       fxS.inited = true;
       ['#fxAmt', '#fxFrom', '#fxTo', '#fxBasis'].forEach(id => $(id).addEventListener('input', () => { if (id === '#fxFrom' || id === '#fxTo') fxUI(); else fxConvert(); }));
       $('#fxRefresh').onclick = () => fxLoad(true);
+      $('#fxSwap').onclick = () => { const f = $('#fxFrom'), t = $('#fxTo'), v = f.value; f.value = t.value; t.value = v; fxUI(); };
     }
     fxUI(); fxLoad(false);
   }

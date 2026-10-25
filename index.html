@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v4.9</title>
+<title>Lịch Làm Việc v5.0</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -944,7 +944,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 4.9</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 5.0</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -2852,6 +2852,7 @@
   async function fxFetch() {
     const enc = encodeURIComponent(FX_URL);
     const tries = [   // thử song song, cái nào về trước và đọc được thì dùng
+      ['site', 'tygia.xml?_=' + Date.now(), 'text'],   // file do GitHub tự tải về (nếu đã cài) — ổn định nhất
       ['direct', FX_URL, 'text'],
       ['corsproxy', 'https://corsproxy.io/?url=' + enc, 'text'],
       ['allorigins', 'https://api.allorigins.win/raw?url=' + enc, 'text'],

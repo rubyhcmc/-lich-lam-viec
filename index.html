@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v5.1</title>
+<title>Lịch Làm Việc v5.4</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -347,17 +347,36 @@
   .fx-head h2 .ic { color: #0f9d58; width: 1.3em; height: 1.3em; }
   .fx-stat { color: var(--muted); font-size: 13.5px; margin-top: 2px; }
   .fx-stat.warn { color: #b45309; font-weight: 600; }
-  .fx-conv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; padding: 12px; background: #f1f8f4; border: 1px solid #cfe8d9; border-radius: 12px; }
-  .fx-conv .full { grid-column: 1 / -1; }
-  .fx-conv label { display: block; font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 3px; }
-  .fx-conv input, .fx-conv select { width: 100%; box-sizing: border-box; font-size: 16px; padding: 9px 10px; }
-  .fx-pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: end; }
-  .fx-swap { width: 46px; height: 42px; padding: 0; font-size: 22px; line-height: 1; border-radius: 10px; background: #fff; border: 1px solid #b7d9c5; color: #0b6b3a; font-weight: 800; }
-  .fx-swap:active { background: #dff1e6; }
-  @media (max-width: 560px) { .fx-pair { grid-template-columns: 1fr; gap: 6px; } .fx-swap { width: 100%; height: 38px; } }
-  .fx-hint { font-size: 13px; color: var(--muted); margin-top: 3px; min-height: 16px; }
-  .fx-result { grid-column: 1 / -1; font-size: 22px; font-weight: 800; color: #0b6b3a; word-break: break-word; }
+  .fxc { display: grid; gap: 10px; margin: 12px 0; }
+  .fxc-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 1px 4px rgba(15,23,42,.06); }
+  .fxc-amt { position: relative; padding: 14px 12px 10px; text-align: center; }
+  .fxc-amt input { width: 100%; box-sizing: border-box; border: none !important; background: transparent !important; box-shadow: none !important; text-align: center; font-size: 34px; font-weight: 700; padding: 4px 36px; outline: none !important; color: var(--text, #0f172a); }
+  .fxc-cur { position: absolute; right: 14px; top: 20px; font-size: 13px; font-weight: 700; color: var(--muted); }
+  .fxc-pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
+  .fxc-sel { position: relative; display: flex; align-items: center; gap: 10px; padding: 10px 12px; min-width: 0; }
+  .fxc-flag { font-size: 30px; line-height: 1; flex: none; }
+  .fxc-txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+  .fxc-txt b { font-size: 20px; }
+  .fxc-txt small { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fxc-sel select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; font-size: 16px; cursor: pointer; }
+  .fxc-swap { width: 46px; height: 46px; padding: 0; border-radius: 50%; background: #fff; border: 1px solid var(--line); box-shadow: 0 1px 6px rgba(15,23,42,.1); font-size: 22px; line-height: 1; color: #0b6b3a; font-weight: 800; }
+  .fxc-swap:active { background: #dff1e6; }
+  .fxc-res { padding: 12px 14px; text-align: center; background: #f1f8f4; border-color: #cfe8d9; }
+  .fx-result { font-size: 28px; font-weight: 800; color: #0b6b3a; word-break: break-word; }
   .fx-result small { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+  .fxc-rates { display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px; gap: 4px; }
+  .fxc-rates:empty { display: none; }
+  .fxc-rates button { border: none; background: transparent; padding: 8px 4px; border-radius: 10px; text-align: center; min-width: 0; }
+  .fxc-rates button span { display: block; font-size: 13px; color: var(--muted); }
+  .fxc-rates button b { display: block; font-size: 18px; margin-top: 2px; }
+  .fxc-rates button.on { background: #dff1e6; }
+  .fxc-rates button.on span { color: #0b6b3a; font-weight: 700; }
+  .fx-all { margin-top: 4px; }
+  .fx-all summary { cursor: pointer; font-weight: 600; color: var(--muted); padding: 6px 0; }
+  .fx-table tr[data-c] { cursor: pointer; }
+  .fx-hint { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .fx-hint:empty { display: none; }
+  .fxc-amt:focus-within { border-color: #0f9d58; box-shadow: 0 0 0 3px rgba(15,157,88,.18); }
   .fx-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
   .fx-table th, .fx-table td { padding: 7px 6px; border-bottom: 1px solid var(--line); text-align: right; }
   .fx-table th:first-child, .fx-table td:first-child { text-align: left; }
@@ -944,7 +963,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 5.1</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 5.4</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -1006,18 +1025,18 @@
       <div><h2 id="fxTitle"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></svg><span class="tx">Tỷ giá ngoại tệ · Vietcombank</span></h2><div class="fx-stat" id="fxStat"></div></div>
       <button type="button" class="small" id="fxRefresh">🔄 Cập nhật</button>
     </div>
-    <div class="fx-conv">
-      <div class="full"><label for="fxAmt" id="fxAmtL">Số tiền</label><input id="fxAmt" inputmode="text" autocomplete="off" value=""><div class="fx-hint" id="fxHint"></div></div>
-      <div class="full fx-pair">
-        <div><label for="fxFrom" id="fxFromL">Từ</label><select id="fxFrom"></select></div>
-        <button type="button" id="fxSwap" class="fx-swap" aria-label="Đảo chiều" title="Đảo chiều">⇅</button>
-        <div><label for="fxTo" id="fxToL">Sang</label><select id="fxTo"></select></div>
+    <div class="fxc">
+      <div class="fxc-card fxc-amt"><input id="fxAmt" inputmode="text" autocomplete="off" placeholder="0" aria-label="Số tiền"><span class="fxc-cur" id="fxAmtCur"></span><div class="fx-hint" id="fxHint"></div></div>
+      <div class="fxc-pair">
+        <label class="fxc-card fxc-sel"><span class="fxc-flag" id="fxFromFlag"></span><span class="fxc-txt"><b id="fxFromCode"></b><small id="fxFromName"></small></span><select id="fxFrom" aria-label="Từ"></select></label>
+        <button type="button" id="fxSwap" class="fxc-swap" aria-label="Đảo chiều" title="Đảo chiều">⇄</button>
+        <label class="fxc-card fxc-sel"><span class="fxc-flag" id="fxToFlag"></span><span class="fxc-txt"><b id="fxToCode"></b><small id="fxToName"></small></span><select id="fxTo" aria-label="Sang"></select></label>
       </div>
-      <div class="full"><label for="fxBasis" id="fxBasisL">Khách đưa ngoại tệ theo giá mua</label>
-        <select id="fxBasis"><option value="cash">Tiền mặt</option><option value="transfer">Chuyển khoản</option></select></div>
-      <div class="fx-result" id="fxOut">—</div>
+      <div class="fxc-card fxc-res"><div class="fx-result" id="fxOut">—</div></div>
+      <div class="fxc-card fxc-rates" id="fxRates"></div>
+      <input type="hidden" id="fxBasis" value="sell">
     </div>
-    <div style="overflow-x:auto"><table class="fx-table" id="fxTable"></table></div>
+    <details class="fx-all"><summary id="fxAllT">Bảng tỷ giá đầy đủ</summary><div style="overflow-x:auto"><table class="fx-table" id="fxTable"></table></div></details>
     <div class="fx-stat" style="margin-top:8px" id="fxNote"></div>
   </section>
 
@@ -2821,12 +2840,12 @@
   /* ===== TỶ GIÁ VIETCOMBANK ===== */
   const FX_URL = 'https://portal.vietcombank.com.vn/Usercontrols/TVPortal.TyGia/pXML.aspx';
   const FX_KEY = 'phiphi_fx_v1';
-  const fxS = { data: null, loading: false, err: '', inited: false };
+  const fxS = { data: null, loading: false, err: '', inited: false, want: ['USD', 'VND'] };
   try { fxS.data = JSON.parse(localStorage.getItem(FX_KEY) || 'null'); } catch (_) {}
   const FX_ORDER = ['USD', 'AUD', 'SGD', 'EUR', 'CAD', 'GBP', 'JPY', 'KRW', 'THB'];   // thứ tự ưu tiên hiển thị; loại còn lại xếp sau theo bảng chữ cái
   const fxSorted = rows => rows.slice().sort((a, b) => { const i = FX_ORDER.indexOf(a.c), j = FX_ORDER.indexOf(b.c); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j) || a.c.localeCompare(b.c); });
   const FX_NAMES = {   // [Tiếng Việt, English]
-    VND: ['Đồng Việt Nam', 'Vietnamese Dong'], USD: ['Đô la Mỹ', 'US Dollar'], AUD: ['Đô la Úc', 'Australian Dollar'], SGD: ['Đô la Singapore', 'Singapore Dollar'],
+    VND: ['Đồng VN', 'Vietnamese Dong'], USD: ['Đô la Mỹ', 'US Dollar'], AUD: ['Đô la Úc', 'Australian Dollar'], SGD: ['Đô la Singapore', 'Singapore Dollar'],
     EUR: ['Euro', 'Euro'], CAD: ['Đô la Canada', 'Canadian Dollar'], GBP: ['Bảng Anh', 'British Pound'], JPY: ['Yên Nhật', 'Japanese Yen'],
     KRW: ['Won Hàn Quốc', 'South Korean Won'], THB: ['Baht Thái', 'Thai Baht'], CNY: ['Nhân dân tệ (Trung Quốc)', 'Chinese Yuan'], HKD: ['Đô la Hồng Kông', 'Hong Kong Dollar'],
     CHF: ['Franc Thụy Sĩ', 'Swiss Franc'], DKK: ['Krone Đan Mạch', 'Danish Krone'], INR: ['Rupee Ấn Độ', 'Indian Rupee'], KWD: ['Dinar Kuwait', 'Kuwaiti Dinar'],
@@ -2884,11 +2903,11 @@
     catch (e) { fxS.err = 'x'; }
     fxS.loading = false; fxUI();
   }
-  function fxRate(code, side) {   // trả về số đồng VND cho 1 đơn vị ngoại tệ
+  function fxRate(code) {   // số đồng VND cho 1 đơn vị ngoại tệ, theo loại giá đang chọn (mặc định: giá bán = cao nhất)
     if (code === 'VND') return 1;
     const r = (fxS.data && fxS.data.rows || []).find(x => x.c === code); if (!r) return null;
-    if (side === 'sell') return r.sell;
-    return $('#fxBasis').value === 'transfer' ? (r.tr || r.cash) : (r.cash || r.tr);
+    const k = $('#fxBasis').value;
+    return k === 'sell' ? r.sell : k === 'transfer' ? (r.tr || r.cash) : (r.cash || r.tr);
   }
   const fxFmt = (n, d) => n.toLocaleString('vi-VN', { maximumFractionDigits: d == null ? 2 : d });
   function fxParseAmt(t) {   // nhận: 1000000, 1.000.000, 1,5tr (1,5 triệu), 500k (500 nghìn), 2 tỷ
@@ -2918,41 +2937,48 @@
     if (!fxS.data) { out.innerHTML = '—'; return; }
     if (!(a >= 0)) { out.innerHTML = '—'; return; }
     if (f === t) { out.textContent = `${fxFmt(a)} ${t}`; return; }
-    const rf = fxRate(f, 'buy'), rt = fxRate(t, 'sell');   // ngân hàng MUA ngoại tệ khách đưa, BÁN ngoại tệ khách cần
+    const rf = fxRate(f), rt = fxRate(t), kind = { sell: L('giá bán', 'sell'), cash: L('mua tiền mặt', 'buy cash'), transfer: L('mua CK', 'buy transfer') }[$('#fxBasis').value];
     if (!rf || !rt) { out.innerHTML = L('Ngân hàng không niêm yết giá cho loại này', 'No rate listed for this currency'); return; }
     const vnd = a * rf, res = vnd / rt;
-    out.innerHTML = `${fxFmt(res, t === 'VND' ? 0 : 2)} ${t}<small>${f === 'VND' ? '' : `1 ${f} = ${fxFmt(rf, 2)} đ (${L('mua', 'buy')})`}${f !== 'VND' && t !== 'VND' ? ' · ' : ''}${t === 'VND' ? '' : `1 ${t} = ${fxFmt(rt, 2)} đ (${L('bán', 'sell')})`}</small>`;
+    out.innerHTML = `${fxFmt(res, t === 'VND' ? 0 : 2)} ${t}<small>${f === 'VND' ? '' : `1 ${f} = ${fxFmt(rf, 2)} đ (${kind})`}${f !== 'VND' && t !== 'VND' ? ' · ' : ''}${t === 'VND' ? '' : `1 ${t} = ${fxFmt(rt, 2)} đ (${kind})`}</small>`;
   }
   function fxUI() {
     const d = fxS.data, st = $('#fxStat');
     $('#fxRefresh').disabled = fxS.loading;
     $('#fxRefresh').textContent = fxS.loading ? L('⏳ Đang tải…', '⏳ Loading…') : L('🔄 Cập nhật', '🔄 Refresh');
     $('#fxTitle .tx').textContent = L('Tỷ giá ngoại tệ · Vietcombank', 'Exchange rates · Vietcombank');
-    $('#fxAmtL').textContent = L('Số tiền', 'Amount'); $('#fxSwap').title = L('Đảo chiều', 'Swap'); $('#fxFromL').textContent = L('Từ', 'From'); $('#fxToL').textContent = L('Sang', 'To');
-    $('#fxBasisL').textContent = L('Khách đưa ngoại tệ theo giá mua', 'Foreign currency received at buy rate');
-    $('#fxBasis').options[0].text = L('Tiền mặt', 'Cash'); $('#fxBasis').options[1].text = L('Chuyển khoản', 'Transfer');
+    $('#fxSwap').title = L('Đảo chiều', 'Swap'); $('#fxFrom').setAttribute('aria-label', L('Từ', 'From')); $('#fxTo').setAttribute('aria-label', L('Sang', 'To'));
+    $('#fxAllT').textContent = L('Bảng tỷ giá đầy đủ', 'All exchange rates');
     if (fxS.err) { st.className = 'fx-stat warn'; st.textContent = d ? L('⚠ Không tải được tỷ giá mới — đang hiện bảng đã lưu lúc ', '⚠ Could not refresh — showing saved rates from ') + new Date(d.fetched).toLocaleString('vi-VN') : L('⚠ Không tải được tỷ giá (kiểm tra mạng rồi bấm Cập nhật).', '⚠ Could not load rates (check connection, then Refresh).'); }
     else if (d) { st.className = 'fx-stat'; st.textContent = L('Cập nhật của ngân hàng: ', 'Bank updated: ') + (d.time || '—') + ' · ' + L('tải lúc ', 'loaded ') + new Date(d.fetched).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }); }
     else { st.className = 'fx-stat'; st.textContent = fxS.loading ? L('Đang tải tỷ giá…', 'Loading rates…') : ''; }
     const rows0 = (d && d.rows) || [], codes = ['VND', ...fxSorted(rows0).map(r => r.c)];
     ['#fxFrom', '#fxTo'].forEach((id, i) => {
-      const el = $(id), cur = el.value || (i ? 'VND' : 'USD');
+      const el = $(id), cur = fxS.want[i];   // loại tiền người dùng muốn (giữ lại kể cả khi bảng giá chưa tải xong)
       el.innerHTML = codes.map(c => `<option value="${c}">${c} – ${esc(fxName(c, (rows0.find(r => r.c === c) || {}).n))}</option>`).join('');
-      el.value = codes.includes(cur) ? cur : codes[i ? 0 : Math.min(1, codes.length - 1)];   // mặc định: USD → VND
+      el.value = codes.includes(cur) ? cur : codes[0];   // mặc định: USD → VND
     });
     const f = $('#fxFrom').value, t = $('#fxTo').value;
+    const nm = c => fxName(c, (rows0.find(r => r.c === c) || {}).n).trim();
+    const FLAG = { VND: '🇻🇳', USD: '🇺🇸', EUR: '🇪🇺', GBP: '🇬🇧', JPY: '🇯🇵', AUD: '🇦🇺', SGD: '🇸🇬', CAD: '🇨🇦', KRW: '🇰🇷', THB: '🇹🇭', CNY: '🇨🇳', HKD: '🇭🇰', CHF: '🇨🇭', DKK: '🇩🇰', INR: '🇮🇳', KWD: '🇰🇼', MYR: '🇲🇾', NOK: '🇳🇴', RUB: '🇷🇺', SAR: '🇸🇦', SEK: '🇸🇪', NZD: '🇳🇿', TWD: '🇹🇼' };
+    [['From', f], ['To', t]].forEach(([k, c]) => { $('#fx' + k + 'Flag').textContent = FLAG[c] || '💱'; $('#fx' + k + 'Code').textContent = c; $('#fx' + k + 'Name').textContent = d ? nm(c) : ''; });
+    $('#fxAmtCur').textContent = f;
+    const rc = f !== 'VND' ? f : (t !== 'VND' ? t : ''), rr = rows0.find(r => r.c === rc), bs = $('#fxBasis').value;
+    $('#fxRates').innerHTML = rr ? [['cash', L('Mua', 'Buy'), rr.cash], ['sell', L('Bán', 'Sell'), rr.sell], ['transfer', L('Chuyển khoản', 'Transfer'), rr.tr]].map(([k, lb, v]) => `<button type="button" data-k="${k}" class="${bs === k ? 'on' : ''}"><span>${lb}</span><b>${v ? fxFmt(v) : '–'}</b></button>`).join('') : '';
     const rows = fxSorted((d && d.rows) || []);
     $('#fxTable').innerHTML = rows.length ? `<tr><th>${L('Mã', 'Code')}</th><th>${L('Mua tiền mặt', 'Buy cash')}</th><th>${L('Mua CK', 'Buy transfer')}</th><th>${L('Bán', 'Sell')}</th></tr>` +
-      rows.map(r => `<tr class="${r.c === f || r.c === t ? 'pick' : ''}"><td><b>${esc(r.c)}</b><span class="cn">${esc(fxName(r.c, r.n))}</span></td><td>${r.cash ? fxFmt(r.cash) : '–'}</td><td>${r.tr ? fxFmt(r.tr) : '–'}</td><td>${r.sell ? fxFmt(r.sell) : '–'}</td></tr>`).join('') : '';
+      rows.map(r => `<tr data-c="${esc(r.c)}" class="${r.c === f || r.c === t ? 'pick' : ''}"><td><b>${esc(r.c)}</b><span class="cn">${esc(fxName(r.c, r.n))}</span></td><td>${r.cash ? fxFmt(r.cash) : '–'}</td><td>${r.tr ? fxFmt(r.tr) : '–'}</td><td>${r.sell ? fxFmt(r.sell) : '–'}</td></tr>`).join('') : '';
     $('#fxNote').textContent = (fxS.err && fxDiag ? '[' + fxDiag + '] ' : '') + L('Đơn vị: đồng / 1 ngoại tệ. Nguồn: vietcombank.com.vn — chỉ để tham khảo, tỷ giá thực tế theo ngân hàng tại thời điểm giao dịch.', 'Unit: VND per 1 unit of foreign currency. Source: vietcombank.com.vn — for reference only.');
     fxConvert();
   }
   function fxShow() {
     if (!fxS.inited) {
       fxS.inited = true;
-      ['#fxAmt', '#fxFrom', '#fxTo', '#fxBasis'].forEach(id => $(id).addEventListener('input', ev => { if (id === '#fxAmt') fxFormatInput($('#fxAmt'), ev); if (id === '#fxFrom' || id === '#fxTo') fxUI(); else fxConvert(); }));
+      ['#fxAmt', '#fxFrom', '#fxTo', '#fxBasis'].forEach(id => $(id).addEventListener('input', ev => { if (id === '#fxAmt') fxFormatInput($('#fxAmt'), ev); if (id === '#fxFrom' || id === '#fxTo') fxS.want = [$('#fxFrom').value, $('#fxTo').value]; if (id === '#fxFrom' || id === '#fxTo') fxUI(); else fxConvert(); }));
       $('#fxRefresh').onclick = () => fxLoad(true);
-      $('#fxSwap').onclick = () => { const f = $('#fxFrom'), t = $('#fxTo'), v = f.value; f.value = t.value; t.value = v; fxUI(); };
+      $('#fxRates').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (!b) return; $('#fxBasis').value = b.dataset.k; fxUI(); });
+      $('#fxTable').addEventListener('click', e => { const tr = e.target.closest('tr[data-c]'); if (!tr) return; $($('#fxFrom').value === 'VND' ? '#fxTo' : '#fxFrom').value = tr.dataset.c; fxS.want = [$('#fxFrom').value, $('#fxTo').value]; fxUI(); });
+      $('#fxSwap').onclick = () => { const f = $('#fxFrom'), t = $('#fxTo'), v = f.value; f.value = t.value; t.value = v; fxS.want = [f.value, t.value]; fxUI(); };
     }
     fxUI(); fxLoad(false);
   }

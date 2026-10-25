@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v4.4</title>
+<title>Lịch Làm Việc v4.6</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -338,7 +338,13 @@
   .calc { display: none; max-width: 900px; margin: 8px auto 0; background: var(--card); border: 1px solid var(--line); border-top: 6px solid var(--primary); border-radius: var(--radius); overflow: hidden; font-size: 15px; }
   .fx { display: none; padding-bottom: 80px !important; max-width: 900px; margin: 8px auto 0; background: var(--card); border: 1px solid var(--line); border-top: 6px solid #0f9d58; border-radius: var(--radius); padding: 14px 16px; font-size: 15px; }
   .fx-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
-  .fx-head h2 { margin: 0; font-size: 18px; }
+  .fx-head h2 { margin: 0; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+  .ic { width: 1.25em; height: 1.25em; flex: none; vertical-align: -0.22em; }
+  .tab .ic { margin-right: 5px; }
+  .mtabs .mt-fx, .mtabs .mt-calc { color: #334155; }
+  .mtabs .mt-fx .ic, .mtabs .mt-calc .ic { width: 26px; height: 26px; vertical-align: middle; }
+  .mtabs .mt-fx.on, .mtabs .mt-calc.on { color: #fff; }
+  .fx-head h2 .ic { color: #0f9d58; width: 1.3em; height: 1.3em; }
   .fx-stat { color: var(--muted); font-size: 13.5px; margin-top: 2px; }
   .fx-stat.warn { color: #b45309; font-weight: 600; }
   .fx-conv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; padding: 12px; background: #f1f8f4; border: 1px solid #cfe8d9; border-radius: 12px; }
@@ -933,7 +939,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 4.4</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 4.6</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -951,14 +957,14 @@
       <button type="button" class="tab" data-tab="week">7 ngày tới</button>
       <button type="button" class="tab" data-tab="orders">Tất cả đơn</button>
       <button type="button" class="tab" data-tab="late">⚠ <span id="lateTabTxt">Trễ / quá hạn</span> <span class="tab-n" id="lateN" hidden></span></button>
-      <button type="button" class="tab" data-tab="calc">🧮 Máy tính</button>
-      <button type="button" class="tab" data-tab="fx">💱 Tỷ giá</button>
+      <button type="button" class="tab" data-tab="calc"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="16" height="19" rx="3"/><rect x="7.5" y="5.8" width="9" height="3.8" rx="1"/><circle cx="8.3" cy="13.6" r=".9" fill="currentColor"/><circle cx="12" cy="13.6" r=".9" fill="currentColor"/><circle cx="15.7" cy="13.6" r=".9" fill="currentColor"/><circle cx="8.3" cy="17.6" r=".9" fill="currentColor"/><circle cx="12" cy="17.6" r=".9" fill="currentColor"/><circle cx="15.7" cy="17.6" r=".9" fill="currentColor"/></svg><span class="tx">Máy tính</span></button>
+      <button type="button" class="tab" data-tab="fx"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></svg><span class="tx">Tỷ giá</span></button>
     </div>
       <div class="mtabs" id="mtabs">
         <button type="button" class="mt-view" id="mtView" aria-haspopup="true"></button>
         <button type="button" class="mt-sync sync-chip" id="mtSync" hidden></button>
-        <button type="button" class="mt-fx" id="mtFx" aria-label="Tỷ giá">💱</button>
-        <button type="button" class="mt-calc" id="mtCalc" aria-label="Máy tính">🧮</button>
+        <button type="button" class="mt-fx" id="mtFx" aria-label="Tỷ giá"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></svg></button>
+        <button type="button" class="mt-calc" id="mtCalc" aria-label="Máy tính"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="16" height="19" rx="3"/><rect x="7.5" y="5.8" width="9" height="3.8" rx="1"/><circle cx="8.3" cy="13.6" r=".9" fill="currentColor"/><circle cx="12" cy="13.6" r=".9" fill="currentColor"/><circle cx="15.7" cy="13.6" r=".9" fill="currentColor"/><circle cx="8.3" cy="17.6" r=".9" fill="currentColor"/><circle cx="12" cy="17.6" r=".9" fill="currentColor"/><circle cx="15.7" cy="17.6" r=".9" fill="currentColor"/></svg></button>
         <div class="mt-list" id="mtList" role="menu"></div>
       </div>
       <div class="datebar">
@@ -992,7 +998,7 @@
 
   <section class="fx" id="fx">
     <div class="fx-head">
-      <div><h2 id="fxTitle">💱 Tỷ giá ngoại tệ · Vietcombank</h2><div class="fx-stat" id="fxStat"></div></div>
+      <div><h2 id="fxTitle"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></svg><span class="tx">Tỷ giá ngoại tệ · Vietcombank</span></h2><div class="fx-stat" id="fxStat"></div></div>
       <button type="button" class="small" id="fxRefresh">🔄 Cập nhật</button>
     </div>
     <div class="fx-conv">
@@ -2784,7 +2790,7 @@
   document.addEventListener('click', () => setMenu(false));
 
   /* ===== Điện thoại: 1 nút chọn kiểu xem + 1 nút máy tính ===== */
-  const MT_VIEWS = [['day', 'Hôm nay', 'Today'], ['week', '7 ngày tới', 'Next 7 days'], ['orders', 'Tất cả đơn', 'All orders'], ['late', '⚠ Trễ / quá hạn', '⚠ Late / overdue'], ['fx', '💱 Tỷ giá', '💱 Exchange rates']];
+  const MT_VIEWS = [['day', 'Hôm nay', 'Today'], ['week', '7 ngày tới', 'Next 7 days'], ['orders', 'Tất cả đơn', 'All orders'], ['late', '⚠ Trễ / quá hạn', '⚠ Late / overdue'], ['fx', 'Tỷ giá', 'Exchange rates']];
   function updateMtabs() {
     const lateN = Number($('#lateN').textContent) || 0, cur = MT_VIEWS.find(v => v[0] === state.tab) || MT_VIEWS[0];
     const badge = lateN ? `<span class="tab-n">${lateN}</span>` : '';
@@ -2811,6 +2817,15 @@
   try { fxS.data = JSON.parse(localStorage.getItem(FX_KEY) || 'null'); } catch (_) {}
   const FX_ORDER = ['USD', 'AUD', 'SGD', 'EUR', 'CAD', 'GBP', 'JPY', 'KRW', 'THB'];   // thứ tự ưu tiên hiển thị; loại còn lại xếp sau theo bảng chữ cái
   const fxSorted = rows => rows.slice().sort((a, b) => { const i = FX_ORDER.indexOf(a.c), j = FX_ORDER.indexOf(b.c); return (i < 0 ? 99 : i) - (j < 0 ? 99 : j) || a.c.localeCompare(b.c); });
+  const FX_NAMES = {   // [Tiếng Việt, English]
+    VND: ['Đồng Việt Nam', 'Vietnamese Dong'], USD: ['Đô la Mỹ', 'US Dollar'], AUD: ['Đô la Úc', 'Australian Dollar'], SGD: ['Đô la Singapore', 'Singapore Dollar'],
+    EUR: ['Euro', 'Euro'], CAD: ['Đô la Canada', 'Canadian Dollar'], GBP: ['Bảng Anh', 'British Pound'], JPY: ['Yên Nhật', 'Japanese Yen'],
+    KRW: ['Won Hàn Quốc', 'South Korean Won'], THB: ['Baht Thái', 'Thai Baht'], CNY: ['Nhân dân tệ (Trung Quốc)', 'Chinese Yuan'], HKD: ['Đô la Hồng Kông', 'Hong Kong Dollar'],
+    CHF: ['Franc Thụy Sĩ', 'Swiss Franc'], DKK: ['Krone Đan Mạch', 'Danish Krone'], INR: ['Rupee Ấn Độ', 'Indian Rupee'], KWD: ['Dinar Kuwait', 'Kuwaiti Dinar'],
+    MYR: ['Ringgit Malaysia', 'Malaysian Ringgit'], NOK: ['Krone Na Uy', 'Norwegian Krone'], RUB: ['Rúp Nga', 'Russian Ruble'], SAR: ['Riyal Ả Rập Xê Út', 'Saudi Riyal'],
+    SEK: ['Krona Thụy Điển', 'Swedish Krona'], NZD: ['Đô la New Zealand', 'New Zealand Dollar'], TWD: ['Đô la Đài Loan', 'Taiwan Dollar']
+  };
+  const fxName = (c, fallback) => { const n = FX_NAMES[c]; return n ? L(n[0], n[1]) : (fallback || ''); };
   const fxNum = v => { const n = parseFloat(String(v || '').replace(/,/g, '')); return isFinite(n) && n > 0 ? n : null; };
   function fxParse(xml) {
     const d = new DOMParser().parseFromString(xml, 'text/xml');
@@ -2873,23 +2888,23 @@
     const d = fxS.data, st = $('#fxStat');
     $('#fxRefresh').disabled = fxS.loading;
     $('#fxRefresh').textContent = fxS.loading ? L('⏳ Đang tải…', '⏳ Loading…') : L('🔄 Cập nhật', '🔄 Refresh');
-    $('#fxTitle').textContent = L('💱 Tỷ giá ngoại tệ · Vietcombank', '💱 Exchange rates · Vietcombank');
+    $('#fxTitle .tx').textContent = L('Tỷ giá ngoại tệ · Vietcombank', 'Exchange rates · Vietcombank');
     $('#fxAmtL').textContent = L('Số tiền', 'Amount'); $('#fxFromL').textContent = L('Từ', 'From'); $('#fxToL').textContent = L('Sang', 'To');
     $('#fxBasisL').textContent = L('Khách đưa ngoại tệ theo giá mua', 'Foreign currency received at buy rate');
     $('#fxBasis').options[0].text = L('Tiền mặt', 'Cash'); $('#fxBasis').options[1].text = L('Chuyển khoản', 'Transfer');
     if (fxS.err) { st.className = 'fx-stat warn'; st.textContent = d ? L('⚠ Không tải được tỷ giá mới — đang hiện bảng đã lưu lúc ', '⚠ Could not refresh — showing saved rates from ') + new Date(d.fetched).toLocaleString('vi-VN') : L('⚠ Không tải được tỷ giá (kiểm tra mạng rồi bấm Cập nhật).', '⚠ Could not load rates (check connection, then Refresh).'); }
     else if (d) { st.className = 'fx-stat'; st.textContent = L('Cập nhật của ngân hàng: ', 'Bank updated: ') + (d.time || '—') + ' · ' + L('tải lúc ', 'loaded ') + new Date(d.fetched).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }); }
     else { st.className = 'fx-stat'; st.textContent = fxS.loading ? L('Đang tải tỷ giá…', 'Loading rates…') : ''; }
-    const codes = ['VND', ...fxSorted((d && d.rows) || []).map(r => r.c)];
+    const rows0 = (d && d.rows) || [], codes = ['VND', ...fxSorted(rows0).map(r => r.c)];
     ['#fxFrom', '#fxTo'].forEach((id, i) => {
       const el = $(id), cur = el.value || (i ? 'VND' : 'USD');
-      el.innerHTML = codes.map(c => `<option value="${c}">${c}</option>`).join('');
+      el.innerHTML = codes.map(c => `<option value="${c}">${c} – ${esc(fxName(c, (rows0.find(r => r.c === c) || {}).n))}</option>`).join('');
       el.value = codes.includes(cur) ? cur : codes[i ? 0 : Math.min(1, codes.length - 1)];   // mặc định: USD → VND
     });
     const f = $('#fxFrom').value, t = $('#fxTo').value;
     const rows = fxSorted((d && d.rows) || []);
     $('#fxTable').innerHTML = rows.length ? `<tr><th>${L('Mã', 'Code')}</th><th>${L('Mua tiền mặt', 'Buy cash')}</th><th>${L('Mua CK', 'Buy transfer')}</th><th>${L('Bán', 'Sell')}</th></tr>` +
-      rows.map(r => `<tr class="${r.c === f || r.c === t ? 'pick' : ''}"><td><b>${esc(r.c)}</b><span class="cn">${esc(r.n)}</span></td><td>${r.cash ? fxFmt(r.cash) : '–'}</td><td>${r.tr ? fxFmt(r.tr) : '–'}</td><td>${r.sell ? fxFmt(r.sell) : '–'}</td></tr>`).join('') : '';
+      rows.map(r => `<tr class="${r.c === f || r.c === t ? 'pick' : ''}"><td><b>${esc(r.c)}</b><span class="cn">${esc(fxName(r.c, r.n))}</span></td><td>${r.cash ? fxFmt(r.cash) : '–'}</td><td>${r.tr ? fxFmt(r.tr) : '–'}</td><td>${r.sell ? fxFmt(r.sell) : '–'}</td></tr>`).join('') : '';
     $('#fxNote').textContent = L('Đơn vị: đồng / 1 ngoại tệ. Nguồn: vietcombank.com.vn — chỉ để tham khảo, tỷ giá thực tế theo ngân hàng tại thời điểm giao dịch.', 'Unit: VND per 1 unit of foreign currency. Source: vietcombank.com.vn — for reference only.');
     fxConvert();
   }
@@ -3582,7 +3597,7 @@
     ['#btnBkPick', '🛡 Turn on auto backup (pick a folder)…'], ['#btnBkRename', '✏ Change backup folder…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '📄 Overwrite JSON file'], ['#btnHist', '🕘 Version history — restore by date & time…'], ['#btnBkOff', '⏹ Turn off auto backup'],
     ['#btnAdd', '＋ Add schedule'],
     ['.tab[data-tab="day"]', 'Today'], ['.tab[data-tab="week"]', 'Next 7 days'],
-    ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="calc"]', '🧮 Calculator'], ['.tab[data-tab="fx"]', '💱 Exchange rates'],
+    ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="calc"] .tx', 'Calculator'], ['.tab[data-tab="fx"] .tx', 'Exchange rates'],
     ['#popover', 'Customer details', 'aria-label'], ['#popClose', 'Close', 'aria-label'],
     ['#popEdit', '✎ Edit this order'],
     ['label[for="cAmount"]', 'Subtotal (đ)'], ['#cAmount', '', 'placeholder'],

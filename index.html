@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v5.4</title>
+<title>Lịch Làm Việc v5.5</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -352,8 +352,13 @@
   .fxc-amt { position: relative; padding: 14px 12px 10px; text-align: center; }
   .fxc-amt input { width: 100%; box-sizing: border-box; border: none !important; background: transparent !important; box-shadow: none !important; text-align: center; font-size: 34px; font-weight: 700; padding: 4px 36px; outline: none !important; color: var(--text, #0f172a); }
   .fxc-cur { position: absolute; right: 14px; top: 20px; font-size: 13px; font-weight: 700; color: var(--muted); }
+  .fxc-keys { display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: -2px; }
+  @media (pointer: coarse) { .fxc-keys { display: grid; } }
+  .fxc-keys button { height: 42px; padding: 0; font-size: 17px; font-weight: 700; border-radius: 10px; background: #fff; border: 1px solid var(--line); color: #0b6b3a; }
+  .fxc-keys button:active { background: #dff1e6; }
   .fxc-pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
   .fxc-sel { position: relative; display: flex; align-items: center; gap: 10px; padding: 10px 12px; min-width: 0; }
+  .fxc-img { width: 38px; height: 27px; object-fit: cover; border-radius: 4px; box-shadow: 0 0 0 1px rgba(0,0,0,.12); display: block; }
   .fxc-flag { font-size: 30px; line-height: 1; flex: none; }
   .fxc-txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
   .fxc-txt b { font-size: 20px; }
@@ -963,7 +968,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 5.4</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 5.5</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -1026,7 +1031,10 @@
       <button type="button" class="small" id="fxRefresh">🔄 Cập nhật</button>
     </div>
     <div class="fxc">
-      <div class="fxc-card fxc-amt"><input id="fxAmt" inputmode="text" autocomplete="off" placeholder="0" aria-label="Số tiền"><span class="fxc-cur" id="fxAmtCur"></span><div class="fx-hint" id="fxHint"></div></div>
+      <div class="fxc-card fxc-amt"><input id="fxAmt" inputmode="decimal" enterkeyhint="done" autocomplete="off" placeholder="0" aria-label="Số tiền"><span class="fxc-cur" id="fxAmtCur"></span><div class="fx-hint" id="fxHint"></div></div>
+      <div class="fxc-keys" id="fxKeys">
+        <button type="button" data-add="000">000</button><button type="button" data-add="tr" id="fxKtr">triệu</button><button type="button" data-add="k" id="fxKk">nghìn</button><button type="button" data-clr="1">✕</button>
+      </div>
       <div class="fxc-pair">
         <label class="fxc-card fxc-sel"><span class="fxc-flag" id="fxFromFlag"></span><span class="fxc-txt"><b id="fxFromCode"></b><small id="fxFromName"></small></span><select id="fxFrom" aria-label="Từ"></select></label>
         <button type="button" id="fxSwap" class="fxc-swap" aria-label="Đảo chiều" title="Đảo chiều">⇄</button>
@@ -2852,6 +2860,12 @@
     MYR: ['Ringgit Malaysia', 'Malaysian Ringgit'], NOK: ['Krone Na Uy', 'Norwegian Krone'], RUB: ['Rúp Nga', 'Russian Ruble'], SAR: ['Riyal Ả Rập Xê Út', 'Saudi Riyal'],
     SEK: ['Krona Thụy Điển', 'Swedish Krona'], NZD: ['Đô la New Zealand', 'New Zealand Dollar'], TWD: ['Đô la Đài Loan', 'Taiwan Dollar']
   };
+  const FX_CC = { VND: 'vn', USD: 'us', EUR: 'eu', GBP: 'gb', JPY: 'jp', AUD: 'au', SGD: 'sg', CAD: 'ca', KRW: 'kr', THB: 'th', CNY: 'cn', HKD: 'hk', CHF: 'ch', DKK: 'dk', INR: 'in', KWD: 'kw', MYR: 'my', NOK: 'no', RUB: 'ru', SAR: 'sa', SEK: 'se', NZD: 'nz', TWD: 'tw' };
+  const FX_EMOJI = c => FX_CC[c] ? String.fromCodePoint(...[...FX_CC[c].toUpperCase()].map(ch => 127397 + ch.charCodeAt(0))) : '💱';
+  function fxFlag(c) {   // ảnh cờ (Windows không vẽ được cờ emoji); mất mạng thì quay về emoji
+    const cc = FX_CC[c]; if (!cc) return '💱';
+    return `<img class="fxc-img" alt="" src="https://flagcdn.com/w80/${cc}.png" onerror="this.replaceWith(document.createTextNode('${FX_EMOJI(c)}'))">`;
+  }
   const fxName = (c, fallback) => { const n = FX_NAMES[c]; return n ? L(n[0], n[1]) : (fallback || ''); };
   const fxNum = v => { const n = parseFloat(String(v || '').replace(/,/g, '')); return isFinite(n) && n > 0 ? n : null; };
   function fxParse(xml) {
@@ -2960,8 +2974,7 @@
     });
     const f = $('#fxFrom').value, t = $('#fxTo').value;
     const nm = c => fxName(c, (rows0.find(r => r.c === c) || {}).n).trim();
-    const FLAG = { VND: '🇻🇳', USD: '🇺🇸', EUR: '🇪🇺', GBP: '🇬🇧', JPY: '🇯🇵', AUD: '🇦🇺', SGD: '🇸🇬', CAD: '🇨🇦', KRW: '🇰🇷', THB: '🇹🇭', CNY: '🇨🇳', HKD: '🇭🇰', CHF: '🇨🇭', DKK: '🇩🇰', INR: '🇮🇳', KWD: '🇰🇼', MYR: '🇲🇾', NOK: '🇳🇴', RUB: '🇷🇺', SAR: '🇸🇦', SEK: '🇸🇪', NZD: '🇳🇿', TWD: '🇹🇼' };
-    [['From', f], ['To', t]].forEach(([k, c]) => { $('#fx' + k + 'Flag').textContent = FLAG[c] || '💱'; $('#fx' + k + 'Code').textContent = c; $('#fx' + k + 'Name').textContent = d ? nm(c) : ''; });
+    [['From', f], ['To', t]].forEach(([k, c]) => { $('#fx' + k + 'Flag').innerHTML = fxFlag(c); $('#fx' + k + 'Code').textContent = c; $('#fx' + k + 'Name').textContent = d ? nm(c) : ''; });
     $('#fxAmtCur').textContent = f;
     const rc = f !== 'VND' ? f : (t !== 'VND' ? t : ''), rr = rows0.find(r => r.c === rc), bs = $('#fxBasis').value;
     $('#fxRates').innerHTML = rr ? [['cash', L('Mua', 'Buy'), rr.cash], ['sell', L('Bán', 'Sell'), rr.sell], ['transfer', L('Chuyển khoản', 'Transfer'), rr.tr]].map(([k, lb, v]) => `<button type="button" data-k="${k}" class="${bs === k ? 'on' : ''}"><span>${lb}</span><b>${v ? fxFmt(v) : '–'}</b></button>`).join('') : '';
@@ -2978,6 +2991,14 @@
       $('#fxRefresh').onclick = () => fxLoad(true);
       $('#fxRates').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (!b) return; $('#fxBasis').value = b.dataset.k; fxUI(); });
       $('#fxTable').addEventListener('click', e => { const tr = e.target.closest('tr[data-c]'); if (!tr) return; $($('#fxFrom').value === 'VND' ? '#fxTo' : '#fxFrom').value = tr.dataset.c; fxS.want = [$('#fxFrom').value, $('#fxTo').value]; fxUI(); });
+      $('#fxKeys').addEventListener('pointerdown', e => { if (e.target.closest('button')) e.preventDefault(); });   // giữ bàn phím số đang mở
+      $('#fxKeys').addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return; const el = $('#fxAmt');
+        if (b.dataset.clr) el.value = '';
+        else if (b.dataset.add === '000') { el.value = el.value.replace(/[^\d.,]/g, '') + '000'; fxFormatInput(el); }
+        else if (el.value && !/[^\d.,\s]/.test(el.value)) el.value = el.value.trim() + b.dataset.add;   // 5 → 5tr, 500 → 500k
+        fxConvert();
+      });
       $('#fxSwap').onclick = () => { const f = $('#fxFrom'), t = $('#fxTo'), v = f.value; f.value = t.value; t.value = v; fxS.want = [f.value, t.value]; fxUI(); };
     }
     fxUI(); fxLoad(false);

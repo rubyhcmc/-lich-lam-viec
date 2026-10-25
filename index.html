@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v4.7</title>
+<title>Lịch Làm Việc v4.9</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -944,7 +944,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 4.7</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 4.9</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -2848,23 +2848,37 @@
     if (m) { let h = +m[4]; if (m[6]) { h = h % 12 + (/pm/i.test(m[6]) ? 12 : 0); } tm = `${String(h).padStart(2, '0')}:${m[5]} ${m[2].padStart(2, '0')}/${m[1].padStart(2, '0')}/${m[3]}`; }
     return { time: tm, fetched: Date.now(), rows };
   }
+  let fxDiag = '';
   async function fxFetch() {
-    const tries = [FX_URL, 'https://corsproxy.io/?url=' + encodeURIComponent(FX_URL), 'https://api.allorigins.win/raw?url=' + encodeURIComponent(FX_URL)];
-    let last;
-    for (const u of tries) {
+    const enc = encodeURIComponent(FX_URL);
+    const tries = [   // thử song song, cái nào về trước và đọc được thì dùng
+      ['direct', FX_URL, 'text'],
+      ['corsproxy', 'https://corsproxy.io/?url=' + enc, 'text'],
+      ['allorigins', 'https://api.allorigins.win/raw?url=' + enc, 'text'],
+      ['allorigins-json', 'https://api.allorigins.win/get?url=' + enc, 'json'],
+      ['codetabs', 'https://api.codetabs.com/v1/proxy?quest=' + enc, 'text'],
+      ['thingproxy', 'https://thingproxy.freeboard.io/fetch/' + FX_URL, 'text']
+    ];
+    const errs = [];
+    const one = async ([name, u, kind]) => {
+      const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 15000);
       try {
-        const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 10000);
-        const r = await fetch(u, { cache: 'no-store', signal: ctl.signal }); clearTimeout(to);
+        const r = await fetch(u, { cache: 'no-store', signal: ctl.signal });
         if (!r.ok) throw new Error('HTTP ' + r.status);
-        return fxParse(await r.text());
-      } catch (e) { last = e; }
-    }
-    throw last || new Error('fail');
+        let t = await r.text();
+        if (kind === 'json') t = (JSON.parse(t) || {}).contents || '';
+        return fxParse(t);
+      } catch (e) { errs.push(name + ': ' + (e && e.message || e)); throw e; }
+      finally { clearTimeout(to); }
+    };
+    try { return await Promise.any(tries.map(one)); }
+    catch (e) { fxDiag = errs.join(' · '); throw e; }
   }
   async function fxLoad(force) {
     if (fxS.loading) return;
     if (!force && fxS.data && Date.now() - fxS.data.fetched < 30 * 60000) return;
     fxS.loading = true; fxS.err = ''; fxUI();
+    fxDiag = '';
     try { fxS.data = await fxFetch(); try { localStorage.setItem(FX_KEY, JSON.stringify(fxS.data)); } catch (_) {} }
     catch (e) { fxS.err = 'x'; }
     fxS.loading = false; fxUI();
@@ -2883,6 +2897,19 @@
     if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
     else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
     const n = parseFloat(t); return isFinite(n) ? n * mul : NaN;
+  }
+  function fxFormatInput(el, ev) {   // tự chấm phân cách hàng nghìn khi gõ: 5000000 → 5.000.000 (gõ phẩy để nhập số lẻ)
+    let v = el.value, pos = el.selectionStart == null ? v.length : el.selectionStart;
+    if (/[^\d.,\s]/.test(v)) return;   // đang gõ chữ tắt như 5tr, 500k → để nguyên
+    if (ev && ev.inputType === 'insertText' && ev.data === '.' && !v.includes(',') && v[pos - 1] === '.') v = v.slice(0, pos - 1) + ',' + v.slice(pos);   // gõ chấm = muốn nhập số lẻ
+    const ci = v.indexOf(','), left = ci < 0 ? v : v.slice(0, ci), right = ci < 0 ? '' : v.slice(ci + 1).replace(/\D/g, '').slice(0, 4);
+    const digitsBefore = v.slice(0, pos).replace(/[^\d]/g, '').length, commaBefore = ci >= 0 && ci < pos;
+    const intDigits = left.replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+    const out = (intDigits ? new Intl.NumberFormat('vi-VN').format(Number(intDigits)) : (ci >= 0 ? '0' : '')) + (ci >= 0 ? ',' + right : '');
+    el.value = out;
+    let seen = 0, i = 0; const target = commaBefore ? Infinity : digitsBefore;
+    if (commaBefore) i = out.length; else for (; i < out.length && seen < target; i++) if (/\d/.test(out[i])) seen++;
+    try { el.setSelectionRange(i, i); } catch (e) {}
   }
   function fxConvert() {
     const out = $('#fxOut'), a = fxParseAmt($('#fxAmt').value), f = $('#fxFrom').value, t = $('#fxTo').value;
@@ -2916,13 +2943,13 @@
     const rows = fxSorted((d && d.rows) || []);
     $('#fxTable').innerHTML = rows.length ? `<tr><th>${L('Mã', 'Code')}</th><th>${L('Mua tiền mặt', 'Buy cash')}</th><th>${L('Mua CK', 'Buy transfer')}</th><th>${L('Bán', 'Sell')}</th></tr>` +
       rows.map(r => `<tr class="${r.c === f || r.c === t ? 'pick' : ''}"><td><b>${esc(r.c)}</b><span class="cn">${esc(fxName(r.c, r.n))}</span></td><td>${r.cash ? fxFmt(r.cash) : '–'}</td><td>${r.tr ? fxFmt(r.tr) : '–'}</td><td>${r.sell ? fxFmt(r.sell) : '–'}</td></tr>`).join('') : '';
-    $('#fxNote').textContent = L('Đơn vị: đồng / 1 ngoại tệ. Nguồn: vietcombank.com.vn — chỉ để tham khảo, tỷ giá thực tế theo ngân hàng tại thời điểm giao dịch.', 'Unit: VND per 1 unit of foreign currency. Source: vietcombank.com.vn — for reference only.');
+    $('#fxNote').textContent = (fxS.err && fxDiag ? '[' + fxDiag + '] ' : '') + L('Đơn vị: đồng / 1 ngoại tệ. Nguồn: vietcombank.com.vn — chỉ để tham khảo, tỷ giá thực tế theo ngân hàng tại thời điểm giao dịch.', 'Unit: VND per 1 unit of foreign currency. Source: vietcombank.com.vn — for reference only.');
     fxConvert();
   }
   function fxShow() {
     if (!fxS.inited) {
       fxS.inited = true;
-      ['#fxAmt', '#fxFrom', '#fxTo', '#fxBasis'].forEach(id => $(id).addEventListener('input', () => { if (id === '#fxFrom' || id === '#fxTo') fxUI(); else fxConvert(); }));
+      ['#fxAmt', '#fxFrom', '#fxTo', '#fxBasis'].forEach(id => $(id).addEventListener('input', ev => { if (id === '#fxAmt') fxFormatInput($('#fxAmt'), ev); if (id === '#fxFrom' || id === '#fxTo') fxUI(); else fxConvert(); }));
       $('#fxRefresh').onclick = () => fxLoad(true);
       $('#fxSwap').onclick = () => { const f = $('#fxFrom'), t = $('#fxTo'), v = f.value; f.value = t.value; t.value = v; fxUI(); };
     }

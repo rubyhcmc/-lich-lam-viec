@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v6.3</title>
+<title>Lịch Làm Việc v6.4</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -975,7 +975,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 6.3</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 6.4</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -3953,7 +3953,7 @@
     $('lkMeterT').textContent = !pw ? '' : st < 0 ? T('Quá ngắn', 'Too short') : [T('Yếu', 'Weak'), T('Khá', 'Fair'), T('Mạnh', 'Strong')][st];
   }
   var autoFn = null, pollT = 0, digitsOnly = false;
-  $('lkPw').addEventListener('input', function () { if (digitsOnly) this.value = this.value.replace(/\D/g, ''); meter(); if (!autoFn) return; if ($('lkErr').classList.contains('soft')) setErr(''); });
+  $('lkPw').addEventListener('input', function () { if (digitsOnly) this.value = this.value.replace(/\D/g, ''); meter(); if (!autoFn) return; if ($('lkErr').classList.contains('soft')) setErr(''); autoFn(); });
   $('lkPw2').addEventListener('input', function () { this.value = this.value.replace(/\D/g, ''); });
   function saveCred(pw) {   // đưa mật khẩu cho trình quản lý mật khẩu (iCloud Keychain/Chrome) để lần sau điền bằng vân tay
     try { if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) navigator.credentials.store(new PasswordCredential({ id: 'lichlamviec', password: pw, name: 'Lịch Làm Việc' })); } catch (e) {}
@@ -3971,6 +3971,17 @@
   };
 
   var fails = 0, until = 0;
+  function focusPrimary() {   // đưa con trỏ vào ô nhập (ô mật khẩu cũ khi đổi mật khẩu)
+    if (!scr.classList.contains('on')) return;
+    var el = $('lkOld').hidden ? $('lkPw') : $('lkOld');
+    try { el.focus({ preventScroll: true }); } catch (e) { try { el.focus(); } catch (e2) {} }
+  }
+  // iPhone chỉ bật bàn phím khi có chạm của người dùng → chạm BẤT KỲ đâu trên màn hình khóa cũng đưa con trỏ vào ô và bật bàn phím số
+  ['click', 'touchend'].forEach(function (ev) {
+    scr.addEventListener(ev, function (e) { if (!e.target.closest('button, a, label, select, input')) focusPrimary(); }, { passive: true });
+  });
+  window.addEventListener('pageshow', function () { setTimeout(focusPrimary, 50); });
+  window.addEventListener('focus', function () { setTimeout(focusPrimary, 50); });
   function show(on) { scr.classList.toggle('on', on); document.documentElement.classList.toggle('locked', on); locked = on; }
 
   // mode: setup | unlock | change ; trả về Promise (resolve khi xong, reject khi hủy ở chế độ change)
@@ -4000,7 +4011,7 @@
           try {
             var salt = crypto.getRandomValues(new Uint8Array(16)), k = await derive(a, salt, ITER), check = await encS('ok', k);
             key = k; kgen++;
-            meta = { v: 1, pin: true, salt: b64(salt), iter: ITER, check: check }; S.call(localStorage, META, JSON.stringify(meta));   // ghi mốc khóa TRƯỚC khi mã hóa dữ liệu
+            meta = { v: 1, pin: true, len: a.length, salt: b64(salt), iter: ITER, check: check }; S.call(localStorage, META, JSON.stringify(meta));   // ghi mốc khóa TRƯỚC khi mã hóa dữ liệu
             await loadAll(); await histEncryptLegacy().catch(function () {});
             saveCred(a);
             fin(true);
@@ -4036,12 +4047,15 @@
             else setErr(T('Sai mật khẩu.', 'Wrong password.'));
           }
         }
-        autoFn = function () {};
+        autoFn = function () {   // biết sẵn độ dài mật khẩu → đủ số là kiểm tra NGAY, không chờ
+          var v = $('lkPw').value;
+          if (meta && meta.len && v.length === meta.len && v !== lastTried && !busy) { lastTried = v; attempt(true); }
+        };
         pollT = setInterval(function () {   // gõ xong (ổn định ~0,25 giây) và đủ dài → tự kiểm tra, đúng là vào luôn
           var v = $('lkPw').value;
           if (v === prev && v !== lastTried && v.length >= MINPIN && !busy) { lastTried = v; attempt(true); }
           prev = v;
-        }, 250);
+        }, 150);
         form.onsubmit = function (e) { e.preventDefault(); lastTried = $('lkPw').value; attempt(false); };
       } else if (mode === 'change') {
         $('lkTitle').textContent = T('Đổi mật khẩu', 'Change password'); $('lkSub').textContent = T('Dữ liệu sẽ được mã hóa lại bằng mật khẩu mới (dãy số, ít nhất ' + MINPIN + ' số).', 'Your data will be re-encrypted with the new code (digits only, at least ' + MINPIN + ').');
@@ -4070,7 +4084,7 @@
             }
             // ghi đồng loạt (đồng bộ) để không có trạng thái nửa cũ nửa mới
             blobs.forEach(function (x) { S.call(localStorage, x[0], x[1]); });
-            meta = { v: 1, pin: true, salt: b64(salt), iter: ITER, check: check }; S.call(localStorage, META, JSON.stringify(meta));
+            meta = { v: 1, pin: true, len: a.length, salt: b64(salt), iter: ITER, check: check }; S.call(localStorage, META, JSON.stringify(meta));
             key = nk; kgen++;
             if (db) { if (newHist) await idbDo(db, 'readwrite', function (st) { return st.put(newHist, 'history'); }); db.close(); }
             saveCred(a);
@@ -4078,7 +4092,7 @@
           } catch (err) { go.disabled = false; setErr(T('Không đổi được: ', 'Could not change: ') + (err && err.message || err)); }
         };
       }
-      setTimeout(function () { try { (mode === 'change' ? $('lkOld') : $('lkPw')).focus(); } catch (e) {} }, 60);
+      [0, 60, 300, 800].forEach(function (d) { setTimeout(focusPrimary, d); });
     });
   }
 

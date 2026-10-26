@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v6.1</title>
+<title>Lịch Làm Việc v6.2</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -975,7 +975,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 6.1</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 6.2</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -3949,7 +3949,8 @@
     $('lkBar').style.width = W + '%'; $('lkBar').style.background = C;
     $('lkMeterT').textContent = pw ? [T('Yếu', 'Weak'), T('Khá', 'Fair'), T('Mạnh', 'Strong')][st] : '';
   }
-  $('lkPw').addEventListener('input', meter);
+  var autoFn = null, autoT = 0;
+  $('lkPw').addEventListener('input', function () { meter(); clearTimeout(autoT); if (autoFn) autoT = setTimeout(autoFn, 350); });   // ở màn mở khóa: gõ đúng mật khẩu là tự vào
   function saveCred(pw) { try { if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) navigator.credentials.store(new PasswordCredential({ id: 'lichlamviec', password: pw, name: 'Lịch Làm Việc' })); } catch (e) {} }
   function setErr(t) { $('lkErr').textContent = t || ''; }
   function fields(vis) { ['lkOld', 'lkPw', 'lkPw2'].forEach(function (id) { $(id).hidden = !vis[id]; $(id).value = ''; }); }
@@ -3963,7 +3964,7 @@
     return new Promise(function (resolve, reject) {
       var form = $('lkForm'), go = $('lkGo'), alt = $('lkAlt'), warn = $('lkWarn');
       $('lkShowL').textContent = T('Hiện mật khẩu', 'Show password'); $('lkShow').checked = false; $('lkShow').onchange();
-      setErr(''); warn.hidden = true; alt.hidden = true; go.disabled = false; go.style.background = ''; $('lkShow').parentNode.hidden = false; $('lkMeter').hidden = true; $('lkPw').name = 'password';
+      setErr(''); warn.hidden = true; alt.hidden = true; go.disabled = false; go.style.background = ''; $('lkShow').parentNode.hidden = false; $('lkMeter').hidden = true; autoFn = null; clearTimeout(autoT); $('lkPw').name = 'password';
       show(true);
       function fin(v) { show(false); resolve(v); }
       if (mode === 'setup') {
@@ -3988,27 +3989,34 @@
           } catch (err) { go.disabled = false; setErr(T('Không tạo được khóa: ', 'Could not set up: ') + (err && err.message || err)); }
         };
       } else if (mode === 'unlock') {
-        $('lkTitle').textContent = 'Lịch Làm Việc'; $('lkSub').textContent = T('Nhập mật khẩu để mở.', 'Enter your password to open.');
+        $('lkTitle').textContent = 'Lịch Làm Việc'; $('lkSub').textContent = T('Nhập đúng mật khẩu là tự vào.', 'Enter the right password and it opens automatically.');
         fields({ lkPw: 1 }); $('lkPw').placeholder = T('Mật khẩu', 'Password'); $('lkPw').autocomplete = 'current-password';
         go.textContent = T('Mở khóa', 'Unlock');
         alt.hidden = false; alt.textContent = T('Quên mật khẩu?', 'Forgot password?'); alt.onclick = function () { ui('forgot').then(resolve, reject); };
-        form.onsubmit = async function (e) {
-          e.preventDefault();
-          if (Date.now() < until) return setErr(T('Thử sai nhiều lần — chờ vài giây rồi nhập lại.', 'Too many tries — wait a few seconds.'));
-          if (!meta) return setErr(T('Dữ liệu khóa bị hỏng. Dùng "Quên mật khẩu?" để đặt lại.', 'Lock data is damaged. Use "Forgot password?" to reset.'));
-          go.disabled = true; setErr(T('Đang kiểm tra…', 'Checking…'));
+        var busy = false;
+        async function attempt(silent) {   // silent = tự kiểm tra khi đang gõ (sai thì im lặng, không tính số lần thử)
+          var pw = $('lkPw').value;
+          if (busy || !pw) return;
+          if (Date.now() < until) { if (!silent) setErr(T('Thử sai nhiều lần — chờ vài giây rồi nhập lại.', 'Too many tries — wait a few seconds.')); return; }
+          if (!meta) { if (!silent) setErr(T('Dữ liệu khóa bị hỏng. Dùng "Quên mật khẩu?" để đặt lại.', 'Lock data is damaged. Use "Forgot password?" to reset.')); return; }
+          busy = true; if (!silent) { go.disabled = true; setErr(T('Đang kiểm tra…', 'Checking…')); }
           try {
-            var k = await derive($('lkPw').value, unb64(meta.salt), meta.iter);
+            var k = await derive(pw, unb64(meta.salt), meta.iter);
             if (await decS(meta.check, k) !== 'ok') throw new Error('x');
-            fails = 0;
+            if (pw !== $('lkPw').value) { busy = false; go.disabled = false; return; }   // bạn vừa gõ thêm/xóa → bỏ kết quả cũ
+            fails = 0; autoFn = null;
             if (!key) { key = k; kgen++; await loadAll(); } else key = k;
             fin(true);
           } catch (err) {
-            fails++; go.disabled = false; $('lkPw').value = ''; $('lkPw').focus();
+            busy = false; go.disabled = false;
+            if (silent) return;
+            fails++; $('lkPw').value = ''; $('lkPw').focus();
             if (fails >= 5) { until = Date.now() + 30000; setErr(T('Sai mật khẩu nhiều lần — chờ 30 giây.', 'Wrong password several times — wait 30 s.')); }
             else setErr(T('Sai mật khẩu.', 'Wrong password.'));
           }
-        };
+        }
+        autoFn = function () { attempt(true); };
+        form.onsubmit = function (e) { e.preventDefault(); attempt(false); };
       } else if (mode === 'change') {
         $('lkTitle').textContent = T('Đổi mật khẩu', 'Change password'); $('lkSub').textContent = T('Dữ liệu sẽ được mã hóa lại bằng mật khẩu mới.', 'Your data will be re-encrypted with the new password.');
         fields({ lkOld: 1, lkPw: 1, lkPw2: 1 }); $('lkOld').placeholder = T('Mật khẩu hiện tại', 'Current password'); $('lkPw').placeholder = T('Mật khẩu mới', 'New password'); $('lkPw2').placeholder = T('Nhập lại mật khẩu mới', 'Repeat new password');

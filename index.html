@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v6.4</title>
+<title>Lịch Làm Việc v6.5</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -336,6 +336,30 @@
 
   /* Máy tính tiền */
   .calc { display: none; max-width: 900px; margin: 8px auto 0; background: var(--card); border: 1px solid var(--line); border-top: 6px solid var(--primary); border-radius: var(--radius); overflow: hidden; font-size: 15px; }
+  .bc { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; padding: 16px; }
+  .bc-title { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+  .bc-screen { background: #0f172a; color: #fff; border-radius: 14px; padding: 10px 14px 12px; text-align: right; min-height: 78px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+  .bc-expr { min-height: 18px; font-size: 14px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bc-num { font-size: 34px; font-weight: 700; line-height: 1.15; word-break: break-all; }
+  .bc-num.sm { font-size: 26px; } .bc-num.xs { font-size: 20px; }
+  .bc-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+  .bc-keys button { height: 54px; padding: 0; font-size: 22px; font-weight: 600; border-radius: 12px; border: 1px solid var(--line); background: #fff; color: var(--text, #0f172a); touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+  .bc-keys button:active { background: #e8eef9; }
+  .bc-keys button.op { background: #eaf1ff; color: #1a56c4; border-color: #cddcf7; }
+  .bc-keys button.fn { background: #f1f5f9; color: #475569; }
+  .bc-keys button.clr { background: #fdecec; color: #b91c1c; border-color: #f6caca; }
+  .bc-keys button.eq { background: var(--primary); color: #fff; border-color: var(--primary); grid-row: span 2; height: auto; }
+  .bc-tape { height: 262px; overflow-y: auto; background: #f8f9fb; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; font-variant-numeric: tabular-nums; }
+  .bc-line { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; font-size: 17px; border-bottom: 1px dashed #e3e8f0; }
+  .bc-line .o { color: #1a56c4; font-weight: 700; min-width: 20px; }
+  .bc-line .v { margin-left: auto; font-weight: 600; }
+  .bc-line.eq { border-bottom: none; border-top: 2px solid #0f172a; margin-top: 4px; padding-top: 8px; font-size: 20px; font-weight: 800; color: #0b6b3a; }
+  .bc-empty { color: var(--muted); font-size: 14px; padding: 8px 0; }
+  .bc-act { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .bc-act button { padding: 10px; font-size: 15px; border-radius: 10px; }
+  .bc-sep { display: flex; align-items: center; gap: 10px; padding: 0 16px; color: var(--muted); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .bc-sep::before, .bc-sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  @media (max-width: 760px) { .bc { grid-template-columns: 1fr; } .bc-keys button { height: 58px; font-size: 24px; } .bc-tape { height: 190px; } .bc-num { font-size: 38px; } }
   .fx { display: none; padding-bottom: 80px !important; max-width: 900px; margin: 8px auto 0; background: var(--card); border: 1px solid var(--line); border-top: 6px solid #0f9d58; border-radius: var(--radius); padding: 14px 16px; font-size: 15px; }
   .fx-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
   .fx-head h2 { margin: 0; font-size: 18px; display: flex; align-items: center; gap: 8px; }
@@ -975,7 +999,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 6.4</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 6.5</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -1056,6 +1080,19 @@
   </section>
 
   <section class="calc" id="calc">
+    <div class="bc" id="bc">
+      <div class="bc-main">
+        <div class="bc-title" id="bcTitle">Máy tính cơ bản</div>
+        <div class="bc-screen"><div class="bc-expr" id="bcExpr"></div><div class="bc-num" id="bcNum">0</div></div>
+        <div class="bc-keys" id="bcKeys"></div>
+      </div>
+      <div class="bc-side">
+        <div class="bc-title" id="bcTapeT">Các số đã nhập</div>
+        <div class="bc-tape" id="bcTape"></div>
+        <div class="bc-act"><button type="button" id="bcCopy">Sao chép kết quả</button><button type="button" id="bcClr">Xóa hết</button></div>
+      </div>
+    </div>
+    <div class="bc-sep"><span id="bcPayT">Tính tiền thanh toán</span></div>
     <div class="calc-body">
       <div class="calc-in">
         <div class="cfield"><label for="cAmount">Tiền hàng (đ)</label><input id="cAmount" inputmode="numeric" autocomplete="off"></div>
@@ -1764,6 +1801,7 @@
     $('.datebar').style.display = onDay ? '' : 'none';
     $('#calc').style.display = state.tab === 'calc' ? 'block' : 'none';
     $('#fx').style.display = state.tab === 'fx' ? 'block' : 'none';
+    if (state.tab === 'calc') bcShow();
     if (state.tab === 'fx') fxShow();
     renderFilters();
     const lateN = allEvents().filter(e => flags(e).late).length, ln = $('#lateN');
@@ -2854,6 +2892,81 @@
   $('#mtFx').onclick = () => { state.tab = state.tab === 'fx' ? 'day' : 'fx'; $('#mtabs').classList.remove('open'); render(); };
   $('#mtCalc').onclick = () => { state.tab = state.tab === 'calc' ? 'day' : 'calc'; $('#mtabs').classList.remove('open'); render(); };
   document.addEventListener('click', () => $('#mtabs').classList.remove('open'));
+
+  /* ===== MÁY TÍNH CƠ BẢN (cộng tổng tiền nhanh) ===== */
+  const BC = { cur: '', total: null, op: null, tape: [], fresh: false, inited: false, err: false };
+  const BC_KEYS = [['C', 'clr'], ['⌫', 'fn'], ['÷', 'op'], ['×', 'op'], ['7'], ['8'], ['9'], ['−', 'op'], ['4'], ['5'], ['6'], ['+', 'op'], ['1'], ['2'], ['3'], ['=', 'eq'], ['0'], ['000'], [',', 'fn']];
+  const bcVal = t => { const n = parseFloat(String(t).replace(',', '.')); return isFinite(n) ? n : 0; };
+  const bcRound = x => Math.round(x * 1e8) / 1e8;
+  const bcFmt = n => n.toLocaleString('vi-VN', { maximumFractionDigits: 8 });
+  const bcTyped = t => { if (t === '') return '0'; const [i, d] = t.split(','); const ii = Number(i === '' ? '0' : i).toLocaleString('vi-VN'); return d === undefined ? ii : ii + ',' + d; };
+  function bcApply(a, op, b) { return op === '+' ? a + b : op === '−' ? a - b : op === '×' ? a * b : op === '÷' ? (b === 0 ? NaN : a / b) : b; }
+  function bcReset() { BC.cur = ''; BC.total = null; BC.op = null; BC.tape = []; BC.fresh = false; BC.err = false; }
+  function bcPress(k) {
+    if (BC.err) bcReset();
+    if (k === 'C') { bcReset(); }
+    else if (/^\d+$/.test(k) || k === ',') {
+      if (BC.fresh) bcReset();
+      if (k === ',') { if (!BC.cur.includes(',')) BC.cur = (BC.cur || '0') + ','; }
+      else if (BC.cur.replace(',', '').length < 15) {
+        if (k === '000' && (BC.cur === '' || BC.cur === '0')) BC.cur = '0';
+        else BC.cur = BC.cur === '0' ? k : BC.cur + k;
+      }
+    }
+    else if (k === '⌫') { if (!BC.fresh) BC.cur = BC.cur.slice(0, -1); }
+    else if (k === '+' || k === '−' || k === '×' || k === '÷') {
+      if (BC.cur !== '') {
+        const v = bcVal(BC.cur);
+        if (BC.total === null) { BC.total = v; BC.tape.push({ o: '', v }); }
+        else { const r = bcApply(BC.total, BC.op, v); if (!isFinite(r)) { bcReset(); BC.err = true; return bcDraw(); } BC.total = bcRound(r); BC.tape.push({ o: BC.op, v }); }
+        BC.cur = '';
+      }
+      if (BC.total !== null) { BC.op = k; BC.fresh = false; }
+    }
+    else if (k === '=') {
+      if (BC.cur !== '' && BC.total !== null && BC.op) {
+        const v = bcVal(BC.cur), r = bcApply(BC.total, BC.op, v);
+        if (!isFinite(r)) { bcReset(); BC.err = true; return bcDraw(); }
+        BC.tape.push({ o: BC.op, v }); BC.total = bcRound(r); BC.tape.push({ eq: true, v: BC.total });
+        BC.op = null; BC.cur = ''; BC.fresh = true;
+      }
+    }
+    bcDraw();
+  }
+  function bcDraw() {
+    const num = $('#bcNum'), ex = $('#bcExpr');
+    const txt = BC.err ? L('Lỗi (chia cho 0)', 'Error (divide by 0)') : BC.cur !== '' ? bcTyped(BC.cur) : BC.total !== null ? bcFmt(BC.total) : '0';
+    num.textContent = txt; num.className = 'bc-num' + (txt.length > 22 ? ' xs' : txt.length > 13 ? ' sm' : '');
+    ex.textContent = BC.total !== null && BC.op && !BC.fresh ? `${bcFmt(BC.total)} ${BC.op}` : '';
+    const t = $('#bcTape');
+    t.innerHTML = BC.tape.length ? BC.tape.map(x => x.eq ? `<div class="bc-line eq"><span class="o">=</span><span class="v">${esc(bcFmt(x.v))}</span></div>` : `<div class="bc-line"><span class="o">${x.o}</span><span class="v">${esc(bcFmt(x.v))}</span></div>`).join('') : `<div class="bc-empty">${L('Nhập các số cần cộng; mỗi lần bấm + hoặc = sẽ ghi lại một dòng.', 'Enter numbers to add; each + or = adds a line here.')}</div>`;
+    t.scrollTop = t.scrollHeight;
+  }
+  function bcShow() {
+    $('#bcTitle').textContent = L('Máy tính cơ bản', 'Basic calculator'); $('#bcTapeT').textContent = L('Các số đã nhập', 'Entered numbers');
+    $('#bcPayT').textContent = L('Tính tiền thanh toán', 'Payment calculator');
+    $('#bcCopy').textContent = L('Sao chép kết quả', 'Copy result'); $('#bcClr').textContent = L('Xóa hết', 'Clear all');
+    if (!BC.inited) {
+      BC.inited = true;
+      $('#bcKeys').innerHTML = BC_KEYS.map(([k, c]) => `<button type="button" data-k="${k}" class="${c || ''}">${k}</button>`).join('');
+      $('#bcKeys').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) bcPress(b.dataset.k); });
+      $('#bcClr').onclick = () => { bcPress('C'); };
+      $('#bcCopy').onclick = async () => {
+        const n = BC.cur !== '' ? bcVal(BC.cur) : BC.total; if (n === null || BC.err) return;
+        const txt = bcFmt(n);
+        try { await navigator.clipboard.writeText(txt); toast(L('✔ Đã sao chép ', '✔ Copied ') + txt); } catch (e) { toast(L('Không sao chép được — hãy chọn số và sao chép tay', 'Could not copy')); }
+      };
+      document.addEventListener('keydown', e => {   // gõ bằng bàn phím máy tính
+        if (state.tab !== 'calc' || e.ctrlKey || e.metaKey || e.altKey) return;
+        if (document.documentElement.classList.contains('locked') || document.querySelector('dialog[open]')) return;
+        const t = e.target; if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+        const m = { '+': '+', '-': '−', '*': '×', 'x': '×', '/': '÷', 'Enter': '=', '=': '=', 'Backspace': '⌫', 'Escape': 'C', 'Delete': 'C', 'c': 'C', ',': ',', '.': ',' };
+        const k = /^\d$/.test(e.key) ? e.key : m[e.key];
+        if (k) { e.preventDefault(); bcPress(k); }
+      });
+    }
+    bcDraw();
+  }
 
   /* ===== TỶ GIÁ VIETCOMBANK ===== */
   const FX_URL = 'https://portal.vietcombank.com.vn/Usercontrols/TVPortal.TyGia/pXML.aspx';

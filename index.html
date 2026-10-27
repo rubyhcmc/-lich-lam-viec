@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v6.5</title>
+<title>Lịch Làm Việc v6.6</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -348,7 +348,7 @@
   .bc-keys button.op { background: #eaf1ff; color: #1a56c4; border-color: #cddcf7; }
   .bc-keys button.fn { background: #f1f5f9; color: #475569; }
   .bc-keys button.clr { background: #fdecec; color: #b91c1c; border-color: #f6caca; }
-  .bc-keys button.eq { background: var(--primary); color: #fff; border-color: var(--primary); grid-row: span 2; height: auto; }
+  .bc-keys button.eq { background: var(--primary); color: #fff; border-color: var(--primary); }
   .bc-tape { height: 262px; overflow-y: auto; background: #f8f9fb; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; font-variant-numeric: tabular-nums; }
   .bc-line { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; font-size: 17px; border-bottom: 1px dashed #e3e8f0; }
   .bc-line .o { color: #1a56c4; font-weight: 700; min-width: 20px; }
@@ -999,7 +999,7 @@
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 6.5</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 6.6</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -2895,7 +2895,7 @@
 
   /* ===== MÁY TÍNH CƠ BẢN (cộng tổng tiền nhanh) ===== */
   const BC = { cur: '', total: null, op: null, tape: [], fresh: false, inited: false, err: false };
-  const BC_KEYS = [['C', 'clr'], ['⌫', 'fn'], ['÷', 'op'], ['×', 'op'], ['7'], ['8'], ['9'], ['−', 'op'], ['4'], ['5'], ['6'], ['+', 'op'], ['1'], ['2'], ['3'], ['=', 'eq'], ['0'], ['000'], [',', 'fn']];
+  const BC_KEYS = [['C', 'clr'], ['⌫', 'fn'], ['%', 'op'], ['÷', 'op'], ['7'], ['8'], ['9'], ['×', 'op'], ['4'], ['5'], ['6'], ['−', 'op'], ['1'], ['2'], ['3'], ['+', 'op'], ['0'], ['000'], [',', 'fn'], ['=', 'eq']];
   const bcVal = t => { const n = parseFloat(String(t).replace(',', '.')); return isFinite(n) ? n : 0; };
   const bcRound = x => Math.round(x * 1e8) / 1e8;
   const bcFmt = n => n.toLocaleString('vi-VN', { maximumFractionDigits: 8 });
@@ -2911,6 +2911,13 @@
       else if (BC.cur.replace(',', '').length < 15) {
         if (k === '000' && (BC.cur === '' || BC.cur === '0')) BC.cur = '0';
         else BC.cur = BC.cur === '0' ? k : BC.cur + k;
+      }
+    }
+    else if (k === '%') {   // a + b% = a + (a×b/100); a × b% = a×b/100; một mình: b/100
+      if (BC.cur !== '') {
+        const b = bcVal(BC.cur);
+        const r = BC.total !== null && (BC.op === '+' || BC.op === '−') ? BC.total * b / 100 : b / 100;
+        BC.cur = String(bcRound(r)).replace('.', ',');
       }
     }
     else if (k === '⌫') { if (!BC.fresh) BC.cur = BC.cur.slice(0, -1); }
@@ -2960,7 +2967,7 @@
         if (state.tab !== 'calc' || e.ctrlKey || e.metaKey || e.altKey) return;
         if (document.documentElement.classList.contains('locked') || document.querySelector('dialog[open]')) return;
         const t = e.target; if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
-        const m = { '+': '+', '-': '−', '*': '×', 'x': '×', '/': '÷', 'Enter': '=', '=': '=', 'Backspace': '⌫', 'Escape': 'C', 'Delete': 'C', 'c': 'C', ',': ',', '.': ',' };
+        const m = { '+': '+', '-': '−', '*': '×', 'x': '×', '/': '÷', '%': '%', 'Enter': '=', '=': '=', 'Backspace': '⌫', 'Escape': 'C', 'Delete': 'C', 'c': 'C', ',': ',', '.': ',' };
         const k = /^\d$/.test(e.key) ? e.key : m[e.key];
         if (k) { e.preventDefault(); bcPress(k); }
       });

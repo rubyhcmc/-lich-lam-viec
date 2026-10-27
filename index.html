@@ -276,6 +276,7 @@ details a{color:var(--accent)}
       <button class="btn" id="btnAdmin">🔒 Quản lý dữ liệu</button>
       <button class="btn primary" id="closeSettings" style="margin-left:auto">Xong</button>
     </div>
+    <div id="verTag" style="font-size:12px;color:var(--muted);text-align:center;margin-top:14px"></div>
   </div>
 </div>
 
@@ -489,6 +490,7 @@ JSON: bấm "Chèn mẫu định dạng" để xem.</pre>
  * ========================================================= */
 const ADMIN_PASSWORD = '123456';       // mật khẩu ban đầu
 const RECOVERY_CODE  = 'khoiphuc-kt'; // mã khôi phục khi quên mật khẩu đã đổi (gõ vào ô mật khẩu). Hãy đổi; để '' là tắt
+const APP_VERSION = '2026.10.27-d';   // hiện ở cuối Cài đặt để biết máy đang chạy bản nào
 const DB_NAME = 'kinhthanh-pwa';
 const DEFAULT_REPO_NAME = 'kinh-thanh-data';
 const DEFAULT_FILE = 'kinhthanh-data.json';
@@ -1139,7 +1141,7 @@ setInterval(() => { if (ghOn() && document.visibilityState === 'visible' && Date
 const isAdmin = () => sessionStorage.getItem('kt.admin') === '1';
 function show(id, on = true){ $(id).hidden = !on; }
 
-$('#btnSettings').onclick = () => show('#settings');
+$('#btnSettings').onclick = () => { $('#verTag').textContent = 'Phiên bản ' + APP_VERSION; show('#settings'); };
 $('#closeSettings').onclick = () => show('#settings', false);
 $('#settings').onclick = e => { if (e.target.id === 'settings') show('#settings', false); };
 $('#btnAdmin').onclick = () => { show('#settings', false); isAdmin() ? openAdmin() : (show('#login'), $('#pw').value = '', $('#loginErr').textContent = '', setTimeout(() => $('#pw').focus(), 50)); };
@@ -2101,7 +2103,17 @@ function setupPWA(){
     m.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type:'application/manifest+json' }));
     document.head.appendChild(m);
   } catch(e){}
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+  if ('serviceWorker' in navigator){
+    const had = !!navigator.serviceWorker.controller; let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {       // có bản mới → tự tải lại (trừ khi đang soạn)
+      if (!had || reloaded) return; reloaded = true;
+      if ($('#editor').hidden && $('#admin').hidden) location.reload(); else toast('Có bản mới – đóng trang soạn rồi mở lại app để cập nhật');
+    });
+    navigator.serviceWorker.register('./sw.js', { updateViaCache:'none' }).then(reg => {
+      reg.update().catch(() => {});
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    }).catch(() => {});
+  }
   navigator.storage?.persist?.().catch(() => {});   // xin trình duyệt không tự xóa dữ liệu
 }
 function updateOnline(){ $('#offlineBadge').hidden = navigator.onLine; }

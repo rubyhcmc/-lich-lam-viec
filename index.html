@@ -1117,7 +1117,6 @@
   </section>
 </div>
 
-<footer class="site-foot" id="siteFoot"><span id="ftTxt"></span></footer>
 
 <!-- Form thêm/sửa đơn -->
 <dialog id="dlg">
@@ -3840,8 +3839,6 @@
       const v = lang === 'en' ? en : el.dataset[k];
       if (attr) el.setAttribute(attr, v); else el.textContent = v;
     });
-    var ft = document.getElementById('ftTxt');
-    if (ft) ft.textContent = lang === 'en' ? window.__ftEn : window.__ftVi;
     document.documentElement.lang = lang;
     document.title = L('Lịch Làm Việc', 'Work Schedule');
     document.querySelectorAll('#langSeg button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
@@ -3886,21 +3883,14 @@
    - Dữ liệu nhạy cảm trong localStorage (đơn, ghi chú, danh sách khách, token Google) và bản lịch sử trong IndexedDB
      được mã hóa AES-256-GCM, khóa sinh từ mật khẩu bằng PBKDF2-SHA256 (200.000 vòng). Mật khẩu KHÔNG được lưu ở đâu cả.
    - Không có dữ liệu nào đi ra ngoài: web chỉ nói chuyện với Google Drive (nếu bạn bật đồng bộ) và nguồn tỷ giá.
-   - Chỉnh tên chủ sở hữu ở chân trang: tìm "OWNER_NAME" bên dưới. */
+   */
 (function () {
   'use strict';
-  var OWNER_NAME = 'RubyHCMC';
   var AUTOLOCK_MS = 5 * 60 * 1000;          // quay lại web sau 5 phút ở nền → khóa lại
   var META = 'phiphi_lock_v1', PREFIX = 'ENC1:', ITER = 200000, MINLEN = 8;
   var lang = 'vi'; try { lang = localStorage.getItem('phiphi_lang_v1') === 'en' ? 'en' : 'vi'; } catch (e) {}
   var T = function (vi, en) { return lang === 'en' ? en : vi; };
   var $ = function (id) { return document.getElementById(id); };
-
-  // ---- Chân trang bản quyền ----
-  var yr = new Date().getFullYear(), yrs = yr > 2026 ? '2026\u2013' + yr : '2026';
-  window.__ftVi = '© ' + yrs + ' Lịch Làm Việc · Bản quyền thuộc về ' + OWNER_NAME + '. Mọi quyền được bảo lưu.';
-  window.__ftEn = '© ' + yrs + ' Work Schedule · Copyright ' + OWNER_NAME + '. All rights reserved.';
-  if ($('ftTxt')) $('ftTxt').textContent = lang === 'en' ? window.__ftEn : window.__ftVi;
 
   var G = Storage.prototype.getItem, S = Storage.prototype.setItem, R = Storage.prototype.removeItem;
   var subtle = window.crypto && crypto.subtle;
@@ -4044,9 +4034,7 @@
     '.lk-btn{width:100%;padding:13px;font-size:18px;font-weight:700;color:#fff;background:#1a73e8;border:none;border-radius:12px}' +
     '.lk-btn:disabled{opacity:.55}' +
     '.lk-link{margin-top:10px;background:none;border:none;color:#1a73e8;font-size:14.5px;text-decoration:underline;padding:6px}' +
-    '.lk-warn{margin:10px 0 0;padding:9px 10px;font-size:13px;line-height:1.4;color:#7c4a03;background:#fff7e0;border:1px solid #f0dc8a;border-radius:10px;text-align:left}' +
-    '.site-foot{max-width:900px;margin:18px auto 0;padding:12px 16px calc(24px + env(safe-area-inset-bottom));text-align:center;font-size:12.5px;line-height:1.5;color:#64748b;-webkit-user-select:none;user-select:none}' +
-    '@media(max-width:560px){.site-foot{padding-bottom:96px;font-size:13px}}';
+    '.lk-warn{margin:10px 0 0;padding:9px 10px;font-size:13px;line-height:1.4;color:#7c4a03;background:#fff7e0;border:1px solid #f0dc8a;border-radius:10px;text-align:left}';
   document.head.appendChild(css);
 
   var scr = document.createElement('div'); scr.id = 'lockScr'; scr.setAttribute('role', 'dialog'); scr.setAttribute('aria-modal', 'true');

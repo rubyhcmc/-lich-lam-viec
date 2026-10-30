@@ -4210,10 +4210,10 @@
   // ---- Khởi động ----
   function startApp() {
     if (started) return; started = true; window.__lkStarted = true;
-    if (key) patchStorage();   // từ đây mọi đọc/ghi dữ liệu nhạy cảm đi qua lớp mã hóa
+    if (key) patchStorage();   // chỉ còn dùng khi chưa gỡ được mã hóa cũ
+    ['btnLockNow', 'btnLockChg'].forEach(function (id) { var b = $(id); if (b) b.style.display = 'none'; });
     var code = $('appcode'); if (!code) return;
     var s = document.createElement('script'); s.text = code.textContent; document.body.appendChild(s);
-    wireMenu();
   }
   function lockNow() {
     if (locked || !started) return;
@@ -4239,7 +4239,28 @@
   }
   var raw = null; try { raw = G.call(localStorage, META); } catch (e) {}
   if (raw) { try { meta = JSON.parse(raw); if (!meta || !meta.salt || !meta.check) meta = null; } catch (e) { meta = null; } }
-  ui(raw ? 'unlock' : 'setup').then(startApp);
+  // Đã gỡ khóa: không còn màn hình mật khẩu. Nếu máy này từng đặt mật khẩu (dữ liệu đang mã hóa),
+  // nhập mật khẩu MỘT LẦN cuối để giải mã dữ liệu về dạng thường, rồi từ đó mở thẳng vào app.
+  async function removeLock() {
+    var ok = true, ks = sensKeys(), i, v;
+    for (i = 0; i < ks.length; i++) {
+      v = G.call(localStorage, ks[i]);
+      if (v && v.indexOf(PREFIX) === 0) {
+        try { S.call(localStorage, ks[i], await decS(v, key)); } catch (e) { ok = false; }
+      }
+    }
+    try {
+      await histRemap(function (d) {
+        if (typeof d === 'string' && d.indexOf(PREFIX) === 0) return decS(d, key).catch(function () { ok = false; return d; });
+        return d;
+      });
+    } catch (e) { ok = false; }
+    if (ok) { try { R.call(localStorage, META); } catch (e) {} key = null; kgen++; }
+    else { try { await loadAll(); } catch (e) {} }   // không giải mã hết được → giữ nguyên khóa, tuyệt đối không làm mất dữ liệu
+    return ok;
+  }
+  if (!raw) { document.documentElement.classList.remove('locked'); startApp(); }
+  else ui('unlock').then(removeLock).then(startApp);
   // Chốt an toàn: nếu vì lỗi gì đó mà không hiện khóa cũng không chạy app → mở app (kèm cảnh báo) thay vì để trắng trang
   setTimeout(function () { if (!window.__lkStarted && !scr.classList.contains('on')) { document.documentElement.classList.remove('locked'); startApp(); } }, 4000);
 })();

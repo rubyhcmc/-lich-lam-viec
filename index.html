@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v6.6</title>
+<title>Lịch Làm Việc v6.7</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -955,8 +955,6 @@
 </style>
 <meta name="author" content="RubyHCMC">
 <meta name="copyright" content="© 2026 RubyHCMC. All rights reserved.">
-<style>html.locked body > *:not(#lockScr){visibility:hidden!important}</style>
-<script>document.documentElement.classList.add('locked');</script>
 </head>
 <body>
 <div class="app">
@@ -992,14 +990,12 @@
           <button type="button" id="btnHist">🕘 Lịch sử phiên bản — khôi phục theo ngày giờ…</button>
           <button type="button" id="btnUndoSync" hidden>↩ Hoàn tác lần đồng bộ gần nhất</button>
           <hr>
-          <button type="button" id="btnLockNow">🔒 Khóa ngay</button>
-          <button type="button" id="btnLockChg">🔑 Đổi mật khẩu</button>
           <hr>
           <div class="bk-status" id="bkStatus"></div>
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 6.6</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 6.7</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -2965,7 +2961,7 @@
       };
       document.addEventListener('keydown', e => {   // gõ bằng bàn phím máy tính
         if (state.tab !== 'calc' || e.ctrlKey || e.metaKey || e.altKey) return;
-        if (document.documentElement.classList.contains('locked') || document.querySelector('dialog[open]')) return;
+        if (document.querySelector('dialog[open]')) return;
         const t = e.target; if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
         const m = { '+': '+', '-': '−', '*': '×', 'x': '×', '/': '÷', '%': '%', 'Enter': '=', '=': '=', 'Backspace': '⌫', 'Escape': 'C', 'Delete': 'C', 'c': 'C', ',': ',', '.': ',' };
         const k = /^\d$/.test(e.key) ? e.key : m[e.key];
@@ -3811,7 +3807,7 @@
     ['.brand h1', 'Work Schedule'], ['.brand small', 'Pickup · Fitting · Delivery'],
     ['#prevDay', 'Previous day', 'aria-label'], ['#today', 'Today'], ['#nextDay', 'Next day', 'aria-label'],
     ['#btnNotify', 'Remind me of upcoming tasks', 'title'], ['#btnMenu .mn-txt', ' Tools ▾'],
-    ['#btnPrint', '🖨 Print schedule'], ['#btnLockNow', '🔒 Lock now'], ['#btnLockChg', '🔑 Change password'], ['#ftTxt', window.__ftEn], ['#btnSync', '☁ Google Drive sync…'], ['#btnUndoImport', '↩ Undo the last file import'], ['#impTitle', '⬆ Import backup file'], ['#impMerge', '➕ Merge into existing data (recommended)'], ['#impReplace', '♻ Replace everything with this file'], ['#impCancel', 'Cancel'], ['#impHint', 'Merge keeps your current orders; on a clash the file version wins. You can restore afterwards from the Tools menu.'], ['#syncTitle', '☁ Google Drive sync'], ['#syncCidLbl', 'Google Client ID'], ['#syncClose', 'Close'], ['#btnFixItems', '🧵 Convert old items to item lists…'], ['#btnExport', '⬇ Export backup file'], ['#btnImport', '⬆ Import backup file'],
+    ['#btnPrint', '🖨 Print schedule'], ['#ftTxt', window.__ftEn], ['#btnSync', '☁ Google Drive sync…'], ['#btnUndoImport', '↩ Undo the last file import'], ['#impTitle', '⬆ Import backup file'], ['#impMerge', '➕ Merge into existing data (recommended)'], ['#impReplace', '♻ Replace everything with this file'], ['#impCancel', 'Cancel'], ['#impHint', 'Merge keeps your current orders; on a clash the file version wins. You can restore afterwards from the Tools menu.'], ['#syncTitle', '☁ Google Drive sync'], ['#syncCidLbl', 'Google Client ID'], ['#syncClose', 'Close'], ['#btnFixItems', '🧵 Convert old items to item lists…'], ['#btnExport', '⬇ Export backup file'], ['#btnImport', '⬆ Import backup file'],
     ['#btnBkPick', '🛡 Turn on auto backup (pick a folder)…'], ['#btnBkRename', '✏ Change backup folder…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '📄 Overwrite JSON file'], ['#btnHist', '🕘 Version history — restore by date & time…'], ['#btnBkOff', '⏹ Turn off auto backup'],
     ['#btnAdd', '＋ Add schedule'],
     ['.tab[data-tab="day"]', 'Today'], ['.tab[data-tab="week"]', 'Next 7 days'],
@@ -3878,379 +3874,133 @@
 })();
 </script>
 <script>
-/* ============ KHÓA MẬT KHẨU + MÃ HÓA DỮ LIỆU TRÊN MÁY ============
-   - Mở web → hỏi mật khẩu → mới nạp app. Chưa mở khóa thì không có dữ liệu nào hiện ra.
-   - Dữ liệu nhạy cảm trong localStorage (đơn, ghi chú, danh sách khách, token Google) và bản lịch sử trong IndexedDB
-     được mã hóa AES-256-GCM, khóa sinh từ mật khẩu bằng PBKDF2-SHA256 (200.000 vòng). Mật khẩu KHÔNG được lưu ở đâu cả.
-   - Không có dữ liệu nào đi ra ngoài: web chỉ nói chuyện với Google Drive (nếu bạn bật đồng bộ) và nguồn tỷ giá.
+/* ============ CHÂN TRANG BẢN QUYỀN + KHỞI ĐỘNG APP ============
+   - Không còn màn hình khóa: mở web là vào thẳng app.
+   - Nếu máy này TRƯỚC ĐÂY từng bật khóa mật khẩu (dữ liệu đang mã hóa) thì hỏi mật khẩu cũ MỘT LẦN
+     để chuyển dữ liệu về dạng thường, sau đó không hỏi nữa.
    - Chỉnh tên chủ sở hữu ở chân trang: tìm "OWNER_NAME" bên dưới. */
 (function () {
   'use strict';
   var OWNER_NAME = 'RubyHCMC';
-  var AUTOLOCK_MS = 5 * 60 * 1000;          // quay lại web sau 5 phút ở nền → khóa lại
-  var META = 'phiphi_lock_v1', PREFIX = 'ENC1:', ITER = 200000, MINLEN = 8;
+  var META = 'phiphi_lock_v1', PREFIX = 'ENC1:';
   var lang = 'vi'; try { lang = localStorage.getItem('phiphi_lang_v1') === 'en' ? 'en' : 'vi'; } catch (e) {}
   var T = function (vi, en) { return lang === 'en' ? en : vi; };
   var $ = function (id) { return document.getElementById(id); };
 
-  // ---- Chân trang bản quyền ----
   var yr = new Date().getFullYear(), yrs = yr > 2026 ? '2026–' + yr : '2026';
   window.__ftVi = '© ' + yrs + ' Lịch Làm Việc · Bản quyền thuộc về ' + OWNER_NAME + '. Mọi quyền được bảo lưu.';
   window.__ftEn = '© ' + yrs + ' Work Schedule · Copyright ' + OWNER_NAME + '. All rights reserved.';
   if ($('ftTxt')) $('ftTxt').textContent = lang === 'en' ? window.__ftEn : window.__ftVi;
 
-  var G = Storage.prototype.getItem, S = Storage.prototype.setItem, R = Storage.prototype.removeItem;
+  var started = false;
+  function startApp() {
+    if (started) return; started = true;
+    var code = $('appcode'); if (!code) return;
+    var s = document.createElement('script'); s.text = code.textContent; document.body.appendChild(s);
+  }
+
+  var LS = window.localStorage, raw = null;
+  try { raw = LS.getItem(META); } catch (e) {}
   var subtle = window.crypto && crypto.subtle;
+  if (!raw) { startApp(); return; }                       // trường hợp bình thường: vào thẳng app
+  var meta = null; try { meta = JSON.parse(raw); } catch (e) {}
+  if (!meta || !meta.salt || !meta.check || !subtle) {     // không đọc được mốc khóa cũ → bỏ qua, vào app
+    try { LS.removeItem(META); } catch (e) {}
+    startApp(); return;
+  }
+
+  // ---- Chuyển dữ liệu cũ (đã mã hóa) về dạng thường — chỉ chạy 1 lần ----
   var te = new TextEncoder(), td = new TextDecoder();
-  var key = null, kgen = 0, meta = null, started = false, locked = true;
-  var cache = new Map(), dirty = new Set(), working = false;
-
-  var SENS = function (k) {
-    return k === 'phiphi_schedule_v2' || k.indexOf('phiphi_schedule_v2_corrupt_') === 0 || k === 'phiphi_day_notes_v1' ||
-      k === 'phiphi_customers_v1' || k === 'phiphi_pre_sync_snapshot_v1' || k === 'phiphi_gd_token_v1';
-  };
-
-  function b64(u) { var s = '', i; for (i = 0; i < u.length; i += 8192) s += String.fromCharCode.apply(null, u.subarray(i, i + 8192)); return btoa(s); }
   function unb64(s) { var b = atob(s), u = new Uint8Array(b.length), i; for (i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
-  function derive(pw, salt, iter) {
+  function derive(pw) {
     return subtle.importKey('raw', te.encode(pw), 'PBKDF2', false, ['deriveKey']).then(function (km) {
-      return subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt: salt, iterations: iter }, km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+      return subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt: unb64(meta.salt), iterations: meta.iter || 200000 }, km, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
     });
   }
-  function encS(str, k) {
-    var iv = crypto.getRandomValues(new Uint8Array(12));
-    return subtle.encrypt({ name: 'AES-GCM', iv: iv }, k, te.encode(str)).then(function (ct) {
-      var c = new Uint8Array(ct), o = new Uint8Array(12 + c.length); o.set(iv); o.set(c, 12); return PREFIX + b64(o);
-    });
-  }
-  function decS(blob, k) {
+  function dec(blob, k) {
     var u = unb64(blob.slice(PREFIX.length));
     return subtle.decrypt({ name: 'AES-GCM', iv: u.slice(0, 12) }, k, u.slice(12)).then(function (pt) { return td.decode(pt); });
   }
-
-  // ---- Ghi mã hóa xuống localStorage (hàng đợi, bản mới nhất thắng) ----
-  function flushLoop() {
-    if (working) return; working = true;
-    (function next() {
-      var k = dirty.values().next().value;
-      if (k === undefined) { working = false; return; }
-      dirty.delete(k);
-      if (!cache.has(k)) { next(); return; }
-      var v = cache.get(k), kk = key, g = kgen;
-      encS(v, kk).then(function (blob) {
-        if (g !== kgen) { dirty.add(k); return; }      // khóa vừa đổi giữa chừng → mã hóa lại bằng khóa mới
-        if (cache.get(k) !== v) { dirty.add(k); return; } // có bản mới hơn → để vòng sau
-        try { S.call(localStorage, k, blob); } catch (e) {}
-      }).catch(function () {}).then(next);
-    })();
-  }
-  function idle() { return new Promise(function (res) { (function w() { if (!working && !dirty.size) res(); else setTimeout(w, 20); })(); }); }
-
-  var patched = false;
-  function patchStorage() {
-    if (patched) return; patched = true;
-    Storage.prototype.getItem = function (k) {
-      if (this === localStorage && SENS(k)) return cache.has(k) ? cache.get(k) : null;
-      return G.call(this, k);
-    };
-    Storage.prototype.setItem = function (k, v) {
-      if (this === localStorage && SENS(k)) { cache.set(k, String(v)); dirty.add(k); flushLoop(); return; }
-      return S.call(this, k, v);
-    };
-    Storage.prototype.removeItem = function (k) {
-      if (this === localStorage && SENS(k)) { cache.delete(k); dirty.delete(k); return R.call(this, k); }
-      return R.call(this, k);
-    };
-  }
-
-  function sensKeys() { var a = [], i, k; for (i = 0; i < localStorage.length; i++) { k = localStorage.key(i); if (k && SENS(k)) a.push(k); } return a; }
-
-  // Nạp dữ liệu đã mã hóa vào bộ nhớ; dữ liệu cũ (chưa mã hóa) được mã hóa tại chỗ, kiểm tra đọc lại rồi mới thay
-  async function loadAll() {
-    var ks = sensKeys(), i, k, raw, blob, back;
-    for (i = 0; i < ks.length; i++) {
-      k = ks[i]; raw = G.call(localStorage, k); if (raw == null) continue;
-      if (raw.indexOf(PREFIX) === 0) {
-        try { cache.set(k, await decS(raw, key)); }
-        catch (e) { try { S.call(localStorage, k + '_unreadable_' + Date.now(), raw); } catch (e2) {} }
-      } else {
-        cache.set(k, raw);
-        try { blob = await encS(raw, key); back = await decS(blob, key); if (back === raw) S.call(localStorage, k, blob); } catch (e) {}
-      }
-    }
-  }
-
-  // ---- IndexedDB: lịch sử phiên bản (mã hóa phần data) ----
-  function idbOpen() {
+  function idbHistory(mapper) {   // mapper(data) → Promise<data mới | null>; mapper=null → xóa lịch sử
     return new Promise(function (res) {
-      if (!('indexedDB' in window)) return res(null);
-      var r; try { r = indexedDB.open('phiphi_backup_db'); } catch (e) { return res(null); }
-      r.onupgradeneeded = function () { try { r.transaction.abort(); } catch (e) {} };   // DB chưa có → không tự tạo (để app tạo đúng cấu trúc)
-      r.onsuccess = function () { var db = r.result; if (!db.objectStoreNames.contains('handles')) { db.close(); return res(null); } res(db); };
-      r.onerror = function () { res(null); }; r.onblocked = function () { res(null); };
-    });
-  }
-  function idbDo(db, mode, fn) {
-    return new Promise(function (res) {
-      try { var tx = db.transaction('handles', mode), rq = fn(tx.objectStore('handles')); tx.oncomplete = function () { res(rq ? rq.result : true); }; tx.onerror = tx.onabort = function () { res(undefined); }; }
-      catch (e) { res(undefined); }
-    });
-  }
-  async function histRemap(mapper) {   // mapper(data) → data mới (async)
-    var db = await idbOpen(); if (!db) return;
-    try {
-      var list = await idbDo(db, 'readonly', function (st) { return st.get('history'); });
-      if (!Array.isArray(list) || !list.length) return;
-      var out = [], i;
-      for (i = 0; i < list.length; i++) { var e = list[i], d = await mapper(e.data); if (d != null) out.push(Object.assign({}, e, { data: d })); }
-      await idbDo(db, 'readwrite', function (st) { return st.put(out, 'history'); });
-    } finally { db.close(); }
-  }
-  async function histEncryptLegacy() { await histRemap(function (d) { return typeof d === 'string' && d.indexOf(PREFIX) !== 0 ? encS(d, key) : d; }); }
-
-  // API cho phần app (lịch sử phiên bản)
-  window.__LK = {
-    enc: function (s) { return key ? encS(s, key) : Promise.resolve(s); },
-    dec: function (s) {
-      if (typeof s !== 'string' || s.indexOf(PREFIX) !== 0) return Promise.resolve(s);
-      return key ? decS(s, key).catch(function () { return null; }) : Promise.resolve(null);
-    }
-  };
-
-  // ---- Giao diện khóa ----
-  var css = document.createElement('style');
-  css.textContent =
-    'html.locked body > *:not(#lockScr){visibility:hidden!important}' +
-    '#lockScr{position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;padding:16px;background:linear-gradient(160deg,#eaf1ff,#f6f8fd 55%,#e8f3ee);overflow:auto}' +
-    '#lockScr.on{display:flex}' +
-    '.lk-card{width:100%;max-width:380px;background:#fff;border:1px solid #dbe3f3;border-radius:18px;box-shadow:0 18px 50px rgba(15,23,42,.16);padding:24px 20px;text-align:center;color:#0f172a}' +
-    '.lk-ic{width:58px;height:58px;margin:0 auto 10px;border-radius:16px;background:linear-gradient(135deg,#1a73e8,#4f8df0);color:#fff;display:flex;align-items:center;justify-content:center}' +
-    '.lk-ic svg{width:30px;height:30px}' +
-    '.lk-card h1{margin:0 0 4px;font-size:22px}' +
-    '.lk-card p{margin:0 0 14px;font-size:14.5px;color:#475569;line-height:1.45}' +
-    '.lk-card input[type=password],.lk-card input[type=text]{width:100%;box-sizing:border-box;margin:5px 0;padding:13px 14px;font-size:18px;border:1px solid #c5d0e6;border-radius:12px;background:#fff;text-align:center}' +
-    '.lk-card input:focus{outline:none;border-color:#1a73e8;box-shadow:0 0 0 3px rgba(26,115,232,.18)}' +
-    '.lk-meter{display:flex;align-items:center;gap:8px;margin:2px 2px 4px;font-size:13px;color:#475569}' +
-    '.lk-bar{flex:1;height:7px;border-radius:6px;background:#e5eaf3;overflow:hidden}.lk-bar i{display:block;height:100%;width:0;border-radius:6px;transition:width .2s,background .2s}' +
-    '.lk-card p:empty{display:none}' +
-    '.lk-pin{letter-spacing:5px;font-size:24px!important}' +
-    '.lk-err.ok{color:#15803d}.lk-err.soft{font-weight:500;color:#64748b}' +
-    '.lk-sec{width:100%;margin-top:12px;padding:12px;font-size:16px;font-weight:600;color:#1a73e8;background:#fff;border:1px solid #c5d0e6;border-radius:12px}.lk-sec:active{background:#eef4ff}' +
-    '.lk-row{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 0 2px;font-size:14px;color:#475569}' +
-    '.lk-err{min-height:20px;margin:6px 0;font-size:14px;color:#b91c1c;font-weight:600}' +
-    '.lk-btn{width:100%;padding:13px;font-size:18px;font-weight:700;color:#fff;background:#1a73e8;border:none;border-radius:12px}' +
-    '.lk-btn:disabled{opacity:.55}' +
-    '.lk-link{margin-top:10px;background:none;border:none;color:#1a73e8;font-size:14.5px;text-decoration:underline;padding:6px}' +
-    '.lk-warn{margin:10px 0 0;padding:9px 10px;font-size:13px;line-height:1.4;color:#7c4a03;background:#fff7e0;border:1px solid #f0dc8a;border-radius:10px;text-align:left}' +
-    '.site-foot{max-width:900px;margin:18px auto 0;padding:12px 16px calc(24px + env(safe-area-inset-bottom));text-align:center;font-size:12.5px;color:#64748b}' +
-    '@media(max-width:560px){.site-foot{padding-bottom:96px;font-size:13px}}';
-  document.head.appendChild(css);
-
-  var scr = document.createElement('div'); scr.id = 'lockScr'; scr.setAttribute('role', 'dialog'); scr.setAttribute('aria-modal', 'true');
-  scr.innerHTML = '<form class="lk-card" id="lkForm" autocomplete="on" novalidate><div class="lk-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor"/></svg></div>' +
-    '<h1 id="lkTitle"></h1><p id="lkSub"></p>' +
-    '<input type="text" id="lkUser" name="username" value="lichlamviec" autocomplete="username" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">' +
-    '<input type="password" id="lkOld" name="old-password" autocomplete="current-password" enterkeyhint="go" hidden>' +
-    '<input type="password" id="lkPw" name="password" class="lk-pin" autocomplete="current-password" inputmode="numeric" pattern="[0-9]*" enterkeyhint="go">' +
-    '<div class="lk-meter" id="lkMeter" hidden><div class="lk-bar"><i id="lkBar"></i></div><span id="lkMeterT"></span></div>' +
-    '<input type="password" id="lkPw2" name="password2" class="lk-pin" autocomplete="new-password" inputmode="numeric" pattern="[0-9]*" enterkeyhint="go" hidden>' +
-    '<label class="lk-row"><input type="checkbox" id="lkShow"> <span id="lkShowL"></span></label>' +
-    '<div class="lk-err" id="lkErr" role="alert"></div>' +
-    '<button type="submit" class="lk-btn" id="lkGo"></button>' +
-    '<div class="lk-warn" id="lkWarn" hidden></div>' +
-    '<button type="button" class="lk-sec" id="lkSave"></button>' +
-    '<button type="button" class="lk-link" id="lkAlt" hidden></button></form>' +
-    '<form id="lkSaveForm" method="post" action="about:blank" target="lkSinkFrame" autocomplete="on" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><input type="text" name="username" autocomplete="username" value="lichlamviec" tabindex="-1"><input type="password" id="lkSavePw" name="password" autocomplete="current-password" tabindex="-1"></form>' +
-    '<iframe name="lkSinkFrame" title="" tabindex="-1" style="display:none"></iframe>';
-  document.body.appendChild(scr);
-
-  var MINPIN = 6;
-  function strength(pw) { var n = pw.length; return n < MINPIN ? -1 : n < 8 ? 0 : n < 10 ? 1 : 2; }   // -1 quá ngắn · 0 yếu · 1 khá · 2 mạnh
-  function meter() {
-    var pw = $('lkPw').value, st = strength(pw);
-    $('lkBar').style.width = (st < 0 ? (pw ? 14 : 0) : [34, 67, 100][st]) + '%';
-    $('lkBar').style.background = st < 1 ? '#dc2626' : st === 1 ? '#f59e0b' : '#16a34a';
-    $('lkMeterT').textContent = !pw ? '' : st < 0 ? T('Quá ngắn', 'Too short') : [T('Yếu', 'Weak'), T('Khá', 'Fair'), T('Mạnh', 'Strong')][st];
-  }
-  var autoFn = null, pollT = 0, digitsOnly = false;
-  $('lkPw').addEventListener('input', function () { if (digitsOnly) this.value = this.value.replace(/\D/g, ''); meter(); if (!autoFn) return; if ($('lkErr').classList.contains('soft')) setErr(''); autoFn(); });
-  $('lkPw2').addEventListener('input', function () { this.value = this.value.replace(/\D/g, ''); });
-  function saveCred(pw) {   // đưa mật khẩu cho trình quản lý mật khẩu (iCloud Keychain/Chrome) để lần sau điền bằng vân tay
-    try { if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) navigator.credentials.store(new PasswordCredential({ id: 'lichlamviec', password: pw, name: 'Lịch Làm Việc' })); } catch (e) {}
-    try { var f = $('lkSaveForm'); $('lkSavePw').value = pw; if (f.requestSubmit) f.requestSubmit(); else f.submit(); setTimeout(function () { $('lkSavePw').value = ''; }, 2000); } catch (e) {}
-  }
-  function setErr(t, ok) { var e = $('lkErr'); e.textContent = t || ''; e.className = 'lk-err' + (ok ? ' ok' : ''); }
-  function softErr(t) { setErr(t); $('lkErr').classList.add('soft'); }
-  function fields(vis) { ['lkOld', 'lkPw', 'lkPw2'].forEach(function (id) { $(id).hidden = !vis[id]; $(id).value = ''; }); }
-  $('lkShow').onchange = function () { ['lkOld', 'lkPw', 'lkPw2'].forEach(function (id) { $(id).type = $('lkShow').checked ? 'text' : 'password'; }); };
-  $('lkForm').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); if (this.onsubmit) this.onsubmit(e); } });
-  $('lkSave').onclick = function () {
-    var pw = $('lkPw').value;
-    if (!pw) return setErr(T('Nhập mật khẩu trước rồi bấm Lưu.', 'Type the password first, then tap Save.'));
-    saveCred(pw); setErr(T('Đã gửi cho trình quản lý mật khẩu — nếu máy hỏi, hãy chọn Lưu.', 'Sent to your password manager — choose Save if asked.'), true);
-  };
-
-  var fails = 0, until = 0;
-  function focusPrimary() {   // đưa con trỏ vào ô nhập (ô mật khẩu cũ khi đổi mật khẩu)
-    if (!scr.classList.contains('on')) return;
-    var el = $('lkOld').hidden ? $('lkPw') : $('lkOld');
-    try { el.focus({ preventScroll: true }); } catch (e) { try { el.focus(); } catch (e2) {} }
-  }
-  // iPhone chỉ bật bàn phím khi có chạm của người dùng → chạm BẤT KỲ đâu trên màn hình khóa cũng đưa con trỏ vào ô và bật bàn phím số
-  ['click', 'touchend'].forEach(function (ev) {
-    scr.addEventListener(ev, function (e) { if (!e.target.closest('button, a, label, select, input')) focusPrimary(); }, { passive: true });
-  });
-  window.addEventListener('pageshow', function () { setTimeout(focusPrimary, 50); });
-  window.addEventListener('focus', function () { setTimeout(focusPrimary, 50); });
-  function show(on) { scr.classList.toggle('on', on); document.documentElement.classList.toggle('locked', on); locked = on; }
-
-  // mode: setup | unlock | change ; trả về Promise (resolve khi xong, reject khi hủy ở chế độ change)
-  function ui(mode) {
-    return new Promise(function (resolve, reject) {
-      var form = $('lkForm'), go = $('lkGo'), alt = $('lkAlt'), warn = $('lkWarn');
-      clearInterval(pollT); autoFn = null; digitsOnly = false;
-      $('lkShowL').textContent = T('Hiện mật khẩu', 'Show password'); $('lkShow').checked = false; $('lkShow').onchange();
-      $('lkSave').textContent = T('💾 Lưu mật khẩu', '💾 Save password');
-      setErr(''); warn.hidden = true; alt.hidden = true; go.hidden = false; go.disabled = false; $('lkSub').textContent = '';
-      $('lkShow').parentNode.hidden = false; $('lkMeter').hidden = true; $('lkPw').placeholder = ''; $('lkPw2').placeholder = ''; $('lkOld').placeholder = '';
-      $('lkOld').setAttribute('inputmode', 'text'); $('lkPw').setAttribute('inputmode', 'numeric');
-      show(true);
-      function fin(v) { clearInterval(pollT); autoFn = null; show(false); resolve(v); }
-      if (mode === 'setup') {
-        $('lkTitle').textContent = T('Tạo mật khẩu', 'Create a password');
-        $('lkSub').textContent = T('Dãy số (ít nhất ' + MINPIN + ' số, càng dài càng an toàn) dùng để mở web và mã hóa dữ liệu trên máy này.', 'A number code (at least ' + MINPIN + ' digits, longer is safer) that unlocks the app and encrypts the data on this device.');
-        fields({ lkPw: 1, lkPw2: 1 }); digitsOnly = true; autoFn = null;
-        $('lkPw').autocomplete = 'new-password'; $('lkMeter').hidden = false; meter();
-        go.textContent = T('Bật khóa', 'Turn on lock');
-        warn.hidden = false; warn.textContent = T('⚠ Quên mật khẩu thì KHÔNG lấy lại được dữ liệu trên máy này. Hãy chắc là bạn đã bật đồng bộ Google Drive hoặc có file JSON sao lưu. 💡 Bấm "Lưu mật khẩu" (hoặc chọn Lưu khi máy hỏi) để lần sau mở bằng vân tay/Face ID.', '⚠ If you forget the password the data on this device CANNOT be recovered. Make sure Google Drive sync or a JSON backup is in place. 💡 Tap "Save password" (or choose Save when asked) to unlock with fingerprint/Face ID next time.');
-        form.onsubmit = async function (e) {
-          e.preventDefault(); var a = $('lkPw').value, b = $('lkPw2').value;
-          if (strength(a) < 0) return setErr(T('Mật khẩu cần ít nhất ' + MINPIN + ' chữ số.', 'At least ' + MINPIN + ' digits.'));
-          if (a !== b) return setErr(T('Hai lần nhập chưa giống nhau.', 'The two entries do not match.'));
-          go.disabled = true; setErr(T('Đang mã hóa…', 'Encrypting…'));
-          try {
-            var salt = crypto.getRandomValues(new Uint8Array(16)), k = await derive(a, salt, ITER), check = await encS('ok', k);
-            key = k; kgen++;
-            meta = { v: 1, pin: true, len: a.length, salt: b64(salt), iter: ITER, check: check }; S.call(localStorage, META, JSON.stringify(meta));   // ghi mốc khóa TRƯỚC khi mã hóa dữ liệu
-            await loadAll(); await histEncryptLegacy().catch(function () {});
-            saveCred(a);
-            fin(true);
-          } catch (err) { go.disabled = false; setErr(T('Không tạo được khóa: ', 'Could not set up: ') + (err && err.message || err)); }
-        };
-      } else if (mode === 'unlock') {
-        $('lkTitle').textContent = 'Lịch Làm Việc';
-        fields({ lkPw: 1 }); $('lkPw').autocomplete = 'current-password';
-        $('lkPw').setAttribute('inputmode', meta && meta.pin ? 'numeric' : 'text');   // mật khẩu cũ có chữ → bàn phím chữ
-        go.hidden = true;
-        var busy = false, prev = '', lastTried = '';
-        async function attempt(silent) {   // silent = tự kiểm tra khi đang gõ (sai thì không tính số lần thử)
-          var pw = $('lkPw').value;
-          if (busy || !pw) return;
-          if (Date.now() < until) { if (!silent) setErr(T('Thử sai nhiều lần — chờ vài giây rồi nhập lại.', 'Too many tries — wait a few seconds.')); return; }
-          if (!meta) { setErr(T('Dữ liệu khóa bị hỏng. Hãy xóa dữ liệu trang web trong Cài đặt trình duyệt để đặt lại.', 'Lock data is damaged. Clear this site\'s data in your browser settings to reset.')); return; }
-          busy = true;
-          try {
-            var k = await derive(pw, unb64(meta.salt), meta.iter);
-            if (await decS(meta.check, k) !== 'ok') throw new Error('x');
-            busy = false;
-            if (pw !== $('lkPw').value) return;   // bạn vừa gõ thêm/xóa → bỏ kết quả cũ (vòng kiểm tra sau sẽ lo)
-            fails = 0;
-            if (!key) { key = k; kgen++; await loadAll(); } else key = k;
-            try { var oc = +(G.call(localStorage, 'phiphi_lock_offer') || 0); if (oc < 2) { S.call(localStorage, 'phiphi_lock_offer', String(oc + 1)); saveCred(pw); } } catch (e) {}   // 2 lần đầu mời lưu mật khẩu
-            fin(true);
-          } catch (err) {
-            busy = false;
-            if (pw !== $('lkPw').value) return;
-            if (silent) { softErr(T('Chưa đúng.', 'Not correct.')); return; }
-            fails++; $('lkPw').value = ''; lastTried = ''; $('lkPw').focus();
-            if (fails >= 5) { until = Date.now() + 30000; setErr(T('Sai mật khẩu nhiều lần — chờ 30 giây.', 'Wrong password several times — wait 30 s.')); }
-            else setErr(T('Sai mật khẩu.', 'Wrong password.'));
-          }
-        }
-        autoFn = function () {   // biết sẵn độ dài mật khẩu → đủ số là kiểm tra NGAY, không chờ
-          var v = $('lkPw').value;
-          if (meta && meta.len && v.length === meta.len && v !== lastTried && !busy) { lastTried = v; attempt(true); }
-        };
-        pollT = setInterval(function () {   // gõ xong (ổn định ~0,25 giây) và đủ dài → tự kiểm tra, đúng là vào luôn
-          var v = $('lkPw').value;
-          if (v === prev && v !== lastTried && v.length >= MINPIN && !busy) { lastTried = v; attempt(true); }
-          prev = v;
-        }, 150);
-        form.onsubmit = function (e) { e.preventDefault(); lastTried = $('lkPw').value; attempt(false); };
-      } else if (mode === 'change') {
-        $('lkTitle').textContent = T('Đổi mật khẩu', 'Change password'); $('lkSub').textContent = T('Dữ liệu sẽ được mã hóa lại bằng mật khẩu mới (dãy số, ít nhất ' + MINPIN + ' số).', 'Your data will be re-encrypted with the new code (digits only, at least ' + MINPIN + ').');
-        fields({ lkOld: 1, lkPw: 1, lkPw2: 1 }); digitsOnly = true;
-        $('lkOld').placeholder = T('Mật khẩu hiện tại', 'Current password'); $('lkPw').placeholder = T('Mật khẩu mới (số)', 'New code (digits)'); $('lkPw2').placeholder = T('Nhập lại mật khẩu mới', 'Repeat new code');
-        $('lkPw').autocomplete = 'new-password'; $('lkMeter').hidden = false; meter();
-        go.textContent = T('Đổi mật khẩu', 'Change password');
-        alt.hidden = false; alt.textContent = T('Hủy', 'Cancel'); alt.onclick = function () { show(false); reject(new Error('cancel')); };
-        form.onsubmit = async function (e) {
-          e.preventDefault(); var o = $('lkOld').value, a = $('lkPw').value, b = $('lkPw2').value;
-          if (strength(a) < 0) return setErr(T('Mật khẩu mới cần ít nhất ' + MINPIN + ' chữ số.', 'New code needs at least ' + MINPIN + ' digits.'));
-          if (a !== b) return setErr(T('Hai lần nhập chưa giống nhau.', 'The two entries do not match.'));
-          go.disabled = true; setErr(T('Đang mã hóa lại…', 'Re-encrypting…'));
-          try {
-            var ok = await derive(o, unb64(meta.salt), meta.iter);
-            if (await decS(meta.check, ok) !== 'ok') { go.disabled = false; return setErr(T('Mật khẩu hiện tại chưa đúng.', 'Current password is wrong.')); }
-            await idle();
-            var salt = crypto.getRandomValues(new Uint8Array(16)), nk = await derive(a, salt, ITER), check = await encS('ok', nk), blobs = [];
-            for (var pair of cache) { var bl = await encS(pair[1], nk); if (await decS(bl, nk) !== pair[1]) throw new Error('verify'); blobs.push([pair[0], bl]); }
-            var oldKey = key, db = await idbOpen(), hist = null;
-            if (db) { hist = await idbDo(db, 'readonly', function (st) { return st.get('history'); }); }
-            var newHist = null;
-            if (Array.isArray(hist) && hist.length) {
-              newHist = [];
-              for (var i = 0; i < hist.length; i++) { var d = hist[i].data; if (typeof d === 'string' && d.indexOf(PREFIX) === 0) { try { d = await encS(await decS(d, oldKey), nk); } catch (e3) { continue; } } else if (typeof d === 'string') d = await encS(d, nk); newHist.push(Object.assign({}, hist[i], { data: d })); }
+      if (!('indexedDB' in window)) return res();
+      var r; try { r = indexedDB.open('phiphi_backup_db'); } catch (e) { return res(); }
+      r.onupgradeneeded = function () { try { r.transaction.abort(); } catch (e) {} };
+      r.onerror = r.onblocked = function () { res(); };
+      r.onsuccess = function () {
+        var db = r.result;
+        if (!db.objectStoreNames.contains('handles')) { db.close(); return res(); }
+        var done = function () { try { db.close(); } catch (e) {} res(); };
+        try {
+          var g = db.transaction('handles', 'readonly').objectStore('handles').get('history');
+          g.onerror = done;
+          g.onsuccess = async function () {
+            var list = g.result; if (!Array.isArray(list)) return done();
+            var out = [], i, d;
+            for (i = 0; i < list.length; i++) {
+              d = list[i].data;
+              if (mapper && typeof d === 'string' && d.indexOf(PREFIX) === 0) { try { d = await mapper(d); } catch (e) { d = null; } }
+              if (mapper && d != null) out.push(Object.assign({}, list[i], { data: d }));
             }
-            // ghi đồng loạt (đồng bộ) để không có trạng thái nửa cũ nửa mới
-            blobs.forEach(function (x) { S.call(localStorage, x[0], x[1]); });
-            meta = { v: 1, pin: true, len: a.length, salt: b64(salt), iter: ITER, check: check }; S.call(localStorage, META, JSON.stringify(meta));
-            key = nk; kgen++;
-            if (db) { if (newHist) await idbDo(db, 'readwrite', function (st) { return st.put(newHist, 'history'); }); db.close(); }
-            saveCred(a);
-            fin(true);
-          } catch (err) { go.disabled = false; setErr(T('Không đổi được: ', 'Could not change: ') + (err && err.message || err)); }
-        };
-      }
-      [0, 60, 300, 800].forEach(function (d) { setTimeout(focusPrimary, d); });
+            try { var tx = db.transaction('handles', 'readwrite'); tx.objectStore('handles').put(out, 'history'); tx.oncomplete = done; tx.onerror = tx.onabort = done; } catch (e) { done(); }
+          };
+        } catch (e) { done(); }
+      };
     });
   }
 
-  // ---- Khởi động ----
-  function startApp() {
-    if (started) return; started = true; window.__lkStarted = true;
-    if (key) patchStorage();   // từ đây mọi đọc/ghi dữ liệu nhạy cảm đi qua lớp mã hóa
-    var code = $('appcode'); if (!code) return;
-    var s = document.createElement('script'); s.text = code.textContent; document.body.appendChild(s);
-    wireMenu();
-  }
-  function lockNow() {
-    if (locked || !started) return;
-    try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
-    ui('unlock').catch(function () {});
-  }
-  function wireMenu() {
-    var a = $('btnLockNow'), b = $('btnLockChg');
-    if (a) a.onclick = function () { var m = $('menu'); if (m) m.classList.remove('open'); lockNow(); };
-    if (b) b.onclick = function () { var m = $('menu'); if (m) m.classList.remove('open'); if (!locked) ui('change').then(function () { alert(T('✔ Đã đổi mật khẩu.', '✔ Password changed.')); }).catch(function () {}); };
-    var hiddenAt = 0;
-    document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'hidden') hiddenAt = Date.now();
-      else if (hiddenAt && Date.now() - hiddenAt > AUTOLOCK_MS) lockNow();
-      if (document.visibilityState === 'visible') hiddenAt = 0;
-    });
-  }
+  var css = document.createElement('style');
+  css.textContent = '#mgScr{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:#eef2f9;font-family:inherit}' +
+    '#mgScr form{width:100%;max-width:340px;background:#fff;border-radius:18px;padding:22px 20px;box-shadow:0 10px 40px rgba(15,23,42,.18);text-align:center}' +
+    '#mgScr h1{font-size:19px;margin:0 0 6px}#mgScr p{font-size:14px;color:#64748b;margin:0 0 14px;line-height:1.4}' +
+    '#mgScr input{width:100%;box-sizing:border-box;font-size:26px;letter-spacing:.3em;text-align:center;padding:12px;border:1.5px solid #cbd5e1;border-radius:12px}' +
+    '#mgScr button{width:100%;margin-top:10px;padding:12px;font-size:16px;border-radius:12px;border:0;background:#1a73e8;color:#fff;font-weight:600}' +
+    '#mgScr button.sec{background:none;color:#64748b;font-size:13px;font-weight:400;margin-top:6px}' +
+    '#mgErr{min-height:18px;color:#b91c1c;font-size:13px;margin-top:8px}';
+  document.head.appendChild(css);
+  var scr = document.createElement('div'); scr.id = 'mgScr';
+  scr.innerHTML = '<form id="mgForm" autocomplete="off" novalidate><h1></h1><p></p>' +
+    '<input type="password" id="mgPw" inputmode="numeric" pattern="[0-9]*" autocomplete="off" enterkeyhint="go">' +
+    '<div id="mgErr" role="alert"></div><button type="submit" id="mgGo"></button><button type="button" class="sec" id="mgForget"></button></form>';
+  document.body.appendChild(scr);
+  var pw = $('mgPw'), err = $('mgErr'), go = $('mgGo'), busy = false;
+  scr.querySelector('h1').textContent = T('Chuyển dữ liệu (chỉ 1 lần)', 'Data conversion (one time)');
+  scr.querySelector('p').textContent = T('Web đã bỏ phần đăng nhập. Nhập mật khẩu cũ một lần để chuyển dữ liệu trên máy này về dạng thường.', 'The login was removed. Enter your old password once to convert the data on this device.');
+  go.textContent = T('Tiếp tục', 'Continue');
+  $('mgForget').textContent = T('Quên mật khẩu – xóa dữ liệu cũ trên máy này', 'Forgot password – erase old data on this device');
+  if (meta.len) pw.maxLength = meta.len;
+  setTimeout(function () { try { pw.focus(); } catch (e) {} }, 50);
 
-  if (!subtle || !window.isSecureContext && location.protocol !== 'file:') {   // trình duyệt không hỗ trợ mã hóa → vẫn cho dùng nhưng báo rõ
-    document.documentElement.classList.remove('locked');
-    try { alert(T('⚠ Trình duyệt/địa chỉ này không hỗ trợ khóa và mã hóa. Hãy mở web bằng địa chỉ https (GitHub Pages). Lần này dữ liệu KHÔNG được mã hóa.', '⚠ This browser/address does not support lock and encryption. Open the https address. Data is NOT encrypted this time.')); } catch (e) {}
-    startApp(); return;
+  async function convert() {
+    var k = await derive(pw.value);
+    if (await dec(meta.check, k) !== 'ok') throw new Error('bad');
+    var i, name, v, keys = [];
+    for (i = 0; i < LS.length; i++) keys.push(LS.key(i));
+    for (i = 0; i < keys.length; i++) {
+      name = keys[i]; if (name === META) continue;
+      v = LS.getItem(name);
+      if (typeof v === 'string' && v.indexOf(PREFIX) === 0) { try { LS.setItem(name, await dec(v, k)); } catch (e) {} }
+    }
+    await idbHistory(function (d) { return dec(d, k); });
+    LS.removeItem(META);
   }
-  var raw = null; try { raw = G.call(localStorage, META); } catch (e) {}
-  if (raw) { try { meta = JSON.parse(raw); if (!meta || !meta.salt || !meta.check) meta = null; } catch (e) { meta = null; } }
-  ui(raw ? 'unlock' : 'setup').then(startApp);
-  // Chốt an toàn: nếu vì lỗi gì đó mà không hiện khóa cũng không chạy app → mở app (kèm cảnh báo) thay vì để trắng trang
-  setTimeout(function () { if (!window.__lkStarted && !scr.classList.contains('on')) { document.documentElement.classList.remove('locked'); startApp(); } }, 4000);
+  function finish() { scr.remove(); css.remove(); startApp(); }
+  async function attempt() {
+    if (busy || !pw.value) return; busy = true; err.textContent = ''; go.disabled = true;
+    try { await convert(); finish(); }
+    catch (e) { err.textContent = T('Mật khẩu chưa đúng.', 'Wrong password.'); pw.value = ''; pw.focus(); }
+    busy = false; go.disabled = false;
+  }
+  $('mgForm').onsubmit = function (e) { e.preventDefault(); attempt(); };
+  pw.oninput = function () { if (meta.len && pw.value.length === meta.len) attempt(); };
+  $('mgForget').onclick = async function () {
+    if (!confirm(T('Xóa dữ liệu cũ (đã mã hóa) trên máy này? Nếu đã bật đồng bộ Drive thì có thể lấy lại từ Drive.', 'Erase the old encrypted data on this device? If Drive sync was on, you can get it back from Drive.'))) return;
+    var i, name, del = [];
+    for (i = 0; i < LS.length; i++) { name = LS.key(i); var v = LS.getItem(name); if (name !== META && typeof v === 'string' && v.indexOf(PREFIX) === 0) del.push(name); }
+    del.forEach(function (n) { LS.removeItem(n); });
+    await idbHistory(null); LS.removeItem(META); finish();
+  };
+  setTimeout(function () { if (!started && !$('mgScr')) startApp(); }, 4000);   // chốt an toàn
 })();
 </script>
 </body>

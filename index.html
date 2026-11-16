@@ -426,7 +426,13 @@
   .cline { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; font-size: 15px; color: var(--muted); }
   .cline.sep { border-top: 1px dashed var(--line); margin-top: 4px; padding-top: 8px; }
   .ctotal { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: var(--primary); color: #fff; display: flex; justify-content: space-between; align-items: baseline; }
-  .ctotal b { font-size: 24px; }
+  .ctotal { flex-wrap: wrap; gap: 2px 12px; }
+  .ctotal > span { min-width: 0; flex: 1 1 auto; overflow-wrap: anywhere; }
+  .ctotal b { font-size: 24px; white-space: nowrap; margin-left: auto; }
+  .cline > span { min-width: 0; overflow-wrap: anywhere; }
+  .cline > b, .cline > span:last-child { white-space: nowrap; flex: none; }
+  .seg button { min-width: 0; padding: 8px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 560px) { .ctotal b { font-size: 26px !important; flex: 1 0 100%; text-align: right; } .ctotal > span { flex: 1 0 100%; } .cfield label { overflow-wrap: anywhere; } }
   .bk-banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 10px; padding: 10px 14px; border: 1px solid #f0c36d; border-left: 5px solid #f59e0b; border-radius: 10px; background: #fff8e6; color: #7a4b00; font-size: 14px; font-weight: 600; }
   .bk-banner[hidden] { display: none; }
   .bk-banner.alert { border-color: #f3c3bf; border-left-color: var(--danger); background: #fff1f0; color: #8a1c14; }
@@ -952,6 +958,46 @@
   .col.collapsible.has-next:not(.is-open) .col-body > :not(.cnext) { display: none; }
   .col.collapsible.has-next:not(.is-open) .cnext { border-top: none; margin-top: 0; padding-top: 0; }
   @media (max-width: 560px) { .cnext-detail { font-size: 14.5px; padding-left: 62px; } }
+
+  /* ===== Tab Tỷ giá & Tính tiền (v6.7): chia bước, dễ nhìn cho khách ===== */
+  .fx { background: none; border: none; border-radius: 0; padding: 0; max-width: 1100px; margin: 8px auto 0; }
+  .fxseg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; margin-bottom: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+  .fxseg button { border: none; background: none; border-radius: 10px; padding: 12px 8px; font-size: 16px; font-weight: 700; color: var(--muted); min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fxseg button.active { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(26,115,232,.35); }
+  .fxpane { max-width: 900px; margin: 0 auto; background: var(--card); border: 1px solid var(--line); border-top: 6px solid #0f9d58; border-radius: var(--radius); padding: 14px 16px; }
+  .payflow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "s1 s2" "s1 s3"; gap: 12px; align-items: start; }
+  .pf-s1 { grid-area: s1; } .pf-s2 { grid-area: s2; } .pf-s3 { grid-area: s3; }
+  .pf-step { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; min-width: 0; box-shadow: 0 1px 4px rgba(15,23,42,.05); }
+  .pf-s3 { border: 2px solid var(--primary); background: linear-gradient(180deg, #f5f9ff, #fff 60%); }
+  .pf-h { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .pf-h > div { min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+  .pf-h b { font-size: 17px; color: #0f172a; }
+  .pf-h small { font-size: 13px; color: var(--muted); }
+  .pf-n { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: #fff; font-weight: 800; display: grid; place-items: center; font-size: 15px; }
+  .pf-s3 .pf-n { background: var(--ok); }
+  .payflow .bc { grid-template-columns: 1fr; gap: 10px; padding: 0; }
+  .payflow .bc-title { display: none; }
+  .payflow .bc-keys button { height: 52px; }
+  .payflow .bc-side > summary { cursor: pointer; font-size: 14px; font-weight: 700; color: var(--muted); padding: 6px 2px; list-style: none; }
+  .payflow .bc-side > summary::before { content: '▸ '; }
+  .payflow .bc-side[open] > summary::before { content: '▾ '; }
+  .payflow .bc-tape { height: 130px; }
+  .payflow .calc-out { background: none; border: none; padding: 0; }
+  .payflow .cfield input { min-width: 0; }
+  .rc-hero { text-align: center; padding: 14px 10px; border-radius: 14px; background: var(--primary); color: #fff; margin-bottom: 10px; }
+  .rc-hero.is-card { background: #7c3aed; }
+  .rc-lab { display: block; font-size: 13.5px; font-weight: 600; opacity: .92; margin-bottom: 2px; }
+  .rc-amt { display: block; font-size: 34px; font-weight: 800; line-height: 1.2; white-space: nowrap; letter-spacing: -.01em; }
+  .rc-lines { padding: 0 4px; }
+  .rc-hint { text-align: center; color: var(--muted); font-size: 13.5px; padding: 6px 0 0; }
+  .rc-change { margin-top: 8px; padding: 10px 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-weight: 700; }
+  .rc-change.ok { background: #ecf8f0; color: var(--ok); } .rc-change.bad { background: #fdecea; color: var(--danger); }
+  .rc-change b { font-size: 20px; white-space: nowrap; }
+  @media (max-width: 760px) {
+    .payflow { grid-template-columns: minmax(0, 1fr); grid-template-areas: "s1" "s2" "s3"; }
+    .rc-amt { font-size: 32px; }
+    .fxpane { padding: 12px; }
+  }
 </style>
 <meta name="author" content="RubyHCMC">
 <meta name="copyright" content="© 2026 RubyHCMC. All rights reserved.">
@@ -1012,7 +1058,7 @@
       <button type="button" class="tab" data-tab="week">7 ngày tới</button>
       <button type="button" class="tab" data-tab="orders">Tất cả đơn</button>
       <button type="button" class="tab" data-tab="late">⚠ <span id="lateTabTxt">Trễ / quá hạn</span> <span class="tab-n" id="lateN" hidden></span></button>
-      <button type="button" class="tab" data-tab="fx"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></svg><span class="tx">Tỷ giá &amp; Máy tính</span></button>
+      <button type="button" class="tab" data-tab="fx"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></svg><span class="tx">Tỷ giá &amp; Tính tiền</span></button>
     </div>
       <div class="mtabs" id="mtabs">
         <button type="button" class="mt-view" id="mtView" aria-haspopup="true"></button>
@@ -1050,6 +1096,12 @@
   </div>
 
   <section class="fx" id="fx">
+    <div class="fxseg" id="fxSeg" role="tablist">
+      <button type="button" data-pane="calc" id="fxSegCalc" role="tab"></button>
+      <button type="button" data-pane="fx" id="fxSegFx" role="tab"></button>
+    </div>
+
+    <div class="fxpane" id="fxPaneFx" hidden>
     <div class="fx-head">
       <div><h2 id="fxTitle"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></svg><span class="tx">Tỷ giá ngoại tệ · Vietcombank</span></h2><div class="fx-stat" id="fxStat"></div></div>
       <button type="button" class="small" id="fxRefresh">🔄 Cập nhật</button>
@@ -1070,24 +1122,28 @@
     </div>
     <details class="fx-all"><summary id="fxAllT">Bảng tỷ giá đầy đủ</summary><div style="overflow-x:auto"><table class="fx-table" id="fxTable"></table></div></details>
     <div class="fx-stat" style="margin-top:8px" id="fxNote"></div>
-
-  <div class="calc" id="calc">
-    <div class="bc" id="bc">
-      <div class="bc-main">
-        <div class="bc-title" id="bcTitle">Máy tính cơ bản</div>
-        <div class="bc-screen"><div class="bc-expr" id="bcExpr"></div><div class="bc-num" id="bcNum">0</div></div>
-        <div class="bc-keys" id="bcKeys"></div>
-      </div>
-      <div class="bc-side">
-        <div class="bc-title" id="bcTapeT">Các số đã nhập</div>
-        <div class="bc-tape" id="bcTape"></div>
-        <div class="bc-act"><button type="button" id="bcCopy">Sao chép kết quả</button><button type="button" id="bcClr">Xóa hết</button></div>
-      </div>
     </div>
-    <div class="bc-sep"><span id="bcPayT">Tính tiền thanh toán</span></div>
-    <div class="calc-body">
-      <div class="calc-in">
-        <div class="cfield"><label for="cAmount">Tiền hàng (đ)</label><input id="cAmount" inputmode="numeric" autocomplete="off"></div>
+
+    <div class="payflow" id="calc">
+      <div class="pf-step pf-s1">
+        <div class="pf-h"><span class="pf-n">1</span><div><b id="pfT1">Cộng tiền hàng</b><small id="pfS1">Bấm các số, nhấn = để chuyển tổng sang bước 2</small></div></div>
+        <div class="bc" id="bc">
+          <div class="bc-main">
+            <div class="bc-title" id="bcTitle">Máy tính cơ bản</div>
+            <div class="bc-screen"><div class="bc-expr" id="bcExpr"></div><div class="bc-num" id="bcNum">0</div></div>
+            <div class="bc-keys" id="bcKeys"></div>
+          </div>
+          <details class="bc-side" id="bcSide">
+            <summary id="bcTapeT">Các số đã nhập</summary>
+            <div class="bc-tape" id="bcTape"></div>
+            <div class="bc-act"><button type="button" id="bcCopy">Sao chép kết quả</button><button type="button" id="bcClr">Xóa hết</button></div>
+          </details>
+        </div>
+      </div>
+
+      <div class="pf-step pf-s2">
+        <div class="pf-h"><span class="pf-n">2</span><div><b id="pfT2">Điều chỉnh &amp; hình thức trả</b><small id="pfS2">Tiền hàng, giảm giá, tiền cọc</small></div></div>
+        <div class="cfield"><label for="cAmount">Tiền hàng (đ)</label><input id="cAmount" inputmode="numeric" autocomplete="off" placeholder="0"></div>
         <div class="crow">
           <div class="cfield"><label for="cDiscount">Giảm giá (%)</label><input id="cDiscount" inputmode="decimal" autocomplete="off" placeholder="0"></div>
           <div class="cfield"><label for="cDeposit">Đã cọc (đ)</label><input id="cDeposit" inputmode="numeric" autocomplete="off" placeholder="0"></div>
@@ -1101,12 +1157,15 @@
         <div class="crow" id="cCardOpts" hidden>
           <div class="cfield"><label for="cFee">Phí cà thẻ (%)</label><input id="cFee" inputmode="decimal" autocomplete="off" value="0"></div>
         </div>
-        <div class="cfield" id="cGivenWrap"><label for="cGiven">Khách đưa (đ)</label><input id="cGiven" inputmode="numeric" autocomplete="off"></div>
+        <div class="cfield" id="cGivenWrap"><label for="cGiven">Khách đưa (đ)</label><input id="cGiven" inputmode="numeric" autocomplete="off" placeholder="0"></div>
         <button type="button" class="calc-reset" id="calcReset">↺ Làm lại</button>
       </div>
-      <div class="calc-out" id="cOut"></div>
+
+      <div class="pf-step pf-s3">
+        <div class="pf-h"><span class="pf-n">3</span><div><b id="pfT3">Khách thanh toán</b><small id="pfS3">Số tiền cuối cùng</small></div></div>
+        <div class="calc-out" id="cOut"></div>
+      </div>
     </div>
-  </div>
   </section>
 
 </div>
@@ -1794,7 +1853,7 @@
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === state.tab));
     $('.datebar').style.display = onDay ? '' : 'none';
     $('#fx').style.display = state.tab === 'fx' ? 'block' : 'none';
-    if (state.tab === 'fx') { fxShow(); bcShow(); }
+    if (state.tab === 'fx') paneUI();
     renderFilters();
     const lateN = allEvents().filter(e => flags(e).late).length, ln = $('#lateN');
     ln.hidden = !lateN; ln.textContent = lateN;
@@ -2865,7 +2924,7 @@
 
   /* ===== Điện thoại: 1 nút chọn kiểu xem + 1 nút máy tính ===== */
   const MT_VIEWS = [['day', 'Hôm nay', 'Today'], ['week', '7 ngày tới', 'Next 7 days'], ['orders', 'Tất cả đơn', 'All orders'], ['late', '⚠ Trễ / quá hạn', '⚠ Late / overdue']];
-  const MT_EXTRA = { fx: ['fx', 'Tỷ giá & Máy tính', 'Rates & Calculator'] };   // mở bằng nút riêng ngoài thanh, không nằm trong danh sách; chỉ dùng để hiện đúng tên khi đang ở màn đó
+  const MT_EXTRA = { fx: ['fx', 'Tỷ giá & Tính tiền', 'Rates & Payment'] };   // mở bằng nút riêng ngoài thanh, không nằm trong danh sách; chỉ dùng để hiện đúng tên khi đang ở màn đó
   function updateMtabs() {
     const lateN = Number($('#lateN').textContent) || 0, cur = MT_VIEWS.find(v => v[0] === state.tab) || MT_EXTRA[state.tab] || MT_VIEWS[0];
     const badge = lateN ? `<span class="tab-n">${lateN}</span>` : '';
@@ -2881,6 +2940,23 @@
   });
   $('#mtFx').onclick = () => { state.tab = state.tab === 'fx' ? 'day' : 'fx'; $('#mtabs').classList.remove('open'); render(); };
   document.addEventListener('click', () => $('#mtabs').classList.remove('open'));
+
+  /* Tab Tỷ giá & Tính tiền: hai mặt, nhớ mặt đang dùng */
+  let fxPane = 'calc';
+  try { const v = localStorage.getItem('phiphi_fxpane_v1'); if (v === 'fx' || v === 'calc') fxPane = v; } catch (e) {}
+  function paneUI() {
+    $('#fxSegCalc').textContent = L('🧮 Tính tiền', '🧮 Payment');
+    $('#fxSegFx').textContent = L('💱 Tỷ giá', '💱 Exchange rates');
+    $('#fxSegCalc').classList.toggle('active', fxPane === 'calc'); $('#fxSegFx').classList.toggle('active', fxPane === 'fx');
+    $('#fxSegCalc').setAttribute('aria-selected', fxPane === 'calc'); $('#fxSegFx').setAttribute('aria-selected', fxPane === 'fx');
+    $('#fxPaneFx').hidden = fxPane !== 'fx'; $('#calc').hidden = fxPane !== 'calc';
+    if (fxPane === 'fx') fxShow(); else bcShow();
+  }
+  $('#fxSeg').addEventListener('click', e => {
+    const b = e.target.closest('[data-pane]'); if (!b || b.dataset.pane === fxPane) return;
+    fxPane = b.dataset.pane; try { localStorage.setItem('phiphi_fxpane_v1', fxPane); } catch (err) {}
+    paneUI();
+  });
 
   /* ===== MÁY TÍNH CƠ BẢN (cộng tổng tiền nhanh) ===== */
   const BC = { cur: '', total: null, op: null, tape: [], fresh: false, inited: false, err: false };
@@ -2948,9 +3024,11 @@
     t.scrollTop = t.scrollHeight;
   }
   function bcShow() {
+    $('#pfT1').textContent = L('Cộng tiền hàng', 'Add up the items'); $('#pfS1').textContent = L('Bấm các số, nhấn = để chuyển tổng sang bước 2', 'Tap numbers, press = to send the total to step 2');
+    $('#pfT2').textContent = L('Điều chỉnh & hình thức trả', 'Adjustments & payment method'); $('#pfS2').textContent = L('Tiền hàng, giảm giá, tiền cọc', 'Subtotal, discount, deposit');
+    $('#pfT3').textContent = L('Khách thanh toán', 'Customer pays'); $('#pfS3').textContent = L('Số tiền cuối cùng', 'Final amount');
     $('#bcTitle').textContent = L('Máy tính cơ bản', 'Basic calculator'); $('#bcTapeT').textContent = L('Các số đã nhập', 'Entered numbers');
-    $('#bcPayT').textContent = L('Tính tiền thanh toán', 'Payment calculator');
-    $('#bcCopy').textContent = L('Sao chép kết quả', 'Copy result'); $('#bcClr').textContent = L('Xóa hết', 'Clear all');
+        $('#bcCopy').textContent = L('Sao chép kết quả', 'Copy result'); $('#bcClr').textContent = L('Xóa hết', 'Clear all');
     if (!BC.inited) {
       BC.inited = true;
       $('#bcKeys').innerHTML = BC_KEYS.map(([k, c]) => `<button type="button" data-k="${k}" class="${c || ''}">${k}</button>`).join('');
@@ -2962,7 +3040,7 @@
         try { await navigator.clipboard.writeText(txt); toast(L('✔ Đã sao chép ', '✔ Copied ') + txt); } catch (e) { toast(L('Không sao chép được — hãy chọn số và sao chép tay', 'Could not copy')); }
       };
       document.addEventListener('keydown', e => {   // gõ bằng bàn phím máy tính
-        if (state.tab !== 'fx' || e.ctrlKey || e.metaKey || e.altKey) return;
+        if (state.tab !== 'fx' || fxPane !== 'calc' || e.ctrlKey || e.metaKey || e.altKey) return;
         if (document.documentElement.classList.contains('locked') || document.querySelector('dialog[open]')) return;
         const t = e.target; if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
         const m = { '+': '+', '-': '−', '*': '×', 'x': '×', '/': '÷', '%': '%', 'Enter': '=', '=': '=', 'Backspace': '⌫', 'Escape': 'C', 'Delete': 'C', 'c': 'C', ',': ',', '.': ',' };
@@ -3088,7 +3166,7 @@
     const d = fxS.data, st = $('#fxStat');
     $('#fxRefresh').disabled = fxS.loading;
     $('#fxRefresh').textContent = fxS.loading ? L('⏳ Đang tải…', '⏳ Loading…') : L('🔄 Cập nhật', '🔄 Refresh');
-    $('#fxTitle .tx').textContent = L('Tỷ giá · Máy tính', 'Rates · Calculator');
+    $('#fxTitle .tx').textContent = L('Tỷ giá ngoại tệ · Vietcombank', 'Exchange rates · Vietcombank');
     $('#fxSwap').title = L('Đảo chiều', 'Swap'); $('#fxFrom').setAttribute('aria-label', L('Từ', 'From')); $('#fxTo').setAttribute('aria-label', L('Sang', 'To'));
     $('#fxAllT').textContent = L('Bảng tỷ giá đầy đủ', 'All exchange rates');
     if (fxS.err) { st.className = 'fx-stat warn'; st.textContent = d ? L('⚠ Không tải được tỷ giá mới — đang hiện bảng đã lưu lúc ', '⚠ Could not refresh — showing saved rates from ') + new Date(d.fetched).toLocaleString('vi-VN') : L('⚠ Không tải được tỷ giá (kiểm tra mạng rồi bấm Cập nhật).', '⚠ Could not load rates (check connection, then Refresh).'); }
@@ -3733,20 +3811,23 @@
     const feeAmt = card ? Math.round(due * feePct / 100) : 0;
     const customerPays = due + feeAmt;
 
-    let h = `<div class="cline"><span>${L('Tiền hàng', 'Subtotal')}</span><b>${vnd(amount)}</b></div>`;
+    const lab = card ? L('Khách cần thanh toán · cà thẻ', 'Customer pays · by card') : L('Khách cần thanh toán · tiền mặt', 'Customer pays · in cash');
+    let h = `<div class="rc-hero ${card ? 'is-card' : ''}"><span class="rc-lab">${lab}</span><b class="rc-amt">${vnd(customerPays)}</b></div><div class="rc-lines">`;
+    h += `<div class="cline"><span>${L('Tiền hàng', 'Subtotal')}</span><b>${vnd(amount)}</b></div>`;
     if (disc > 0) h += `<div class="cline minus"><span>${L('Giảm giá', 'Discount')} ${disc}%</span><b>− ${vnd(discountAmt)}</b></div>`;
     if (disc > 0 || deposit > 0) h += `<div class="cline sep"><span>${L('Thành tiền', 'Total')}</span><b>${vnd(total)}</b></div>`;
     if (deposit > 0) h += `<div class="cline minus"><span>${L('Đã cọc', 'Deposit paid')}</span><b>− ${vnd(Math.min(deposit, total))}</b></div>`;
     h += `<div class="cline sep"><span>${L('Còn phải thu', 'Balance due')}</span><b>${vnd(due)}</b></div>`;
     if (card) h += `<div class="cline"><span>${L('Phí cà thẻ', 'Card fee')} ${feePct}%</span><b>${vnd(feeAmt)}</b></div>`;
-    h += `<div class="ctotal"><span>${card ? L('💳 Khách cà thẻ', '💳 Customer pays by card') : L('💵 Khách trả tiền mặt', '💵 Customer pays cash')}</span><b>${vnd(customerPays)}</b></div>`;
+    h += `</div>`;
     if (!card && given > 0) {
       const diff = given - customerPays;
       h += diff >= 0
-        ? `<div class="cline" style="margin-top:6px;color:var(--ok);font-weight:700"><span>${L('Tiền thối lại', 'Change')}</span><span>${vnd(diff)}</span></div>`
-        : `<div class="cline" style="margin-top:6px;color:var(--danger);font-weight:700"><span>${L('Khách còn thiếu', 'Still owed')}</span><span>${vnd(-diff)}</span></div>`;
+        ? `<div class="rc-change ok"><span>${L('Tiền thối lại', 'Change')}</span><b>${vnd(diff)}</b></div>`
+        : `<div class="rc-change bad"><span>${L('Khách còn thiếu', 'Still owed')}</span><b>${vnd(-diff)}</b></div>`;
     }
-    if (refund > 0) h += `<div style="margin-top:6px;font-size:13px;color:var(--danger)">${L('⚠ Khách cọc dư', '⚠ Deposit exceeds total by')} <b>${vnd(refund)}</b></div>`;
+    if (refund > 0) h += `<div class="rc-hint" style="color:var(--danger)">${L('⚠ Khách cọc dư', '⚠ Deposit exceeds total by')} <b>${vnd(refund)}</b></div>`;
+    if (!amount) h += `<div class="rc-hint">${L('Nhập tiền hàng ở bước 1 hoặc 2', 'Enter the subtotal in step 1 or 2')}</div>`;
     $('#cOut').innerHTML = h;
   }
 
@@ -3813,7 +3894,7 @@
     ['#btnBkPick', '🛡 Turn on auto backup (pick a folder)…'], ['#btnBkRename', '✏ Change backup folder…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '📄 Overwrite JSON file'], ['#btnHist', '🕘 Version history — restore by date & time…'], ['#btnBkOff', '⏹ Turn off auto backup'],
     ['#btnAdd', '＋ Add schedule'],
     ['.tab[data-tab="day"]', 'Today'], ['.tab[data-tab="week"]', 'Next 7 days'],
-    ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="fx"] .tx', 'Rates & Calculator'],
+    ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="fx"] .tx', 'Rates & Payment'],
     ['#popover', 'Customer details', 'aria-label'], ['#popClose', 'Close', 'aria-label'],
     ['#popEdit', '✎ Edit this order'],
     ['label[for="cAmount"]', 'Subtotal (đ)'], ['#cAmount', '', 'placeholder'],

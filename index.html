@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Lịch Làm Việc">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#f4f6fb">
-<title>Lịch Làm Việc v6.6</title>
+<title>Lịch Làm Việc v6.7</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
 
@@ -335,7 +335,7 @@
   .cust-items-input { width: 100%; padding: 7px 10px; border: 1px solid color-mix(in srgb, var(--c) 40%, #ccc); border-radius: 8px; font: inherit; font-size: 15px; background: #fff; }
 
   /* Máy tính tiền */
-  .calc { display: none; max-width: 900px; margin: 8px auto 0; background: var(--card); border: 1px solid var(--line); border-top: 6px solid var(--primary); border-radius: var(--radius); overflow: hidden; font-size: 15px; }
+  .calc { display: block; max-width: 900px; margin: 14px auto 0; background: var(--card); border: 1px solid var(--line); border-top: 6px solid var(--primary); border-radius: var(--radius); overflow: hidden; font-size: 15px; }
   .bc { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; padding: 16px; }
   .bc-title { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
   .bc-screen { background: #0f172a; color: #fff; border-radius: 14px; padding: 10px 14px 12px; text-align: right; min-height: 78px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
@@ -955,8 +955,6 @@
 </style>
 <meta name="author" content="RubyHCMC">
 <meta name="copyright" content="© 2026 RubyHCMC. All rights reserved.">
-<style>html.locked body > *:not(#lockScr){visibility:hidden!important}</style>
-<script>document.documentElement.classList.add('locked');</script>
 </head>
 <body>
 <div class="app">
@@ -992,14 +990,11 @@
           <button type="button" id="btnHist">🕘 Lịch sử phiên bản — khôi phục theo ngày giờ…</button>
           <button type="button" id="btnUndoSync" hidden>↩ Hoàn tác lần đồng bộ gần nhất</button>
           <hr>
-          <button type="button" id="btnLockNow">🔒 Khóa ngay</button>
-          <button type="button" id="btnLockChg">🔑 Đổi mật khẩu</button>
-          <hr>
           <div class="bk-status" id="bkStatus"></div>
           <button type="button" id="btnBkPick">🛡 Bật tự động sao lưu (chọn thư mục)…</button>
           <button type="button" id="btnBkRename" hidden>✏ Đổi thư mục lưu…</button>
           <button type="button" id="btnBkNow" hidden>🔄 Sao lưu ngay</button>
-          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 6.6</div>
+          <div class="bk-status" id="verLine" style="margin-top:6px">Phiên bản 6.7</div>
           <button type="button" id="btnBkOff" hidden>⏹ Tắt tự động sao lưu</button>
         </div>
       </div>
@@ -1017,14 +1012,12 @@
       <button type="button" class="tab" data-tab="week">7 ngày tới</button>
       <button type="button" class="tab" data-tab="orders">Tất cả đơn</button>
       <button type="button" class="tab" data-tab="late">⚠ <span id="lateTabTxt">Trễ / quá hạn</span> <span class="tab-n" id="lateN" hidden></span></button>
-      <button type="button" class="tab" data-tab="calc"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="16" height="19" rx="3"/><rect x="7.5" y="5.8" width="9" height="3.8" rx="1"/><circle cx="8.3" cy="13.6" r=".9" fill="currentColor"/><circle cx="12" cy="13.6" r=".9" fill="currentColor"/><circle cx="15.7" cy="13.6" r=".9" fill="currentColor"/><circle cx="8.3" cy="17.6" r=".9" fill="currentColor"/><circle cx="12" cy="17.6" r=".9" fill="currentColor"/><circle cx="15.7" cy="17.6" r=".9" fill="currentColor"/></svg><span class="tx">Máy tính</span></button>
-      <button type="button" class="tab" data-tab="fx"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></svg><span class="tx">Tỷ giá</span></button>
+      <button type="button" class="tab" data-tab="fx"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></svg><span class="tx">Tỷ giá &amp; Máy tính</span></button>
     </div>
       <div class="mtabs" id="mtabs">
         <button type="button" class="mt-view" id="mtView" aria-haspopup="true"></button>
         <button type="button" class="mt-sync sync-chip" id="mtSync" hidden></button>
         <button type="button" class="mt-fx" id="mtFx" aria-label="Tỷ giá"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/></svg></button>
-        <button type="button" class="mt-calc" id="mtCalc" aria-label="Máy tính"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2.5" width="16" height="19" rx="3"/><rect x="7.5" y="5.8" width="9" height="3.8" rx="1"/><circle cx="8.3" cy="13.6" r=".9" fill="currentColor"/><circle cx="12" cy="13.6" r=".9" fill="currentColor"/><circle cx="15.7" cy="13.6" r=".9" fill="currentColor"/><circle cx="8.3" cy="17.6" r=".9" fill="currentColor"/><circle cx="12" cy="17.6" r=".9" fill="currentColor"/><circle cx="15.7" cy="17.6" r=".9" fill="currentColor"/></svg></button>
         <div class="mt-list" id="mtList" role="menu"></div>
       </div>
       <div class="datebar">
@@ -1077,9 +1070,8 @@
     </div>
     <details class="fx-all"><summary id="fxAllT">Bảng tỷ giá đầy đủ</summary><div style="overflow-x:auto"><table class="fx-table" id="fxTable"></table></div></details>
     <div class="fx-stat" style="margin-top:8px" id="fxNote"></div>
-  </section>
 
-  <section class="calc" id="calc">
+  <div class="calc" id="calc">
     <div class="bc" id="bc">
       <div class="bc-main">
         <div class="bc-title" id="bcTitle">Máy tính cơ bản</div>
@@ -1114,9 +1106,12 @@
       </div>
       <div class="calc-out" id="cOut"></div>
     </div>
+  </div>
   </section>
+
 </div>
 
+<footer class="site-foot" id="siteFoot"><span id="ftTxt">© 2026 Lịch Làm Việc · Bản quyền thuộc về RubyHCMC. Mọi quyền được bảo lưu.</span></footer>
 
 <!-- Form thêm/sửa đơn -->
 <dialog id="dlg">
@@ -1798,10 +1793,8 @@
     $('#today').classList.toggle('is-today', state.day === todayKey());
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === state.tab));
     $('.datebar').style.display = onDay ? '' : 'none';
-    $('#calc').style.display = state.tab === 'calc' ? 'block' : 'none';
     $('#fx').style.display = state.tab === 'fx' ? 'block' : 'none';
-    if (state.tab === 'calc') bcShow();
-    if (state.tab === 'fx') fxShow();
+    if (state.tab === 'fx') { fxShow(); bcShow(); }
     renderFilters();
     const lateN = allEvents().filter(e => flags(e).late).length, ln = $('#lateN');
     ln.hidden = !lateN; ln.textContent = lateN;
@@ -2872,7 +2865,7 @@
 
   /* ===== Điện thoại: 1 nút chọn kiểu xem + 1 nút máy tính ===== */
   const MT_VIEWS = [['day', 'Hôm nay', 'Today'], ['week', '7 ngày tới', 'Next 7 days'], ['orders', 'Tất cả đơn', 'All orders'], ['late', '⚠ Trễ / quá hạn', '⚠ Late / overdue']];
-  const MT_EXTRA = { fx: ['fx', 'Tỷ giá', 'Exchange rates'], calc: ['calc', 'Máy tính', 'Calculator'] };   // mở bằng nút riêng ngoài thanh, không nằm trong danh sách; chỉ dùng để hiện đúng tên khi đang ở màn đó
+  const MT_EXTRA = { fx: ['fx', 'Tỷ giá & Máy tính', 'Rates & Calculator'] };   // mở bằng nút riêng ngoài thanh, không nằm trong danh sách; chỉ dùng để hiện đúng tên khi đang ở màn đó
   function updateMtabs() {
     const lateN = Number($('#lateN').textContent) || 0, cur = MT_VIEWS.find(v => v[0] === state.tab) || MT_EXTRA[state.tab] || MT_VIEWS[0];
     const badge = lateN ? `<span class="tab-n">${lateN}</span>` : '';
@@ -2880,8 +2873,6 @@
     $('#mtList').innerHTML = MT_VIEWS.map(v => `<button type="button" role="menuitem" data-mt="${v[0]}" class="${v[0] === state.tab ? 'active' : ''}"><span>${L(v[1], v[2])}</span>${v[0] === 'late' && lateN ? `<span class="tab-n">${lateN}</span>` : ''}</button>`).join('');
     $('#mtFx').classList.toggle('on', state.tab === 'fx');
     $('#mtFx').setAttribute('aria-label', L('Tỷ giá', 'Exchange rates'));
-    $('#mtCalc').classList.toggle('on', state.tab === 'calc');
-    $('#mtCalc').setAttribute('aria-label', L('Máy tính', 'Calculator'));
   }
   $('#mtView').onclick = e => { e.stopPropagation(); $('#mtabs').classList.toggle('open'); };
   $('#mtList').addEventListener('click', e => {
@@ -2889,7 +2880,6 @@
     state.tab = b.dataset.mt; $('#mtabs').classList.remove('open'); render();
   });
   $('#mtFx').onclick = () => { state.tab = state.tab === 'fx' ? 'day' : 'fx'; $('#mtabs').classList.remove('open'); render(); };
-  $('#mtCalc').onclick = () => { state.tab = state.tab === 'calc' ? 'day' : 'calc'; $('#mtabs').classList.remove('open'); render(); };
   document.addEventListener('click', () => $('#mtabs').classList.remove('open'));
 
   /* ===== MÁY TÍNH CƠ BẢN (cộng tổng tiền nhanh) ===== */
@@ -2963,7 +2953,7 @@
         try { await navigator.clipboard.writeText(txt); toast(L('✔ Đã sao chép ', '✔ Copied ') + txt); } catch (e) { toast(L('Không sao chép được — hãy chọn số và sao chép tay', 'Could not copy')); }
       };
       document.addEventListener('keydown', e => {   // gõ bằng bàn phím máy tính
-        if (state.tab !== 'calc' || e.ctrlKey || e.metaKey || e.altKey) return;
+        if (state.tab !== 'fx' || e.ctrlKey || e.metaKey || e.altKey) return;
         if (document.documentElement.classList.contains('locked') || document.querySelector('dialog[open]')) return;
         const t = e.target; if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
         const m = { '+': '+', '-': '−', '*': '×', 'x': '×', '/': '÷', '%': '%', 'Enter': '=', '=': '=', 'Backspace': '⌫', 'Escape': 'C', 'Delete': 'C', 'c': 'C', ',': ',', '.': ',' };
@@ -3089,7 +3079,7 @@
     const d = fxS.data, st = $('#fxStat');
     $('#fxRefresh').disabled = fxS.loading;
     $('#fxRefresh').textContent = fxS.loading ? L('⏳ Đang tải…', '⏳ Loading…') : L('🔄 Cập nhật', '🔄 Refresh');
-    $('#fxTitle .tx').textContent = L('Tỷ giá ngoại tệ · Vietcombank', 'Exchange rates · Vietcombank');
+    $('#fxTitle .tx').textContent = L('Tỷ giá · Máy tính', 'Rates · Calculator');
     $('#fxSwap').title = L('Đảo chiều', 'Swap'); $('#fxFrom').setAttribute('aria-label', L('Từ', 'From')); $('#fxTo').setAttribute('aria-label', L('Sang', 'To'));
     $('#fxAllT').textContent = L('Bảng tỷ giá đầy đủ', 'All exchange rates');
     if (fxS.err) { st.className = 'fx-stat warn'; st.textContent = d ? L('⚠ Không tải được tỷ giá mới — đang hiện bảng đã lưu lúc ', '⚠ Could not refresh — showing saved rates from ') + new Date(d.fetched).toLocaleString('vi-VN') : L('⚠ Không tải được tỷ giá (kiểm tra mạng rồi bấm Cập nhật).', '⚠ Could not load rates (check connection, then Refresh).'); }
@@ -3472,7 +3462,7 @@
       if (BK.handle) BK.needPerm = (await BK.handle.queryPermission({ mode: 'readwrite' })) !== 'granted';
     } catch (e) { BK.handle = null; }
     BK.ready = true; renderBkStatus();
-    if (BK.handle && !BK.needPerm) setTimeout(() => writeBackup(false), 3000);   // mở lại trang: ghi ngay dữ liệu mới nhất vào file sao lưu
+    if (BK.handle && !BK.needPerm) writeBackup(false);   // mở lại trang: ghi ngay dữ liệu mới nhất vào file sao lưu
     else if (BK.handle) BK.dirty = true;
   })();
 
@@ -3503,7 +3493,7 @@
       await bkIdb('readwrite', st => st.put(fin, HIST_KEY));
     }).catch(() => {});
   }
-  setTimeout(async () => { try { const l = await bkIdb('readonly', st => st.get(HIST_KEY)); if (l && l[0]) histLastT = l[0].t; } catch (e) {} histSnap(L('Mở app', 'App opened'), false); }, 2500);   // hoãn sau khi giao diện đã hiện
+  (async () => { try { const l = await bkIdb('readonly', st => st.get(HIST_KEY)); if (l && l[0]) histLastT = l[0].t; } catch (e) {} histSnap(L('Mở app', 'App opened'), false); })();
 
   function applyRestore(d) {
     try { histSnap(L('Trước khi khôi phục', 'Before restoring'), true); } catch (e) {}
@@ -3629,10 +3619,9 @@
   }
   $('#bkBannerX').onclick = () => { bkBannerHidden = true; updateBkBanner(); };
   // Chạy offline: đăng ký sw.js nếu có (chỉ khi mở qua https, vd GitHub Pages)
-  const idle = fn => { try { (window.requestIdleCallback || (f => setTimeout(f, 1500)))(fn, { timeout: 4000 }); } catch (e) { setTimeout(fn, 1500); } };
-  idle(() => { try { if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {} });
+  try { if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
   // Xin trình duyệt giữ dữ liệu bền hơn (giảm nguy cơ bị tự dọn khi thiếu bộ nhớ)
-  idle(() => { try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {} });
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
 
   // Chrome/Edge thu hồi quyền ghi file sau mỗi lần đóng trình duyệt và chỉ cấp lại khi người dùng bấm.
   // -> Lần bấm đầu tiên trên trang sẽ tự xin lại quyền và sao lưu luôn, khỏi phải vào menu.
@@ -3811,11 +3800,11 @@
     ['.brand h1', 'Work Schedule'], ['.brand small', 'Pickup · Fitting · Delivery'],
     ['#prevDay', 'Previous day', 'aria-label'], ['#today', 'Today'], ['#nextDay', 'Next day', 'aria-label'],
     ['#btnNotify', 'Remind me of upcoming tasks', 'title'], ['#btnMenu .mn-txt', ' Tools ▾'],
-    ['#btnPrint', '🖨 Print schedule'], ['#btnLockNow', '🔒 Lock now'], ['#btnLockChg', '🔑 Change password'], ['#btnSync', '☁ Google Drive sync…'], ['#btnUndoImport', '↩ Undo the last file import'], ['#impTitle', '⬆ Import backup file'], ['#impMerge', '➕ Merge into existing data (recommended)'], ['#impReplace', '♻ Replace everything with this file'], ['#impCancel', 'Cancel'], ['#impHint', 'Merge keeps your current orders; on a clash the file version wins. You can restore afterwards from the Tools menu.'], ['#syncTitle', '☁ Google Drive sync'], ['#syncCidLbl', 'Google Client ID'], ['#syncClose', 'Close'], ['#btnFixItems', '🧵 Convert old items to item lists…'], ['#btnExport', '⬇ Export backup file'], ['#btnImport', '⬆ Import backup file'],
+    ['#btnPrint', '🖨 Print schedule'], ['#ftTxt', window.__ftEn], ['#btnSync', '☁ Google Drive sync…'], ['#btnUndoImport', '↩ Undo the last file import'], ['#impTitle', '⬆ Import backup file'], ['#impMerge', '➕ Merge into existing data (recommended)'], ['#impReplace', '♻ Replace everything with this file'], ['#impCancel', 'Cancel'], ['#impHint', 'Merge keeps your current orders; on a clash the file version wins. You can restore afterwards from the Tools menu.'], ['#syncTitle', '☁ Google Drive sync'], ['#syncCidLbl', 'Google Client ID'], ['#syncClose', 'Close'], ['#btnFixItems', '🧵 Convert old items to item lists…'], ['#btnExport', '⬇ Export backup file'], ['#btnImport', '⬆ Import backup file'],
     ['#btnBkPick', '🛡 Turn on auto backup (pick a folder)…'], ['#btnBkRename', '✏ Change backup folder…'], ['#btnBkNow', '🔄 Back up now'], ['#btnSaveOver', '📄 Overwrite JSON file'], ['#btnHist', '🕘 Version history — restore by date & time…'], ['#btnBkOff', '⏹ Turn off auto backup'],
     ['#btnAdd', '＋ Add schedule'],
     ['.tab[data-tab="day"]', 'Today'], ['.tab[data-tab="week"]', 'Next 7 days'],
-    ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="calc"] .tx', 'Calculator'], ['.tab[data-tab="fx"] .tx', 'Exchange rates'],
+    ['.tab[data-tab="orders"]', 'All orders'], ['#lateTabTxt', 'Late / overdue'], ['.tab[data-tab="fx"] .tx', 'Rates & Calculator'],
     ['#popover', 'Customer details', 'aria-label'], ['#popClose', 'Close', 'aria-label'],
     ['#popEdit', '✎ Edit this order'],
     ['label[for="cAmount"]', 'Subtotal (đ)'], ['#cAmount', '', 'placeholder'],
@@ -3883,14 +3872,21 @@
    - Dữ liệu nhạy cảm trong localStorage (đơn, ghi chú, danh sách khách, token Google) và bản lịch sử trong IndexedDB
      được mã hóa AES-256-GCM, khóa sinh từ mật khẩu bằng PBKDF2-SHA256 (200.000 vòng). Mật khẩu KHÔNG được lưu ở đâu cả.
    - Không có dữ liệu nào đi ra ngoài: web chỉ nói chuyện với Google Drive (nếu bạn bật đồng bộ) và nguồn tỷ giá.
-   */
+   - Chỉnh tên chủ sở hữu ở chân trang: tìm "OWNER_NAME" bên dưới. */
 (function () {
   'use strict';
+  var OWNER_NAME = 'RubyHCMC';
   var AUTOLOCK_MS = 5 * 60 * 1000;          // quay lại web sau 5 phút ở nền → khóa lại
   var META = 'phiphi_lock_v1', PREFIX = 'ENC1:', ITER = 200000, MINLEN = 8;
   var lang = 'vi'; try { lang = localStorage.getItem('phiphi_lang_v1') === 'en' ? 'en' : 'vi'; } catch (e) {}
   var T = function (vi, en) { return lang === 'en' ? en : vi; };
   var $ = function (id) { return document.getElementById(id); };
+
+  // ---- Chân trang bản quyền ----
+  var yr = new Date().getFullYear(), yrs = yr > 2026 ? '2026–' + yr : '2026';
+  window.__ftVi = '© ' + yrs + ' Lịch Làm Việc · Bản quyền thuộc về ' + OWNER_NAME + '. Mọi quyền được bảo lưu.';
+  window.__ftEn = '© ' + yrs + ' Work Schedule · Copyright ' + OWNER_NAME + '. All rights reserved.';
+  if ($('ftTxt')) $('ftTxt').textContent = lang === 'en' ? window.__ftEn : window.__ftVi;
 
   var G = Storage.prototype.getItem, S = Storage.prototype.setItem, R = Storage.prototype.removeItem;
   var subtle = window.crypto && crypto.subtle;
@@ -3960,9 +3956,9 @@
 
   // Nạp dữ liệu đã mã hóa vào bộ nhớ; dữ liệu cũ (chưa mã hóa) được mã hóa tại chỗ, kiểm tra đọc lại rồi mới thay
   async function loadAll() {
-    var ks = sensKeys();
-    await Promise.all(ks.map(async function (k) {
-      var raw = G.call(localStorage, k), blob, back; if (raw == null) return;
+    var ks = sensKeys(), i, k, raw, blob, back;
+    for (i = 0; i < ks.length; i++) {
+      k = ks[i]; raw = G.call(localStorage, k); if (raw == null) continue;
       if (raw.indexOf(PREFIX) === 0) {
         try { cache.set(k, await decS(raw, key)); }
         catch (e) { try { S.call(localStorage, k + '_unreadable_' + Date.now(), raw); } catch (e2) {} }
@@ -3970,7 +3966,7 @@
         cache.set(k, raw);
         try { blob = await encS(raw, key); back = await decS(blob, key); if (back === raw) S.call(localStorage, k, blob); } catch (e) {}
       }
-    }));
+    }
   }
 
   // ---- IndexedDB: lịch sử phiên bản (mã hóa phần data) ----
@@ -4002,13 +3998,20 @@
   async function histEncryptLegacy() { await histRemap(function (d) { return typeof d === 'string' && d.indexOf(PREFIX) !== 0 ? encS(d, key) : d; }); }
 
   // API cho phần app (lịch sử phiên bản)
-  window.__LK = {
-    enc: function (s) { return key ? encS(s, key) : Promise.resolve(s); },
-    dec: function (s) {
-      if (typeof s !== 'string' || s.indexOf(PREFIX) !== 0) return Promise.resolve(s);
-      return key ? decS(s, key).catch(function () { return null; }) : Promise.resolve(null);
+  window.__LK = { enc: function (s) { return Promise.resolve(s); }, dec: function (s) { return Promise.resolve(s); } };
+
+  // Gỡ khóa vĩnh viễn: giải mã toàn bộ dữ liệu đã mã hóa về dạng thường (kiểm tra đủ rồi mới ghi, ghi xong mới xóa mốc khóa)
+  async function migrateOff() {
+    var ks = sensKeys(), out = [], i, raw2, plain;
+    for (i = 0; i < ks.length; i++) {
+      raw2 = G.call(localStorage, ks[i]); if (raw2 == null || raw2.indexOf(PREFIX) !== 0) continue;
+      try { plain = await decS(raw2, key); } catch (e) { continue; }   // mục không giải được (đã hỏng từ trước) thì để nguyên
+      out.push([ks[i], plain]);
     }
-  };
+    out.forEach(function (x) { S.call(localStorage, x[0], x[1]); });
+    await histRemap(function (d) { return typeof d === 'string' && d.indexOf(PREFIX) === 0 ? decS(d, key).catch(function () { return null; }) : d; }).catch(function () {});
+    R.call(localStorage, META);
+  }
 
   // ---- Giao diện khóa ----
   var css = document.createElement('style');
@@ -4034,7 +4037,9 @@
     '.lk-btn{width:100%;padding:13px;font-size:18px;font-weight:700;color:#fff;background:#1a73e8;border:none;border-radius:12px}' +
     '.lk-btn:disabled{opacity:.55}' +
     '.lk-link{margin-top:10px;background:none;border:none;color:#1a73e8;font-size:14.5px;text-decoration:underline;padding:6px}' +
-    '.lk-warn{margin:10px 0 0;padding:9px 10px;font-size:13px;line-height:1.4;color:#7c4a03;background:#fff7e0;border:1px solid #f0dc8a;border-radius:10px;text-align:left}';
+    '.lk-warn{margin:10px 0 0;padding:9px 10px;font-size:13px;line-height:1.4;color:#7c4a03;background:#fff7e0;border:1px solid #f0dc8a;border-radius:10px;text-align:left}' +
+    '.site-foot{max-width:900px;margin:18px auto 0;padding:12px 16px calc(24px + env(safe-area-inset-bottom));text-align:center;font-size:12.5px;color:#64748b}' +
+    '@media(max-width:560px){.site-foot{padding-bottom:96px;font-size:13px}}';
   document.head.appendChild(css);
 
   var scr = document.createElement('div'); scr.id = 'lockScr'; scr.setAttribute('role', 'dialog'); scr.setAttribute('aria-modal', 'true');
@@ -4146,7 +4151,9 @@
             busy = false;
             if (pw !== $('lkPw').value) return;   // bạn vừa gõ thêm/xóa → bỏ kết quả cũ (vòng kiểm tra sau sẽ lo)
             fails = 0;
-            if (!key) { key = k; kgen++; await loadAll(); } else key = k;
+            key = k;
+            try { await migrateOff(); } catch (e2) { key = null; setErr(T('Không gỡ được khóa: ', 'Could not remove the lock: ') + (e2 && e2.message || e2)); return; }
+            key = null;
             try { var oc = +(G.call(localStorage, 'phiphi_lock_offer') || 0); if (oc < 2) { S.call(localStorage, 'phiphi_lock_offer', String(oc + 1)); saveCred(pw); } } catch (e) {}   // 2 lần đầu mời lưu mật khẩu
             fin(true);
           } catch (err) {
@@ -4210,58 +4217,23 @@
   // ---- Khởi động ----
   function startApp() {
     if (started) return; started = true; window.__lkStarted = true;
-    if (key) patchStorage();   // chỉ còn dùng khi chưa gỡ được mã hóa cũ
-    ['btnLockNow', 'btnLockChg'].forEach(function (id) { var b = $(id); if (b) b.style.display = 'none'; });
+    if (key) patchStorage();   // từ đây mọi đọc/ghi dữ liệu nhạy cảm đi qua lớp mã hóa
     var code = $('appcode'); if (!code) return;
     var s = document.createElement('script'); s.text = code.textContent; document.body.appendChild(s);
+    wireMenu();
   }
   function lockNow() {
     if (locked || !started) return;
     try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e) {}
     ui('unlock').catch(function () {});
   }
-  function wireMenu() {
-    var a = $('btnLockNow'), b = $('btnLockChg');
-    if (a) a.onclick = function () { var m = $('menu'); if (m) m.classList.remove('open'); lockNow(); };
-    if (b) b.onclick = function () { var m = $('menu'); if (m) m.classList.remove('open'); if (!locked) ui('change').then(function () { alert(T('✔ Đã đổi mật khẩu.', '✔ Password changed.')); }).catch(function () {}); };
-    var hiddenAt = 0;
-    document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'hidden') hiddenAt = Date.now();
-      else if (hiddenAt && Date.now() - hiddenAt > AUTOLOCK_MS) lockNow();
-      if (document.visibilityState === 'visible') hiddenAt = 0;
-    });
-  }
+  function wireMenu() {}
 
-  if (!subtle || !window.isSecureContext && location.protocol !== 'file:') {   // trình duyệt không hỗ trợ mã hóa → vẫn cho dùng nhưng báo rõ
-    document.documentElement.classList.remove('locked');
-    try { alert(T('⚠ Trình duyệt/địa chỉ này không hỗ trợ khóa và mã hóa. Hãy mở web bằng địa chỉ https (GitHub Pages). Lần này dữ liệu KHÔNG được mã hóa.', '⚠ This browser/address does not support lock and encryption. Open the https address. Data is NOT encrypted this time.')); } catch (e) {}
-    startApp(); return;
-  }
   var raw = null; try { raw = G.call(localStorage, META); } catch (e) {}
-  if (raw) { try { meta = JSON.parse(raw); if (!meta || !meta.salt || !meta.check) meta = null; } catch (e) { meta = null; } }
-  // Đã gỡ khóa: không còn màn hình mật khẩu. Nếu máy này từng đặt mật khẩu (dữ liệu đang mã hóa),
-  // nhập mật khẩu MỘT LẦN cuối để giải mã dữ liệu về dạng thường, rồi từ đó mở thẳng vào app.
-  async function removeLock() {
-    var ok = true, ks = sensKeys(), i, v;
-    for (i = 0; i < ks.length; i++) {
-      v = G.call(localStorage, ks[i]);
-      if (v && v.indexOf(PREFIX) === 0) {
-        try { S.call(localStorage, ks[i], await decS(v, key)); } catch (e) { ok = false; }
-      }
-    }
-    try {
-      await histRemap(function (d) {
-        if (typeof d === 'string' && d.indexOf(PREFIX) === 0) return decS(d, key).catch(function () { ok = false; return d; });
-        return d;
-      });
-    } catch (e) { ok = false; }
-    if (ok) { try { R.call(localStorage, META); } catch (e) {} key = null; kgen++; }
-    else { try { await loadAll(); } catch (e) {} }   // không giải mã hết được → giữ nguyên khóa, tuyệt đối không làm mất dữ liệu
-    return ok;
-  }
-  if (!raw) { document.documentElement.classList.remove('locked'); startApp(); }
-  else ui('unlock').then(removeLock).then(startApp);
-  // Chốt an toàn: nếu vì lỗi gì đó mà không hiện khóa cũng không chạy app → mở app (kèm cảnh báo) thay vì để trắng trang
+  if (raw && subtle) {   // máy này từng đặt mật khẩu: nhập 1 lần để giải mã dữ liệu rồi gỡ khóa vĩnh viễn
+    try { meta = JSON.parse(raw); if (!meta || !meta.salt || !meta.check) meta = null; } catch (e) { meta = null; }
+    if (meta) ui('unlock').then(startApp); else { try { R.call(localStorage, META); } catch (e) {} startApp(); }
+  } else startApp();
   setTimeout(function () { if (!window.__lkStarted && !scr.classList.contains('on')) { document.documentElement.classList.remove('locked'); startApp(); } }, 4000);
 })();
 </script>

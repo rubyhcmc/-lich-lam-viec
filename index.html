@@ -959,6 +959,10 @@
   .col.collapsible.has-next:not(.is-open) .cnext { border-top: none; margin-top: 0; padding-top: 0; }
   @media (max-width: 560px) { .cnext-detail { font-size: 14.5px; padding-left: 62px; } }
 
+  .fxc-push { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding: 8px 12px; border: 1px dashed #9fd3b4; border-radius: 12px; background: #f6fbf8; font-size: 14px; }
+  .fxc-push .fxp-l { display: flex; align-items: center; gap: 8px; flex: 1 1 200px; min-width: 0; cursor: pointer; font-weight: 600; color: #0b6b3a; }
+  .fxc-push input { width: 20px; height: 20px; accent-color: #0f9d58; flex: none; }
+  .fxc-push button { flex: none; white-space: nowrap; }
   /* ===== Tab Tỷ giá & Tính tiền (v6.7): chia bước, dễ nhìn cho khách ===== */
   .fx { background: none; border: none; border-radius: 0; padding: 0; max-width: 1100px; margin: 8px auto 0; }
   .fxseg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; margin-bottom: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
@@ -1117,6 +1121,7 @@
         <label class="fxc-card fxc-sel"><span class="fxc-flag" id="fxToFlag"></span><span class="fxc-txt"><b id="fxToCode"></b><small id="fxToName"></small></span><select id="fxTo" aria-label="Sang"></select></label>
       </div>
       <div class="fxc-card fxc-res"><div class="fx-result" id="fxOut">—</div></div>
+      <div class="fxc-push" id="fxPush" hidden><label class="fxp-l"><input type="checkbox" id="fxPushOn"> <span id="fxPushT"></span></label><button type="button" class="small primary" id="fxGoPay"></button></div>
       <div class="fxc-card fxc-rates" id="fxRates"></div>
       <input type="hidden" id="fxBasis" value="sell">
     </div>
@@ -2958,6 +2963,19 @@
     paneUI();
   });
 
+  /* Tỷ giá -> Tính tiền: đổi ngoại tệ sang VND thì kết quả tự vào máy tính cơ bản và ô Tiền hàng */
+  const FXPUSH_KEY = 'phiphi_fxpush_v1';
+  const fxPushOn = () => { try { return localStorage.getItem(FXPUSH_KEY) !== '0'; } catch (e) { return true; } };
+  function fxPush(v) {
+    if (!fxPushOn() || !isFinite(v) || v <= 0) return;
+    v = Math.round(v);
+    BC.err = false; BC.cur = ''; BC.total = v; BC.op = null; BC.tape = [{ eq: true, v }]; BC.fresh = true;   // như vừa bấm "=": gõ số mới sẽ bắt đầu lại, bấm + − × ÷ sẽ tính tiếp
+    try { bcDraw(); } catch (e) {}
+    const el = $('#cAmount'); if (el) { el.value = new Intl.NumberFormat('vi-VN').format(v); calc(); }
+  }
+  $('#fxPushOn').addEventListener('change', e => { try { localStorage.setItem(FXPUSH_KEY, e.target.checked ? '1' : '0'); } catch (err) {} fxConvert(); });
+  $('#fxGoPay').addEventListener('click', () => { fxPane = 'calc'; try { localStorage.setItem('phiphi_fxpane_v1', 'calc'); } catch (e) {} paneUI(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
   /* ===== MÁY TÍNH CƠ BẢN (cộng tổng tiền nhanh) ===== */
   const BC = { cur: '', total: null, op: null, tape: [], fresh: false, inited: false, err: false };
   const BC_KEYS = [['C', 'clr'], ['⌫', 'fn'], ['%', 'op'], ['÷', 'op'], ['7'], ['8'], ['9'], ['×', 'op'], ['4'], ['5'], ['6'], ['−', 'op'], ['1'], ['2'], ['3'], ['+', 'op'], ['0'], ['000'], [',', 'fn'], ['=', 'eq']];
@@ -3153,6 +3171,8 @@
   }
   function fxConvert() {
     const out = $('#fxOut'), a = fxParseAmt($('#fxAmt').value), f = $('#fxFrom').value, t = $('#fxTo').value;
+    { const box = $('#fxPush'), on = fxPushOn(); box.hidden = !(t === 'VND' && f !== 'VND');
+      $('#fxPushOn').checked = on; $('#fxPushT').textContent = L('Tự chuyển kết quả sang Tính tiền', 'Auto-send the result to Payment'); $('#fxGoPay').textContent = L('Mở Tính tiền ➜', 'Open Payment ➜'); }
     $('#fxHint').textContent = a >= 0 && /[^\d.,\s]/.test($('#fxAmt').value) ? `= ${fxFmt(a)} ${f}` : '';   // chỉ hiện khi gõ chữ tắt (5tr, 500k)
     if (!fxS.data) { out.innerHTML = '—'; return; }
     if (!(a >= 0)) { out.innerHTML = '—'; return; }
@@ -3160,6 +3180,7 @@
     const rf = fxRate(f), rt = fxRate(t), kind = { sell: L('giá bán', 'sell'), cash: L('mua tiền mặt', 'buy cash'), transfer: L('mua CK', 'buy transfer') }[$('#fxBasis').value];
     if (!rf || !rt) { out.innerHTML = L('Ngân hàng không niêm yết giá cho loại này', 'No rate listed for this currency'); return; }
     const vnd = a * rf, res = vnd / rt;
+    if (t === 'VND' && f !== 'VND') fxPush(res);
     out.innerHTML = `${fxFmt(res, t === 'VND' ? 0 : 2)} ${t}<small>${f === 'VND' ? '' : `1 ${f} = ${fxFmt(rf, 2)} đ (${kind})`}${f !== 'VND' && t !== 'VND' ? ' · ' : ''}${t === 'VND' ? '' : `1 ${t} = ${fxFmt(rt, 2)} đ (${kind})`}</small>`;
   }
   function fxUI() {

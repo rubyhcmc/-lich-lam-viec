@@ -2890,6 +2890,14 @@
   const bcFmt = n => n.toLocaleString('vi-VN', { maximumFractionDigits: 8 });
   const bcTyped = t => { if (t === '') return '0'; const [i, d] = t.split(','); const ii = Number(i === '' ? '0' : i).toLocaleString('vi-VN'); return d === undefined ? ii : ii + ',' + d; };
   function bcApply(a, op, b) { return op === '+' ? a + b : op === '−' ? a - b : op === '×' ? a * b : op === '÷' ? (b === 0 ? NaN : a / b) : b; }
+  // Bấm = trên máy tính cơ bản: đưa kết quả sang ô "Tiền hàng" của phần tính tiền thanh toán
+  function bcToAmount(n) {
+    const el = $('#cAmount'); if (!el || !isFinite(n)) return;
+    const v = Math.max(0, Math.round(n));
+    el.value = v ? new Intl.NumberFormat('vi-VN').format(v) : '';
+    calc();
+    toast(L('✔ Đã chuyển ', '✔ Sent ') + vnd(v) + L(' vào ô Tiền hàng', ' to Subtotal'));
+  }
   function bcReset() { BC.cur = ''; BC.total = null; BC.op = null; BC.tape = []; BC.fresh = false; BC.err = false; }
   function bcPress(k) {
     if (BC.err) bcReset();
@@ -2925,6 +2933,7 @@
         if (!isFinite(r)) { bcReset(); BC.err = true; return bcDraw(); }
         BC.tape.push({ o: BC.op, v }); BC.total = bcRound(r); BC.tape.push({ eq: true, v: BC.total });
         BC.op = null; BC.cur = ''; BC.fresh = true;
+        bcToAmount(BC.total);
       }
     }
     bcDraw();
